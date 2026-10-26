@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import { ConsumedIcon, DecreaseIcon, IncreaseIcon, RecycledIcon, UpdatedIcon } from '@icons';
 
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
+import { useFormTracking } from '~/components/common/useUsageTracking';
 import { useLabels } from '~/lib/hooks/useLabels';
 
 import './AmountVariantRow.css';
@@ -24,6 +25,7 @@ const ICONS: Record<VariantEditType, React.ReactNode> = {
 };
 
 export function AmountVariantRow({ type, delta, minDelta, onChange }: VariantEditRowProps) {
+    const usage = useFormTracking('amount');
     const _ = useLabels();
     const isUpdated = type === 'updated';
 
@@ -78,6 +80,7 @@ export function AmountVariantRow({ type, delta, minDelta, onChange }: VariantEdi
             <NumberInput
                 value={delta}
                 onChange={handleChange}
+                onBlur={() => usage.field('amount', delta !== 0)}
                 onKeyDown={handleKeyDown}
                 onFocus={(e) => e.target.select()}
                 aria-label={type}

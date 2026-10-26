@@ -16,7 +16,7 @@ export interface PullToRefreshState {
 export function usePullToRefresh(): PullToRefreshState {
     const mainRef = useRef<HTMLElement>(null);
     const viewportRef = useRef<HTMLDivElement | null>(null);
-    const refreshAll = useRefreshAll();
+    const refreshAll = useRefreshAll('pull_to_refresh');
 
     const [distance, setDistance] = useState(0);
     const [refreshing, setRefreshing] = useState(false);

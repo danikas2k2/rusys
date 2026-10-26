@@ -7,6 +7,7 @@ import { ApplyIcon, CancelIcon, ReviewIcon } from '@icons';
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
+import { useDialogTracking } from '~/components/common/useUsageTracking';
 import { ToolbarFilter } from '~/components/toolbar/ToolbarFilter';
 import { CategoryRailLayout } from '~/features/filters/CategoryRailLayout';
 import { useSortedGroups } from '~/features/groups/hooks/useSortedGroups';
@@ -14,6 +15,7 @@ import { useApplyReview } from '~/features/products/hooks/useApplyReview';
 import { useGroupsWithReviewProducts } from '~/features/review/hooks/useGroupsWithReviewProducts';
 import { ReviewTable } from '~/features/review/ReviewTable';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { getId } from '~/lib/utils/id';
 import { useProducts } from '~/store/products';
 
@@ -26,6 +28,7 @@ export interface ReviewBoxProps {
 }
 
 export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxProps) {
+    useDialogTracking('review', opened);
     const _ = useLabels();
     const reviewGroups = useSortedGroups().filter((g) => g.review);
     const groupsWithReviewProducts = useGroupsWithReviewProducts();
@@ -49,6 +52,7 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
 
     const handleToggle = useCallback(
         (key: string, checked: boolean) => {
+            trackFaroEvent('checkbox_changed', { control: 'review_item', state: checked ? 'checked' : 'unchecked' });
             setTouchedGroups((prev) => (prev.has(selectedGroup) ? prev : new Set(prev).add(selectedGroup)));
             setCheckedKeys((prev) => {
                 const next = new Set(prev);
@@ -66,6 +70,7 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
     // Marks the current group as touched and sets all of its given keys to `checked` in one go
     const handleSelectAllInGroup = useCallback(
         (keys: readonly string[], checked: boolean) => {
+            trackFaroEvent('checkbox_changed', { control: 'review_all', state: checked ? 'checked' : 'unchecked' });
             setTouchedGroups((prev) => new Set(prev).add(selectedGroup));
             setCheckedKeys((prev) => {
                 const next = new Set(prev);
@@ -94,6 +99,7 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
     );
 
     const handleApply = useCallback(async () => {
+        trackFaroEvent('form_submitted', { form: 'review' });
         const reviewGroupNames = new Set(reviewGroups.map((g) => g.group));
         const updates = products
             .filter((p) => touchedGroups.has(p.group) && reviewGroupNames.has(p.group) && !isEmpty(p.years))
@@ -104,7 +110,13 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
                 }
                 return acc;
             }, []);
-        await applyReview({ updates });
+        try {
+            await applyReview({ updates });
+            trackFaroEvent('form_result', { form: 'review', result: 'success' });
+        } catch (error) {
+            trackFaroEvent('form_result', { form: 'review', result: 'error' });
+            throw error;
+        }
         onClose?.();
     }, [reviewGroups, products, touchedGroups, checkedKeys, applyReview, onClose]);
 

@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { runProductMutation } from '~/lib/productMutationQueue';
 import { getErrorMessage } from '~/lib/utils/errors';
 import type { Product, SetProductRemoving } from '~/schema';
@@ -39,8 +40,11 @@ export function useSetProductRemoving(): (request: SetProductRemoving) => Promis
                 );
 
                 try {
+                    trackFaroEvent('data_action', { entity: 'product', action: 'set_removing', result: 'started' });
                     await setProductRemovingAction(request);
+                    trackFaroEvent('data_action', { entity: 'product', action: 'set_removing', result: 'success' });
                 } catch (error) {
+                    trackFaroEvent('data_action', { entity: 'product', action: 'set_removing', result: 'error' });
                     client.setQueryData<readonly Product[]>(CATALOG_KEYS.products, (products) =>
                         products?.map((product) =>
                             product.group === group && product.name === name

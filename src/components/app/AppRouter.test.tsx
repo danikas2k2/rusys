@@ -3,7 +3,9 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { AppRouter } from '~/components/app/AppRouter';
+import { trackFaroEvent } from '~/lib/observability/faro';
 
+vi.mock(import('~/lib/observability/faro'), () => ({ trackFaroEvent: vi.fn() }));
 vi.mock(import('~/store/groups/useGroups'), () => ({ useGroups: () => [] }));
 
 vi.mock(import('~/features/products/ProductsPage'), () => ({
@@ -20,11 +22,14 @@ vi.mock(import('~/features/variants/VariantsPage'), () => ({
 }));
 
 describe('appRouter component', () => {
+    afterEach(() => vi.clearAllMocks());
+
     it('renders GroupsPage at route /categories', () => {
         window.history.pushState({}, '', '/categories');
         render(<AppRouter />);
 
         expect(screen.getByText('GroupsPage')).toBeInTheDocument();
+        expect(trackFaroEvent).toHaveBeenCalledExactlyOnceWith('navigation', { page: 'categories' });
     });
 
     it('renders VariantsPage at route /variants', () => {
@@ -56,5 +61,6 @@ describe('appRouter component', () => {
         render(<AppRouter />);
 
         expect(screen.getByText('ProductsPage')).toBeInTheDocument();
+        expect(trackFaroEvent).not.toHaveBeenCalled();
     });
 });

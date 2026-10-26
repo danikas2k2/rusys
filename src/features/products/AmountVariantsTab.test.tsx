@@ -2,16 +2,21 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import user from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
-import { Select } from '@mantine/core';
+import { Button, Select } from '@mantine/core';
+import type * as Mantine from '@mantine/core';
 import React from 'react';
 
 import { AmountVariantRow } from '~/features/products/AmountVariantRow';
 import { AmountVariantsTab } from '~/features/products/AmountVariantsTab';
+import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { useRedoProduct } from '~/features/products/hooks/useRedoProduct';
+import type * as SubmissionHooks from '~/features/products/hooks/useSetAmounts';
 import { useSetAmounts } from '~/features/products/hooks/useSetAmounts';
 import { useUndoProduct } from '~/features/products/hooks/useUndoProduct';
 import { VariantBox } from '~/features/variants/VariantBox';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import type { ProductAmounts } from '~/schema';
+import { setAmountsAction } from '~/server/actions/products';
 import { useProducts } from '~/store/products';
 import { useGroupVariantNames } from '~/store/variants';
 
@@ -45,9 +50,10 @@ vi.mock(import('~/features/variants/VariantBox'), () => ({
 }));
 
 vi.mock(import('@mantine/core'), async () => {
-    const actual = await vi.importActual('@mantine/core');
+    const actual = await vi.importActual<typeof Mantine>('@mantine/core');
     return {
         ...actual,
+        Button: vi.fn((props: React.ComponentProps<typeof actual.Button>) => <actual.Button {...props} />),
         Select: vi.fn(({ placeholder, data, onChange, renderOption }: any) => (
             <>
                 <select
@@ -166,6 +172,13 @@ vi.mock(import('~/features/products/hooks/useRedoProduct'), () => ({
 
 vi.mock(import('~/features/products/hooks/useSetVariantImage'), () => ({
     useSetVariantImage: vi.fn(() => vi.fn()),
+}));
+
+vi.mock(import('~/lib/observability/faro'), () => ({ trackFaroEvent: vi.fn() }));
+vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProducts: vi.fn() }));
+vi.mock(import('~/server/actions/products'), () => ({
+    applyReviewAction: vi.fn(),
+    setAmountsAction: vi.fn(),
 }));
 
 describe('<AmountVariantsTab>', () => {
@@ -823,6 +836,95 @@ describe('<AmountVariantsTab>', () => {
         await user.click(screen.getByRole('button', { name: /^cancel$/i }));
 
         expect(dButton).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    describe('amount submission telemetry', () => {
+        const refresh = vi.fn();
+
+        beforeEach(async () => {
+            const actual = await vi.importActual<typeof SubmissionHooks>('./hooks/useSetAmounts');
+            vi.mocked(useSetAmounts).mockImplementation(actual.useSetAmounts);
+            vi.mocked(useGetProducts).mockReturnValue(refresh);
+            vi.mocked(setAmountsAction).mockResolvedValue(undefined);
+            refresh.mockReset().mockResolvedValue(undefined);
+        });
+
+        async function prepareUpdate() {
+            await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+            await user.click(screen.getAllByText('decrease-updated')[0]);
+            const buttonProps = vi
+                .mocked(Button)
+                .mock.calls.findLast(
+                    ([props]) =>
+                        React.isValidElement<{ children: string }>(props.children) &&
+                        props.children.props.children === 'Update'
+                )![0];
+            return buttonProps.onClick as unknown as () => Promise<void>;
+        }
+
+        it('records completion after persistence and refresh succeed', async () => {
+            const onClose = vi.fn();
+            renderTab(baseActive, undefined, onClose);
+            const submit = await prepareUpdate();
+            vi.mocked(trackFaroEvent).mockClear();
+
+            await act(async () => {
+                await submit();
+            });
+
+            expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
+                ['form_submitted', { form: 'amount' }],
+                ['data_action', { entity: 'stock', action: 'set_amounts', result: 'started' }],
+                ['data_action', { entity: 'stock', action: 'set_amounts', result: 'success' }],
+                ['form_result', { form: 'amount', result: 'success' }],
+            ]);
+            expect(onClose).toHaveBeenCalledExactlyOnceWith();
+        });
+
+        it.each(['write', 'refresh'] as const)(
+            'records form failure on %s rejection and preserves the error',
+            async (stage) => {
+                const failure = new Error('private details');
+                const onClose = vi.fn();
+                const operation = { write: vi.mocked(setAmountsAction), refresh }[stage];
+                operation.mockRejectedValueOnce(failure);
+                renderTab(baseActive, undefined, onClose);
+                const submit = await prepareUpdate();
+                vi.mocked(trackFaroEvent).mockClear();
+
+                await act(async () => {
+                    await expect(submit()).rejects.toBe(failure);
+                });
+
+                expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
+                    ['form_submitted', { form: 'amount' }],
+                    ['data_action', { entity: 'stock', action: 'set_amounts', result: 'started' }],
+                    [
+                        'data_action',
+                        { entity: 'stock', action: 'set_amounts', result: stage === 'write' ? 'error' : 'success' },
+                    ],
+                    ['form_result', { form: 'amount', result: 'error' }],
+                ]);
+                expect(onClose).not.toHaveBeenCalled();
+                expect(screen.getByRole('button', { name: /^update$/i })).toBeEnabled();
+            }
+        );
+
+        it('does not submit or record completion without active data', async () => {
+            render(
+                <MockThemeActive>
+                    <AmountVariantsTab />
+                </MockThemeActive>
+            );
+            await user.selectOptions(screen.getByRole('combobox'), 'd');
+            // Selecting an extra variant expands it even without an active product.
+            await user.click(screen.getAllByText('decrease-updated')[0]);
+            vi.mocked(trackFaroEvent).mockClear();
+            await user.click(screen.getByRole('button', { name: /^update$/i }));
+
+            expect(trackFaroEvent).not.toHaveBeenCalled();
+            expect(setAmountsAction).not.toHaveBeenCalled();
+        });
     });
 });
 

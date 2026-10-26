@@ -24,6 +24,7 @@ export function ActiveExportBox() {
 
     return (
         <ConfirmationDialog
+            telemetryDialog="export"
             opened={opened}
             onClose={handleClose}
             onConfirm={handleConfirm}

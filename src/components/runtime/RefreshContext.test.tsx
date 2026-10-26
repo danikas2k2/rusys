@@ -3,6 +3,9 @@ import { act, render } from '@testing-library/react';
 import React from 'react';
 
 import { RefreshProvider, useRefreshAll, useRegisterRefresh } from '~/components/runtime/RefreshContext';
+import { trackFaroEvent } from '~/lib/observability/faro';
+
+vi.mock(import('~/lib/observability/faro'));
 
 function Registrar({ fn }: { fn: () => Promise<unknown> }) {
     useRegisterRefresh(fn);
@@ -16,11 +19,14 @@ function Trigger({ onReady }: { onReady: (refreshAll: () => Promise<void>) => vo
 }
 
 describe('refreshContext', () => {
+    afterEach(() => vi.clearAllMocks());
+
     it('resolves without error when useRefreshAll is called outside a RefreshProvider', async () => {
         let refreshAll: (() => Promise<void>) | undefined;
         render(<Trigger onReady={(fn) => (refreshAll = fn)} />);
 
         await expect(refreshAll!()).resolves.toBeUndefined();
+        expect(trackFaroEvent).not.toHaveBeenCalled();
     });
 
     it('does not throw when useRegisterRefresh is called outside a RefreshProvider', () => {
@@ -43,6 +49,10 @@ describe('refreshContext', () => {
         await act(() => refreshAll!());
 
         expect(fn).toHaveBeenCalledTimes(1);
+        expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
+            ['refresh', { source: 'toolbar', result: 'started' }],
+            ['refresh', { source: 'toolbar', result: 'success' }],
+        ]);
     });
 
     it('calls every registered refresh function', async () => {
@@ -122,5 +132,22 @@ describe('refreshContext', () => {
         });
 
         expect(settled).toBe(true);
+    });
+
+    it('reports refresh failure without forwarding the error message as telemetry', async () => {
+        const fn = vi.fn().mockRejectedValue(new Error('private resource'));
+        let refreshAll: (() => Promise<void>) | undefined;
+        render(
+            <RefreshProvider>
+                <Registrar fn={fn} />
+                <Trigger onReady={(f) => (refreshAll = f)} />
+            </RefreshProvider>
+        );
+
+        await expect(refreshAll!()).rejects.toThrow('private resource');
+        expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
+            ['refresh', { source: 'toolbar', result: 'started' }],
+            ['refresh', { source: 'toolbar', result: 'error' }],
+        ]);
     });
 });

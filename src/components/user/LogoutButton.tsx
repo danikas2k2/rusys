@@ -13,6 +13,7 @@ import { Label } from '~/components/common/Label';
 import { useResetProfile } from '~/components/user/hooks/useResetProfile';
 import { ProfileAvatar } from '~/components/user/ProfileAvatar';
 import { useLabel } from '~/lib/hooks/useLabel';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { logout } from '~/server/actions/auth';
 import { useProfile } from '~/store/profile';
 
@@ -24,11 +25,18 @@ export function LogoutButton({ children }: React.PropsWithChildren): React.React
     const resetProfile = useResetProfile();
 
     const handleConfirm = useCallback(async () => {
-        await clearOfflineData();
-        await logout();
-        resetProfile();
-        googleLogout();
-        router.refresh();
+        trackFaroEvent('auth', { action: 'logout', result: 'started' });
+        try {
+            await clearOfflineData();
+            await logout();
+            resetProfile();
+            googleLogout();
+            router.refresh();
+            trackFaroEvent('auth', { action: 'logout', result: 'success' });
+        } catch (error) {
+            trackFaroEvent('auth', { action: 'logout', result: 'error' });
+            throw error;
+        }
     }, [resetProfile, router]);
 
     return (
@@ -38,6 +46,7 @@ export function LogoutButton({ children }: React.PropsWithChildren): React.React
             </ActionIcon>
 
             <ConfirmationDialog
+                telemetryDialog="logout"
                 opened={opened}
                 title={
                     <>

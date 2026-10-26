@@ -1,6 +1,8 @@
 import { noop } from 'lodash';
 import React, { createContext, use, useCallback, useSyncExternalStore } from 'react';
 
+import { trackFaroEvent } from '~/lib/observability/faro';
+
 export type AmountView = 'detailed' | 'total';
 
 const STORAGE_KEY = 'amountView';
@@ -29,7 +31,11 @@ export function AmountViewWrapper({ children }: React.PropsWithChildren) {
     const amountView = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
     const setAndPersist = useCallback((v: AmountView) => {
+        if (getSnapshot() === v) {
+            return;
+        }
         localStorage.setItem(STORAGE_KEY, v);
+        trackFaroEvent('view_changed', { view: v });
         window.dispatchEvent(new Event(CHANGE_EVENT));
     }, []);
 

@@ -8,6 +8,7 @@ import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
+import { useDialogTracking, useFormTracking } from '~/components/common/useUsageTracking';
 import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
 import { CategoryOption } from '~/features/filters/CategoryOption';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
@@ -16,6 +17,7 @@ import { useCopyVariant } from '~/features/variants/hooks/useCopyVariant';
 import { useRenameVariant } from '~/features/variants/hooks/useRenameVariant';
 import { useUpdateVariant } from '~/features/variants/hooks/useUpdateVariant';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { deriveVariantKey } from '~/lib/utils/deriveVariantKey';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { equals } from '~/lib/utils/names';
@@ -67,6 +69,7 @@ export function VariantBox({
     const isEditing = !!initialGroup && !!initialVariant;
     const isCopying = isEditing && filterGroup && filterGroup !== initialGroup;
 
+    useDialogTracking('variant', !!opened);
     const _ = useLabels();
     const allGroups = useGroups();
     const groups = allGroups.map((g) => g.group);
@@ -112,6 +115,7 @@ export function VariantBox({
         },
     });
 
+    const usage = useFormTracking('variant', !!opened);
     const formRef = useRef(form);
     useLayoutEffect(() => {
         formRef.current = form;
@@ -175,9 +179,15 @@ export function VariantBox({
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
+        trackFaroEvent('form_submitted', { form: 'variant' });
 
         const validation = form.validate();
         if (validation.hasErrors) {
+            for (const field of ['group', 'name', 'count', 'units', 'suffix'] as const) {
+                if (validation.errors[field]) {
+                    trackFaroEvent('form_validation_failed', { form: 'variant', field });
+                }
+            }
             if (validation.errors.group) {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 groupRef.current?.focus();
@@ -235,8 +245,10 @@ export function VariantBox({
             } else if (!isEditing || suffixChanged || countChanged || unitsChanged || nameChanged) {
                 await updateVariant({ group: values.group, variant: effectiveVariant, ...update });
             }
+            trackFaroEvent('form_result', { form: 'variant', result: 'success' });
             onClose(values.group, effectiveVariant);
         } catch (error) {
+            trackFaroEvent('form_result', { form: 'variant', result: 'error' });
             form.setFieldError('name', getErrorMessage(error));
             // istanbul ignore next - ref.current is always assigned in React Testing Library
             nameRef.current?.focus();
@@ -318,6 +330,10 @@ export function VariantBox({
                                 disabled={loading}
                                 searchable
                                 {...form.getInputProps('group')}
+                                onBlur={() => {
+                                    form.getInputProps('group').onBlur();
+                                    usage.field('group', form.isDirty('group'));
+                                }}
                                 error={typeof form.errors.group === 'string' ? _(form.errors.group) : form.errors.group}
                                 onChange={(value) =>
                                     value === NEW_CATEGORY_VALUE
@@ -333,6 +349,10 @@ export function VariantBox({
                                 disabled={loading}
                                 withAsterisk={showNameAsterisk}
                                 {...form.getInputProps('name')}
+                                onBlur={() => {
+                                    form.getInputProps('name').onBlur();
+                                    usage.field('name', form.isDirty('name'));
+                                }}
                                 error={typeof form.errors.name === 'string' ? _(form.errors.name) : form.errors.name}
                             />
                             <Group align="flex-start" grow>
@@ -344,6 +364,10 @@ export function VariantBox({
                                     disabled={loading}
                                     withAsterisk={showCountAsterisk}
                                     {...form.getInputProps('count')}
+                                    onBlur={() => {
+                                        form.getInputProps('count').onBlur();
+                                        usage.field('count', form.isDirty('count'));
+                                    }}
                                     error={
                                         typeof form.errors.count === 'string' ? _(form.errors.count) : form.errors.count
                                     }
@@ -357,6 +381,10 @@ export function VariantBox({
                                     searchable
                                     allowDeselect={false}
                                     {...form.getInputProps('units')}
+                                    onBlur={() => {
+                                        form.getInputProps('units').onBlur();
+                                        usage.field('units', form.isDirty('units'));
+                                    }}
                                 />
                             </Group>
                             <TextInput
@@ -364,6 +392,10 @@ export function VariantBox({
                                 placeholder={_('Enter suffix')}
                                 disabled={loading}
                                 {...form.getInputProps('suffix')}
+                                onBlur={() => {
+                                    form.getInputProps('suffix').onBlur();
+                                    usage.field('suffix', form.isDirty('suffix'));
+                                }}
                             />
                             <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
                                 {isEditing && onDelete && (

@@ -17,9 +17,11 @@ import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
 import { UploadProgressBar } from '~/components/common/UploadProgressBar';
+import { useDialogTracking } from '~/components/common/useUsageTracking';
 import { useImportHandler } from '~/lib/hooks/useImportHandler';
 import { useLabel } from '~/lib/hooks/useLabel';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { SchemaError } from '~/schema';
 
@@ -33,6 +35,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
     const [file, setFile] = useState<FileWithPath | null>(null);
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState<number>();
+    useDialogTracking('import', opened);
     const _ = useLabels();
 
     const router = useRouter();
@@ -40,16 +43,19 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
 
     const handleDrop = useCallback((files: FileWithPath[]) => {
         if (files.length > 0) {
+            trackFaroEvent('form_field_changed', { form: 'import', field: 'file' });
             setFile(files[0]);
             setError(undefined);
         }
     }, []);
 
     const handleReject = useCallback(() => {
+        trackFaroEvent('form_validation_failed', { form: 'import', field: 'file' });
         setError(SchemaError.InvalidZipFile);
     }, []);
 
     const handleSubmit = useCallback(async () => {
+        trackFaroEvent('form_submitted', { form: 'import' });
         setLoading(true);
         setError(undefined);
         setProgress(0);
@@ -59,11 +65,13 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
 
         try {
             await handleImport(formData, setProgress);
+            trackFaroEvent('form_result', { form: 'import', result: 'success' });
             setFile(null);
             onClose();
             // Reload current page after successful import
             router.refresh();
         } catch (cause) {
+            trackFaroEvent('form_result', { form: 'import', result: 'error' });
             const message = getErrorMessage(cause);
             setError(message === SchemaError.Unknown ? SchemaError.ImportFailed : message);
         } finally {

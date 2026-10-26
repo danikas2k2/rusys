@@ -8,8 +8,10 @@ import React from 'react';
 
 import { useResetProfile } from '~/components/user/hooks/useResetProfile';
 import { LogoutButton } from '~/components/user/LogoutButton';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { logout } from '~/server/actions/auth';
 
+vi.mock(import('~/lib/observability/faro'), () => ({ trackFaroEvent: vi.fn() }));
 vi.mock(import('@react-oauth/google'), () => ({
     googleLogout: vi.fn(),
 }));
@@ -78,5 +80,24 @@ describe('<LogoutButton>', () => {
         expect(resetProfile).toHaveBeenCalledWith();
         expect(logout).toHaveBeenCalledWith();
         expect(refresh).toHaveBeenCalledWith();
+        expect(trackFaroEvent).toHaveBeenCalledWith('auth', { action: 'logout', result: 'started' });
+        expect(trackFaroEvent).toHaveBeenCalledWith('auth', { action: 'logout', result: 'success' });
+    });
+
+    it('records logout failure while preserving the confirmation error flow', async () => {
+        vi.mocked(logout).mockRejectedValueOnce(new Error('private error detail'));
+        render(
+            <MockThemeData>
+                <LogoutButton />
+            </MockThemeData>
+        );
+        await user.click(screen.getByRole('button', { name: 'Logout' }));
+        await user.click(await within(screen.getByRole('alertdialog')).findByRole('button', { name: 'Logout' }));
+
+        expect(trackFaroEvent).toHaveBeenCalledWith('auth', { action: 'logout', result: 'error' });
+        expect(trackFaroEvent).not.toHaveBeenCalledWith('auth', { action: 'logout', result: 'success' });
+        expect(resetProfile).not.toHaveBeenCalled();
+        expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+        expect(JSON.stringify(vi.mocked(trackFaroEvent).mock.calls)).not.toContain('private error detail');
     });
 });

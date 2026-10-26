@@ -6,6 +6,7 @@ import { AddExpiryIcon, HomeIcon, SuspiciousIcon } from '@icons';
 
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
+import { useDialogTracking, useFormTracking } from '~/components/common/useUsageTracking';
 import { AmountVariantRow, type VariantEditType } from '~/features/products/AmountVariantRow';
 import { useLabels } from '~/lib/hooks/useLabels';
 
@@ -40,6 +41,8 @@ export function AmountExpanded({
 }: VariantExpandedRowsProps) {
     const _ = useLabels();
     const [expiryPickerOpened, setExpiryPickerOpened] = useState(false);
+    useDialogTracking('expiry_picker', expiryPickerOpened);
+    const usage = useFormTracking('amount');
     const [expiryPickerDate, setExpiryPickerDate] = useState<DateStringValue>();
     const [expiryYearsRange, setExpiryYearsRange] = useState<[number, number]>(() => {
         const currentYear = new Date().getFullYear();
@@ -74,6 +77,7 @@ export function AmountExpanded({
                 placeholder={_('Comment')}
                 value={comment}
                 onChange={(e) => onCommentChange(e.target.value)}
+                onBlur={() => usage.field('comment', comment !== '')}
                 autosize
                 minRows={1}
                 maxRows={3}

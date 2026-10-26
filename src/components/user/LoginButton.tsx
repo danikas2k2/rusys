@@ -7,12 +7,26 @@ import { GoogleLoginIcon } from '@icons';
 import { Label } from '~/components/common/Label';
 import { useLoginError } from '~/components/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/components/user/hooks/useLoginSuccess';
+import { trackFaroEvent } from '~/lib/observability/faro';
 
 import './LoginButton.css';
 
 export function LoginButton() {
-    const onError = useLoginError();
-    const onSuccess = useLoginSuccess(onError);
+    const resetOnError = useLoginError();
+    const onError = useCallback(() => {
+        trackFaroEvent('auth', { action: 'login', result: 'error' });
+        resetOnError();
+    }, [resetOnError]);
+    const loginSuccess = useLoginSuccess(onError);
+    const onSuccess = useCallback(
+        async (response: Parameters<typeof loginSuccess>[0]) => {
+            const success = await loginSuccess(response);
+            if (success) {
+                trackFaroEvent('auth', { action: 'login', result: 'success' });
+            }
+        },
+        [loginSuccess]
+    );
 
     const loginOptions = useMemo(
         () => ({
@@ -26,7 +40,10 @@ export function LoginButton() {
     useGoogleOneTapLogin(loginOptions);
     const login = useGoogleLogin(loginOptions);
 
-    const handleClick = useCallback(() => login(), [login]);
+    const handleClick = useCallback(() => {
+        trackFaroEvent('auth', { action: 'login', result: 'started' });
+        login();
+    }, [login]);
 
     return (
         <Button size="lg" color="primary" variant="outline" onClick={handleClick} data-action="login">

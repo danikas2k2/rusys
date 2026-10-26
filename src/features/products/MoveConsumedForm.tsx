@@ -7,7 +7,9 @@ import { DecreaseIcon, IncreaseIcon, RecycledIcon } from '@icons';
 import { VariantAvatar } from '~/components/amounts/VariantAvatar';
 import { VariantTitle } from '~/components/amounts/VariantTitle';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
+import { useFormTracking } from '~/components/common/useUsageTracking';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { consumedAmountSchema, type ConsumedAmount, type VariantAmount } from '~/schema';
 import { useGroupVariantComparator } from '~/store/variants';
 
@@ -21,6 +23,7 @@ interface MoveConsumedFormProps {
 }
 
 export function MoveConsumedForm({ group, lines, onMove, disabled = false }: MoveConsumedFormProps) {
+    const usage = useFormTracking('move_consumed');
     const _ = useLabels();
     const compareVariants = useGroupVariantComparator(group);
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -41,6 +44,7 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
 
     const handleSelectChange = useCallback(
         (value: string | null) => {
+            trackFaroEvent('form_field_changed', { form: 'move_consumed', field: 'variant' });
             setSelectedIndex(value ? Number(value) : 0);
             setAmount('amount', 0);
         },
@@ -81,7 +85,12 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
     }
 
     return (
-        <form onSubmit={form.onSubmit(handleMove)}>
+        <form
+            onSubmitCapture={() => trackFaroEvent('form_submitted', { form: 'move_consumed' })}
+            onSubmit={form.onSubmit(handleMove, () =>
+                trackFaroEvent('form_validation_failed', { form: 'move_consumed', field: 'amount' })
+            )}
+        >
             <Flex className="move-consumed-form" align="center" gap="sm" wrap="wrap">
                 {sortedLines.length > 1 ? (
                     <Select
@@ -110,6 +119,7 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
                 <NumberInput
                     value={amount}
                     onChange={handleChange}
+                    onBlur={() => usage.field('amount', form.isDirty('amount'))}
                     onFocus={(e) => e.target.select()}
                     aria-label="amount"
                     allowNegative={false}

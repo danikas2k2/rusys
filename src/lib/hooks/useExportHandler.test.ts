@@ -1,11 +1,13 @@
 import { renderHook } from '@testing-library/react';
 
 import { useExport } from '~/lib/hooks/useExport';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { download } from '~/lib/utils/download';
 import { useExportHandler } from './useExportHandler';
 
 vi.mock(import('~/lib/utils/download'));
 vi.mock(import('~/lib/hooks/useExport'));
+vi.mock(import('~/lib/observability/faro'));
 
 describe('useExportHandler', () => {
     afterEach(() => vi.clearAllMocks());
@@ -27,6 +29,12 @@ describe('useExportHandler', () => {
 
         expect(mockHandle).toHaveBeenCalledWith();
         expect(download).toHaveBeenCalledWith(blob, '2024-01-15.zip');
+        expect(trackFaroEvent).toHaveBeenCalledWith('export_started');
+        expect(trackFaroEvent).toHaveBeenLastCalledWith('data_action', {
+            entity: 'archive',
+            action: 'export',
+            result: 'success',
+        });
     });
 
     it('propagates the error when the request fails', async () => {
@@ -37,5 +45,10 @@ describe('useExportHandler', () => {
 
         await expect(result.current()).rejects.toThrow('Request failed');
         expect(download).not.toHaveBeenCalled();
+        expect(trackFaroEvent).toHaveBeenLastCalledWith('data_action', {
+            entity: 'archive',
+            action: 'export',
+            result: 'error',
+        });
     });
 });

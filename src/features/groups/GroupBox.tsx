@@ -8,10 +8,12 @@ import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
+import { useDialogTracking, useFormTracking } from '~/components/common/useUsageTracking';
 import { ImageDropzone } from '~/components/images/ImageDropzone';
 import { useRenameGroup } from '~/features/groups/hooks/useRenameGroup';
 import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { equals } from '~/lib/utils/names';
 import { SchemaError, updateGroupSchema, type GroupIdentity } from '~/schema';
@@ -44,6 +46,7 @@ export function GroupBox({
 }: GroupBoxProps) {
     const isEditing = !!initialGroup;
 
+    useDialogTracking('group', !!opened);
     const _ = useLabels();
     const groups = useGroups();
 
@@ -63,6 +66,7 @@ export function GroupBox({
         ),
     });
 
+    const usage = useFormTracking('group', !!opened);
     const formRef = useRef(form);
     useLayoutEffect(() => {
         formRef.current = form;
@@ -92,10 +96,12 @@ export function GroupBox({
     }, [opened, initialGroup, initialAnnual, initialReview, initialImage]);
 
     const handleImageDrop = useCallback((dataUrl: string) => {
+        trackFaroEvent('form_field_changed', { form: 'group', field: 'image' });
         formRef.current.setFieldValue('image', dataUrl);
     }, []);
 
     const handleImageRemove = useCallback(() => {
+        trackFaroEvent('form_field_changed', { form: 'group', field: 'image' });
         formRef.current.setFieldValue('image', '');
     }, []);
 
@@ -111,9 +117,15 @@ export function GroupBox({
     const renameGroup = useRenameGroup();
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
+        trackFaroEvent('form_submitted', { form: 'group' });
 
         const validation = form.validate();
         if (validation.hasErrors) {
+            for (const field of ['group', 'annual', 'review', 'image'] as const) {
+                if (validation.errors[field]) {
+                    trackFaroEvent('form_validation_failed', { form: 'group', field });
+                }
+            }
             // Focus first invalid field
             // istanbul ignore next - ref.current is always assigned in React Testing Library
             inputRef.current?.focus();
@@ -166,8 +178,10 @@ export function GroupBox({
                     await updateGroup(values);
                 }
             }
+            trackFaroEvent('form_result', { form: 'group', result: 'success' });
             onClose(values.group);
         } catch (error) {
+            trackFaroEvent('form_result', { form: 'group', result: 'error' });
             form.setFieldError('group', getErrorMessage(error));
             // istanbul ignore next - ref.current is always assigned in React Testing Library
             inputRef.current?.focus();
@@ -207,6 +221,10 @@ export function GroupBox({
                             withAsterisk
                             disabled={loading}
                             {...form.getInputProps('group')}
+                            onBlur={() => {
+                                form.getInputProps('group').onBlur();
+                                usage.field('group', form.isDirty('group'));
+                            }}
                             error={typeof form.errors.group === 'string' ? _(form.errors.group) : form.errors.group}
                         />
                         <Checkbox
@@ -219,6 +237,17 @@ export function GroupBox({
                             }
                             disabled={loading}
                             {...form.getInputProps('annual', { type: 'checkbox' })}
+                            onBlur={() => {
+                                form.getInputProps('annual').onBlur();
+                                usage.field('annual', form.isDirty('annual'));
+                            }}
+                            onChange={(event) => {
+                                form.getInputProps('annual', { type: 'checkbox' }).onChange(event);
+                                trackFaroEvent('checkbox_changed', {
+                                    control: 'category_annual',
+                                    state: event.currentTarget.checked ? 'checked' : 'unchecked',
+                                });
+                            }}
                         />
                         <Checkbox
                             variant="outline"
@@ -230,6 +259,17 @@ export function GroupBox({
                             }
                             disabled={loading}
                             {...form.getInputProps('review', { type: 'checkbox' })}
+                            onBlur={() => {
+                                form.getInputProps('review').onBlur();
+                                usage.field('review', form.isDirty('review'));
+                            }}
+                            onChange={(event) => {
+                                form.getInputProps('review', { type: 'checkbox' }).onChange(event);
+                                trackFaroEvent('checkbox_changed', {
+                                    control: 'category_review',
+                                    state: event.currentTarget.checked ? 'checked' : 'unchecked',
+                                });
+                            }}
                         />
                         <ImageDropzone
                             image={form.values.image}

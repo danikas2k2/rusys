@@ -5,6 +5,7 @@ import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 import { useHasFilteredMissing } from '~/features/products/hooks/useHasFilteredMissing';
 import { useMissingOnly } from '~/features/products/MissingOnlyContext';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { useHasMissing, useProducts } from '~/store/products';
 
 export function MissingOnlyCheckbox({ onClick }: { onClick?: () => void }) {
@@ -23,6 +24,7 @@ export function MissingOnlyCheckbox({ onClick }: { onClick?: () => void }) {
 
     const [, setFilter] = useQuickFilter();
     const handleChange = useCallback(() => {
+        trackFaroEvent('checkbox_changed', { control: 'show_missing', state: missingOnly ? 'checked' : 'unchecked' });
         startTransition(() => setMissingOnly(!missingOnly));
         if (!missingOnly && hasMissing && !hasFilteredMissing) {
             setFilter('');

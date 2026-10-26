@@ -6,11 +6,13 @@ import { EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
+import { useDialogTracking } from '~/components/common/useUsageTracking';
 import { ProductDialogIcon } from '~/components/products/ProductDialogIcon';
 import { AmountHistoryTab } from '~/features/products/AmountHistoryTab';
 import { AmountVariantsTab } from '~/features/products/AmountVariantsTab';
 import { ProductYearBar } from '~/features/products/ProductYearBar';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 
 import './AmountBox.css';
 
@@ -40,15 +42,22 @@ export function AmountBox({
     onAfterClose,
     onEdit,
 }: ValueListBoxProps) {
+    useDialogTracking('amount', opened);
     const _ = useLabels();
     const [hasChanges, setHasChanges] = useState(false);
     const [activeTab, setActiveTab] = useState<string | null>('quantities');
     const [photoPreviewOpen, setPhotoPreviewOpen] = useState(false);
 
     const handleExitTransitionEnd = useCallback(() => onAfterClose?.(), [onAfterClose]);
-    const changeTab = useCallback((value: string | null) => {
-        startTransition(() => setActiveTab(value));
-    }, []);
+    const changeTab = useCallback(
+        (value: string | null) => {
+            if (value !== activeTab && (value === 'quantities' || value === 'history')) {
+                trackFaroEvent('tab_changed', { tab: value });
+            }
+            startTransition(() => setActiveTab(value));
+        },
+        [activeTab]
+    );
 
     return (
         <ConfirmableModal

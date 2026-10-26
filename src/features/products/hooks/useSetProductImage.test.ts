@@ -2,10 +2,12 @@ import { renderHook } from '@testing-library/react';
 import { MockData } from '@tests/MockData';
 
 import { useSetProductImage } from '~/features/products/hooks/useSetProductImage';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { uploadWithProgress } from '~/lib/utils/uploadWithProgress';
 import { setProductImageAction } from '~/server/actions/products';
 
 vi.mock(import('~/server/actions/products'));
+vi.mock(import('~/lib/observability/faro'));
 vi.mock(import('~/lib/utils/uploadWithProgress'));
 const refresh = vi.hoisted(() => vi.fn());
 vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProducts: () => refresh }));
@@ -41,6 +43,7 @@ describe('useSetProductImage', () => {
         );
         expect(setProductImageAction).not.toHaveBeenCalled();
         expect(refresh).toHaveBeenCalledExactlyOnceWith();
+        expect(trackFaroEvent).toHaveBeenCalledWith('image_uploaded');
     });
 
     it('uses the action for an existing image even with a progress callback', async () => {
@@ -54,6 +57,7 @@ describe('useSetProductImage', () => {
             image: '/image.png',
         });
         expect(uploadWithProgress).not.toHaveBeenCalled();
+        expect(trackFaroEvent).not.toHaveBeenCalledWith('image_uploaded');
     });
 
     it('does not call set image action with empty group', async () => {

@@ -16,6 +16,7 @@ interface DiscardChangesDialogProps {
 export function DiscardChangesDialog({ opened, onConfirm, onClose }: DiscardChangesDialogProps) {
     return (
         <ConfirmationDialog
+            telemetryDialog="discard_changes"
             opened={opened}
             onClose={onClose}
             onConfirm={onConfirm}

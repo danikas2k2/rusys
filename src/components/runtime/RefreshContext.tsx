@@ -1,6 +1,7 @@
 import React, { createContext, use, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import type { InitialResource } from '~/components/app/initialData';
+import { trackFaroEvent } from '~/lib/observability/faro';
 
 type RefreshFn = () => Promise<unknown>;
 type ResourceLoader = (initial?: boolean) => Promise<void>;
@@ -64,9 +65,22 @@ export function useRegisterRefresh(fn: RefreshFn): void {
     useEffect(() => ctx?.register(fn), [ctx, fn]);
 }
 
-export function useRefreshAll(): () => Promise<void> {
+export function useRefreshAll(source: 'toolbar' | 'pull_to_refresh' = 'toolbar'): () => Promise<void> {
     const ctx = use(RefreshContext);
-    return ctx?.refreshAll ?? noopRefresh;
+    const refreshAll = ctx?.refreshAll;
+    return useCallback(async () => {
+        if (!refreshAll) {
+            return;
+        }
+        trackFaroEvent('refresh', { source, result: 'started' });
+        try {
+            await refreshAll();
+            trackFaroEvent('refresh', { source, result: 'success' });
+        } catch (error) {
+            trackFaroEvent('refresh', { source, result: 'error' });
+            throw error;
+        }
+    }, [refreshAll, source]);
 }
 
 export function useSuspenseResource(key: string, loader: ResourceLoader): Promise<void> | null {
@@ -84,5 +98,3 @@ export function useClearSuspenseResource(key: string): () => void {
     const ctx = use(RefreshContext);
     return useCallback(() => ctx?.clear(key), [ctx, key]);
 }
-
-async function noopRefresh(): Promise<void> {}

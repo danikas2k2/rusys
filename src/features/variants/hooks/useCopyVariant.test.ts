@@ -2,9 +2,11 @@ import { renderHook } from '@testing-library/react';
 import { MockData } from '@tests/MockData';
 
 import { useCopyVariant } from '~/features/variants/hooks/useCopyVariant';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { copyVariantAction } from '~/server/actions/variants';
 
 vi.mock(import('~/server/actions/variants'));
+vi.mock(import('~/lib/observability/faro'));
 const refresh = vi.hoisted(() => vi.fn());
 vi.mock(import('~/features/variants/hooks/useGetVariants'), () => ({ useGetVariants: () => refresh }));
 
@@ -38,6 +40,27 @@ describe('useCopyVariant', () => {
             expect(refresh).toHaveBeenCalledExactlyOnceWith();
         }
     );
+
+    it('propagates persistence failures and reports only static failure categories', async () => {
+        const error = new Error('Sensitive persistence failure for Private group');
+        vi.mocked(copyVariantAction).mockRejectedValueOnce(error);
+        const { result } = renderHook(() => useCopyVariant(), { wrapper: MockData });
+
+        await expect(
+            result.current({ group: 'Private group', variant: 'Private variant', targetGroup: 'Private target' })
+        ).rejects.toBe(error);
+
+        expect(copyVariantAction).toHaveBeenCalledExactlyOnceWith({
+            group: 'Private group',
+            variant: 'Private variant',
+            targetGroup: 'Private target',
+        });
+        expect(refresh).not.toHaveBeenCalled();
+        expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
+            ['data_action', { entity: 'variant', action: 'copy', result: 'started' }],
+            ['data_action', { entity: 'variant', action: 'copy', result: 'error' }],
+        ]);
+    });
 
     it('calls copy action with more fields', async () => {
         const { result } = renderHook(() => useCopyVariant(), { wrapper: MockData });

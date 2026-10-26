@@ -12,6 +12,8 @@ organized by topic, with Mermaid diagrams placed alongside the concepts they exp
 - [Synthetic Monitoring](docs/monitoring/SYNTHETIC-MONITORING.md) — external uptime checks, alerts, dashboard, and
   Grafana credentials.
 - [Monitoring overview](docs/monitoring/MONITORING.md) — telemetry signals, integration boundaries, and roadmap.
+- [Frontend observability](docs/monitoring/FRONTEND-OBSERVABILITY.md) — optional Grafana Faro diagnostics, privacy, and
+  verification.
 - [Backend tracing](docs/monitoring/BACKEND-TRACING.md) — private OTLP transport, credentials, privacy, and
   verification.
 

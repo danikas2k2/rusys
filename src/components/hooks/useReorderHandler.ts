@@ -36,7 +36,7 @@ export function useReorderHandler<T, P = Partial<T>>({
             const activeItem = resolve(active.id);
             const oldIndex = findIndex(activeItem);
             const newIndex = findIndex(resolve(over.id));
-            if (oldIndex === -1 || newIndex === -1) {
+            if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
                 return;
             }
 

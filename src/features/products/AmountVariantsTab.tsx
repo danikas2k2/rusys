@@ -57,6 +57,7 @@ import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext
 import { VariantImagePicker } from '~/features/products/VariantImagePicker';
 import { VariantBox } from '~/features/variants/VariantBox';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { prefersReducedMotion } from '~/lib/utils/motion';
 import type { ProductAmounts, VariantAmount } from '~/schema';
 import { useProducts } from '~/store/products';
@@ -369,6 +370,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
             }
         }
         if (activeData) {
+            trackFaroEvent('form_submitted', { form: 'amount' });
             setSubmitting(true);
             const loadingTimeout = setTimeout(() => setLoading(true), 300);
             setUpdating(activeData, true);
@@ -380,11 +382,15 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                     amounts: changes,
                     comment: comment || undefined,
                 });
+                trackFaroEvent('form_result', { form: 'amount', result: 'success' });
                 setAllDeltas({});
                 setComment('');
                 setExpandedKey(null);
                 setExtraKeys([]);
                 onClose?.();
+            } catch (error) {
+                trackFaroEvent('form_result', { form: 'amount', result: 'error' });
+                throw error;
             } finally {
                 clearTimeout(loadingTimeout);
                 setUpdating(activeData, false);
@@ -423,11 +429,18 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
             setMoving(false);
         });
     }, []);
-    const handleMoveToggle = useCallback((key: string) => {
-        setMovingKeys((current) =>
-            current.includes(key) ? current.filter((entry) => entry !== key) : [...current, key]
-        );
-    }, []);
+    const handleMoveToggle = useCallback(
+        (key: string) => {
+            trackFaroEvent('checkbox_changed', {
+                control: 'selection',
+                state: movingKeys.includes(key) ? 'unchecked' : 'checked',
+            });
+            setMovingKeys((current) =>
+                current.includes(key) ? current.filter((entry) => entry !== key) : [...current, key]
+            );
+        },
+        [movingKeys]
+    );
     const handleExpandChange = useCallback((key: string | null) => {
         startTransition(() => setExpandedKey(key));
     }, []);
