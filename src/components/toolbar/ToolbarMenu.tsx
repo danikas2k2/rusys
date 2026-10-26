@@ -9,6 +9,7 @@ import { CategoriesNavIcon, ProductsNavIcon, SummaryNavIcon, UtilitiesNavIcon, V
 import { Label } from '~/components/common/Label';
 import { ColorSchemeToggle } from '~/components/runtime/ColorSchemeToggle';
 import { LanguageToggle } from '~/components/runtime/LanguageToggle';
+import { ObservabilityPreference } from '~/components/runtime/ObservabilityPreference';
 import { ExportMenuItem } from '~/components/toolbar/items/ExportMenuItem';
 import { ImportMenuItem } from '~/components/toolbar/items/ImportMenuItem';
 import { ToolbarMenuIcon } from '~/components/toolbar/ToolbarMenuIcon';
@@ -141,6 +142,7 @@ export function ToolbarMenu() {
                         </Box>
 
                         <Box mt="auto" mb="xs">
+                            <ObservabilityPreference />
                             <Group justify="center" gap="sm">
                                 <ColorSchemeToggle />
                                 <LanguageToggle />

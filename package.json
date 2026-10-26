@@ -57,6 +57,8 @@
         "@dnd-kit/modifiers": "^9.0.0",
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
+        "@grafana/faro-core": "2.13.0",
+        "@grafana/faro-web-sdk": "2.13.0",
         "@mantine/core": "^9.7.3",
         "@mantine/dates": "^9.7.3",
         "@mantine/dropzone": "^9.7.3",

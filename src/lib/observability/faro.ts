@@ -1,0 +1,146 @@
+import type { Faro, FetchTransport } from '@grafana/faro-web-sdk';
+
+import { FARO_ALLOWED_ORIGINS, faroCollectorUrl } from '~/common/faroConfig';
+import { sanitizeFaroAttributes, type FaroEventAttributes } from './events';
+import { sanitizeFaroItem, type FaroEvent } from './privacy';
+
+const CONSENT_KEY = 'rusys-observability-consent-v1';
+const CONSENT_EVENT = 'rusys-observability-consent';
+let instance: Faro | undefined;
+let transport: FetchTransport | undefined;
+let controller: AbortController | undefined;
+let loading = false;
+let sessionId = '';
+let storageUnavailable = false;
+
+export function browserPrivacyRequested(): boolean {
+    return (
+        navigator.doNotTrack === '1' ||
+        (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true
+    );
+}
+
+export function observabilityConfigured(): boolean {
+    return (
+        Boolean(faroCollectorUrl(process.env.NEXT_PUBLIC_FARO_URL)) &&
+        FARO_ALLOWED_ORIGINS.some((origin) => origin === window.location.origin) &&
+        process.env.NODE_ENV === 'production'
+    );
+}
+
+export function observabilityConsented(): boolean {
+    try {
+        return !storageUnavailable && !browserPrivacyRequested() && localStorage.getItem(CONSENT_KEY) === 'granted';
+    } catch {
+        return false;
+    }
+}
+
+function maySend(): boolean {
+    return observabilityConfigured() && observabilityConsented();
+}
+
+/** Recheck consent after asynchronous SDK loading and before every transport item. */
+export async function syncObservability(): Promise<void> {
+    if (!maySend()) {
+        instance?.pause();
+        controller?.abort();
+        controller = undefined;
+        return;
+    }
+    if (loading || controller) {
+        return;
+    }
+    loading = true;
+    try {
+        const sdk = await import('@grafana/faro-web-sdk');
+        if (!maySend()) {
+            return;
+        }
+        const url = faroCollectorUrl(process.env.NEXT_PUBLIC_FARO_URL);
+        if (!url) {
+            return;
+        }
+        const version = process.env.NEXT_PUBLIC_APP_VERSION || 'unknown';
+        sessionId = crypto.randomUUID();
+        controller = new AbortController();
+        const nextTransport = new sdk.FetchTransport({
+            url,
+            requestOptions: {
+                credentials: 'omit',
+                referrerPolicy: 'no-referrer',
+                signal: controller.signal,
+            },
+        });
+        if (instance) {
+            if (transport) {
+                instance.transports.remove(transport);
+            }
+            instance.transports.add(nextTransport);
+            instance.unpause();
+        } else {
+            instance = sdk.initializeFaro({
+                app: { name: 'rusys-web', environment: 'production', version },
+                instrumentations: [new sdk.ErrorsInstrumentation(), new sdk.WebVitalsInstrumentation()],
+                metas: [],
+                transports: [nextTransport],
+                batching: { enabled: false },
+                isolate: true,
+                preventGlobalExposure: true,
+                trackGeolocation: false,
+                beforeSend: (item) => (maySend() ? sanitizeFaroItem(item, version, sessionId, sdk.VERSION) : null),
+            });
+        }
+        transport = nextTransport;
+        trackFaroEvent('telemetry_enabled');
+    } catch {
+        // Observability must never prevent the application from starting or an action from completing.
+        instance?.pause();
+        controller?.abort();
+        controller = undefined;
+    } finally {
+        loading = false;
+    }
+}
+
+export function setObservabilityConsent(enabled: boolean): boolean {
+    try {
+        localStorage.setItem(CONSENT_KEY, enabled ? 'granted' : 'denied');
+        storageUnavailable = false;
+    } catch {
+        storageUnavailable = true;
+        instance?.pause();
+        controller?.abort();
+        controller = undefined;
+        return false;
+    }
+    void syncObservability();
+    window.dispatchEvent(new Event(CONSENT_EVENT));
+    return true;
+}
+
+export function subscribeObservability(listener: () => void): () => void {
+    window.addEventListener(CONSENT_EVENT, listener);
+    window.addEventListener('storage', listener);
+    window.addEventListener('focus', listener);
+    return () => {
+        window.removeEventListener(CONSENT_EVENT, listener);
+        window.removeEventListener('storage', listener);
+        window.removeEventListener('focus', listener);
+    };
+}
+
+export function trackFaroEvent<Name extends FaroEvent>(name: Name, attributes?: FaroEventAttributes<Name>): void {
+    try {
+        if (maySend()) {
+            instance?.api.pushEvent(name, sanitizeFaroAttributes(name, attributes), undefined, { skipDedupe: true });
+        }
+    } catch {
+        // A telemetry failure must not change application behavior.
+    }
+}
+
+export function startObservability(): void {
+    subscribeObservability(() => void syncObservability());
+    void syncObservability();
+}

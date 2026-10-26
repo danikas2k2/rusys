@@ -3,11 +3,13 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import { AddIcon, CancelIcon, MoveIcon } from '@icons';
 
+import { useDialogTracking } from '~/components/common/useUsageTracking';
 import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
 import { useTransferAmounts } from '~/features/products/hooks/useTransferAmounts';
 import { ProductBox } from '~/features/products/ProductBox';
 import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import type { Product, VariantAmount } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
@@ -63,6 +65,7 @@ export function MoveVariantsBox({
     onCancel,
     onMoved,
 }: MoveVariantsBoxProps): React.ReactElement {
+    useDialogTracking('move_variants', true);
     const _ = useLabels();
     const groups = useGroups();
     const products = useProducts();
@@ -112,6 +115,7 @@ export function MoveVariantsBox({
             setAddingProduct(true);
             return;
         }
+        trackFaroEvent('form_field_changed', { form: 'move_variants', field: 'target' });
         setTarget(value);
     }, []);
     const handleNewProductClose = useCallback((newGroup?: string, newName?: string) => {
@@ -129,6 +133,7 @@ export function MoveVariantsBox({
         if (!targetProduct) {
             return;
         }
+        trackFaroEvent('form_submitted', { form: 'move_variants' });
         setSubmitting(true);
         try {
             await transferAmounts({
@@ -139,8 +144,12 @@ export function MoveVariantsBox({
                 targetName: targetProduct.name,
                 amounts,
             });
+            trackFaroEvent('form_result', { form: 'move_variants', result: 'success' });
             setTarget(null);
             onMoved();
+        } catch (error) {
+            trackFaroEvent('form_result', { form: 'move_variants', result: 'error' });
+            throw error;
         } finally {
             setSubmitting(false);
         }

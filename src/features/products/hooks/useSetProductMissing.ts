@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { runProductMutation } from '~/lib/productMutationQueue';
 import { getErrorMessage } from '~/lib/utils/errors';
 import type { Product, SetProductMissing } from '~/schema';
@@ -33,8 +34,11 @@ export function useSetProductMissing(): (request: SetProductMissing) => Promise<
                 );
 
                 try {
+                    trackFaroEvent('data_action', { entity: 'product', action: 'set_missing', result: 'started' });
                     await setProductMissingAction(request);
+                    trackFaroEvent('data_action', { entity: 'product', action: 'set_missing', result: 'success' });
                 } catch (error) {
+                    trackFaroEvent('data_action', { entity: 'product', action: 'set_missing', result: 'error' });
                     client.setQueryData<readonly Product[]>(CATALOG_KEYS.products, (products) =>
                         products?.map((product) => {
                             if (product.group !== group || product.name !== name) {

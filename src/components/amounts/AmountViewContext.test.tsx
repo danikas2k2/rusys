@@ -4,6 +4,9 @@ import user from '@testing-library/user-event';
 import React, { use } from 'react';
 
 import { AmountViewContext, AmountViewWrapper, useAmountView } from '~/components/amounts/AmountViewContext';
+import { trackFaroEvent } from '~/lib/observability/faro';
+
+vi.mock(import('~/lib/observability/faro'));
 
 describe('<AmountViewContext>', () => {
     it('uses context with default value', () => {
@@ -38,7 +41,10 @@ describe('<AmountViewWrapper>', () => {
         return <button onClick={() => setAmountView('total')}>{amountView}</button>;
     }
 
-    afterEach(() => localStorage.clear());
+    afterEach(() => {
+        localStorage.clear();
+        vi.clearAllMocks();
+    });
 
     it('defaults to total when localStorage is empty', () => {
         render(
@@ -86,5 +92,10 @@ describe('<AmountViewWrapper>', () => {
 
         expect(screen.getByRole('button')).toHaveTextContent('total');
         expect(localStorage.getItem('amountView')).toBe('total');
+        expect(trackFaroEvent).toHaveBeenCalledExactlyOnceWith('view_changed', { view: 'total' });
+
+        await user.click(screen.getByRole('button'));
+
+        expect(trackFaroEvent).toHaveBeenCalledTimes(1);
     });
 });

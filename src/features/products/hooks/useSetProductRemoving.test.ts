@@ -3,11 +3,13 @@ import { mockQuery } from '@tests/MockQuery';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { setProductRemovingAction } from '~/server/actions/products';
 import { CATALOG_KEYS } from '~/store/catalog';
 import { useError } from '~/store/error/useError';
 
 vi.mock(import('~/server/actions/products'));
+vi.mock(import('~/lib/observability/faro'));
 vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProducts: vi.fn(() => vi.fn()) }));
 
 function useSubject() {
@@ -49,6 +51,7 @@ describe('useSetProductRemoving', () => {
         await act(() => result.current.mutate({ group, name, year, removing: true }));
 
         expect(setProductRemovingAction).not.toHaveBeenCalled();
+        expect(trackFaroEvent).not.toHaveBeenCalled();
     });
 
     it('rolls back the cached value and reports a failed mutation', async () => {
@@ -60,6 +63,11 @@ describe('useSetProductRemoving', () => {
 
         expect(client.getQueryData(CATALOG_KEYS.products)).toStrictEqual(original);
         expect(result.current.error).toBe('Something went wrong');
+        expect(trackFaroEvent).toHaveBeenLastCalledWith('data_action', {
+            entity: 'product',
+            action: 'set_removing',
+            result: 'error',
+        });
     });
 
     it('keeps another year update when an earlier mutation fails', async () => {

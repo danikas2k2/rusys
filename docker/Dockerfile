@@ -11,6 +11,10 @@ COPY next.config.ts postcss.config.mjs tsconfig.json ./
 COPY scripts/postcss ./scripts/postcss
 COPY src ./src
 COPY public ./public
+ARG APP_VERSION
+ARG NEXT_PUBLIC_FARO_URL
+ENV APP_VERSION=${APP_VERSION}
+ENV NEXT_PUBLIC_FARO_URL=${NEXT_PUBLIC_FARO_URL}
 RUN pnpm exec next build
 
 FROM node:26-slim

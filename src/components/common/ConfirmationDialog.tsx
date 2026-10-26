@@ -5,7 +5,9 @@ import { CancelIcon, ConfirmationDialogIcon, ConfirmIcon, ErrorAlertIcon } from 
 
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
+import { useDialogTracking } from '~/components/common/useUsageTracking';
 import { useLabels } from '~/lib/hooks/useLabels';
+import type { FaroEventAttributes } from '~/lib/observability/events';
 import { getErrorMessage } from '~/lib/utils/errors';
 
 export type ButtonElementProps = ButtonProps &
@@ -16,6 +18,7 @@ export type ButtonElementProps = ButtonProps &
 export type ButtonElement = React.ReactElement<ButtonElementProps>;
 
 export interface ConfirmationDialogProps extends Omit<ModalProps, 'onClose'> {
+    telemetryDialog?: FaroEventAttributes<'dialog_opened'>['dialog'];
     actions?: React.ReactElement;
     confirmButton?: ButtonElement;
     cancelButton?: ButtonElement;
@@ -48,6 +51,7 @@ export function ConfirmationDialog({
             <Label>Are you sure?</Label>
         </>
     ),
+    telemetryDialog = 'confirmation',
     actions,
     confirmButton,
     cancelButton,
@@ -59,6 +63,7 @@ export function ConfirmationDialog({
     closeButtonProps,
     ...props
 }: ConfirmationDialogProps) {
+    useDialogTracking(telemetryDialog, opened);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const _ = useLabels();

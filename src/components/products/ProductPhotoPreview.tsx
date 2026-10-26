@@ -2,6 +2,7 @@ import { Modal } from '@mantine/core';
 import Image from 'next/image';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useDialogTracking } from '~/components/common/useUsageTracking';
 import { useLabel } from '~/lib/hooks/useLabel';
 import { localImageLoader } from '~/lib/utils/localImageLoader';
 
@@ -32,6 +33,7 @@ export function ProductPhotoPreview({ photo, onError, onOpenChange }: ProductPho
     const zoomLabel = useLabel('Click to zoom');
     const panLabel = useLabel('Drag to pan');
     const [opened, setOpened] = useState(false);
+    useDialogTracking('photo_preview', opened);
     const [zoomed, setZoomed] = useState(false);
     const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
     const drag = useRef<DragState | undefined>(undefined);

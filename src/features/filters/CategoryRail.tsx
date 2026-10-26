@@ -2,6 +2,7 @@ import { Group as MantineGroup, Tabs, Text } from '@mantine/core';
 import React, { startTransition, useEffect } from 'react';
 
 import { Thumbnail } from '~/components/common/Thumbnail';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { supportsClippedViewTransitions } from '~/lib/utils/supportsClippedViewTransitions';
 import type { Group } from '~/schema';
 
@@ -39,6 +40,9 @@ export function CategoryRail({
             onChange={(value) => {
                 if (!value) {
                     return;
+                }
+                if (value !== selected) {
+                    trackFaroEvent('filter_applied');
                 }
                 if (!animateWithinScrollport && supportsClippedViewTransitions()) {
                     startTransition(() => onSelect(value));

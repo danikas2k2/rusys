@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeData } from '@tests/MockThemeData';
 
@@ -8,11 +8,13 @@ import React from 'react';
 import { useLoginError } from '~/components/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/components/user/hooks/useLoginSuccess';
 import { LoginButton } from '~/components/user/LoginButton';
+import { trackFaroEvent } from '~/lib/observability/faro';
 
 vi.mock(import('@react-oauth/google'), () => ({
     useGoogleLogin: vi.fn(),
     useGoogleOneTapLogin: vi.fn(),
 }));
+vi.mock(import('~/lib/observability/faro'), () => ({ trackFaroEvent: vi.fn() }));
 vi.mock(import('~/components/user/hooks/useLoginError'));
 vi.mock(import('~/components/user/hooks/useLoginSuccess'));
 
@@ -56,6 +58,7 @@ describe('<LoginButton>', () => {
         await user.click(screen.getByText('Login with Google'));
 
         expect(login).toHaveBeenCalledWith();
+        expect(trackFaroEvent).toHaveBeenCalledWith('auth', { action: 'login', result: 'started' });
     });
 
     it('calls Google one tap login on render', async () => {
@@ -84,7 +87,25 @@ describe('<LoginButton>', () => {
         );
 
         expect(onError).toHaveBeenCalledWith();
+        expect(trackFaroEvent).toHaveBeenCalledWith('auth', { action: 'login', result: 'error' });
         expect(onSuccess).not.toHaveBeenCalled();
+    });
+
+    it('records successful authentication without credentials', async () => {
+        onSuccess.mockResolvedValueOnce(true);
+        render(
+            <MockThemeData>
+                <LoginButton />
+            </MockThemeData>
+        );
+        const options = vi.mocked(useGoogleOneTapLogin).mock.lastCall?.[0];
+
+        await act(async () => {
+            await options?.onSuccess({ credential: 'private-token' });
+        });
+
+        expect(onSuccess).toHaveBeenCalledWith({ credential: 'private-token' });
+        expect(trackFaroEvent).toHaveBeenCalledExactlyOnceWith('auth', { action: 'login', result: 'success' });
     });
 
     it('calls success actions if login passes', async () => {

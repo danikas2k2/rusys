@@ -17,6 +17,7 @@ import { formatExpiryTolerance, parseExpiryTolerance } from '~/common/utils/expi
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
+import { useDialogTracking, useFormTracking } from '~/components/common/useUsageTracking';
 import { ImageDropzone } from '~/components/images/ImageDropzone';
 import { ProductDialogIcon } from '~/components/products/ProductDialogIcon';
 import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
@@ -32,6 +33,7 @@ import { useSetProductParent } from '~/features/products/hooks/useSetProductPare
 import { ProductAvatar } from '~/features/products/ProductAvatar';
 import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { equals } from '~/lib/utils/names';
 import { SchemaError, updateProductSchema, type UpdateProduct } from '~/schema';
@@ -129,6 +131,7 @@ export function ProductBox({
     const isEditing = !!initialGroup && !!initialName;
     const isMoving = isEditing && filterGroup && filterGroup !== initialGroup;
 
+    useDialogTracking('product', opened);
     const _ = useLabels();
     const allGroups = useGroups();
     const groups = allGroups.map((g) => g.group);
@@ -170,6 +173,7 @@ export function ProductBox({
         ),
     });
 
+    const usage = useFormTracking('product', opened);
     const formRef = useRef(form);
     useLayoutEffect(() => {
         formRef.current = form;
@@ -208,11 +212,13 @@ export function ProductBox({
     }, [opened, initialGroup, initialName, initialParent, initialImage, initialExpiryToleranceDays, filterGroup]);
 
     const handleImageDrop = useCallback((dataUrl: string) => {
+        trackFaroEvent('form_field_changed', { form: 'product', field: 'image' });
         formRef.current.setFieldValue('image', dataUrl);
         formRef.current.clearFieldError('image');
     }, []);
 
     const handleImageRemove = useCallback(() => {
+        trackFaroEvent('form_field_changed', { form: 'product', field: 'image' });
         formRef.current.setFieldValue('image', '');
         formRef.current.clearFieldError('image');
     }, []);
@@ -276,9 +282,15 @@ export function ProductBox({
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
+        trackFaroEvent('form_submitted', { form: 'product' });
 
         const validation = form.validate();
         if (validation.hasErrors) {
+            for (const field of ['group', 'name', 'parent', 'image', 'expiryTolerance'] as const) {
+                if (validation.errors[field]) {
+                    trackFaroEvent('form_validation_failed', { form: 'product', field });
+                }
+            }
             // Focus first invalid field
             if (validation.errors.group) {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
@@ -355,8 +367,10 @@ export function ProductBox({
             if ((isEditing && expiryToleranceChanged) || (!isEditing && expiryToleranceDays > 0)) {
                 await setProductExpiryTolerance({ group: values.group, name: values.name, days: expiryToleranceDays });
             }
+            trackFaroEvent('form_result', { form: 'product', result: 'success' });
             onClose(product.group, product.name);
         } catch (error) {
+            trackFaroEvent('form_result', { form: 'product', result: 'error' });
             form.setFieldError(failedField, getErrorMessage(error));
             if (failedField === 'name') {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
@@ -439,6 +453,10 @@ export function ProductBox({
                                 disabled={loading || !!createdProduct}
                                 searchable
                                 {...form.getInputProps('group')}
+                                onBlur={() => {
+                                    form.getInputProps('group').onBlur();
+                                    usage.field('group', form.isDirty('group'));
+                                }}
                                 error={typeof form.errors.group === 'string' ? _(form.errors.group) : form.errors.group}
                                 onChange={(value) =>
                                     value === NEW_CATEGORY_VALUE
@@ -454,6 +472,10 @@ export function ProductBox({
                                 withAsterisk
                                 disabled={loading || !!createdProduct}
                                 {...form.getInputProps('name')}
+                                onBlur={() => {
+                                    form.getInputProps('name').onBlur();
+                                    usage.field('name', form.isDirty('name'));
+                                }}
                                 error={typeof form.errors.name === 'string' ? _(form.errors.name) : form.errors.name}
                             />
                             <ImageDropzone
@@ -507,6 +529,10 @@ export function ProductBox({
                                                     searchable
                                                     disabled={loading}
                                                     {...form.getInputProps('parent')}
+                                                    onBlur={() => {
+                                                        form.getInputProps('parent').onBlur();
+                                                        usage.field('parent', form.isDirty('parent'));
+                                                    }}
                                                     onChange={(value) => form.setFieldValue('parent', value ?? '')}
                                                 />
                                                 <TextInput
@@ -515,6 +541,10 @@ export function ProductBox({
                                                     description={_('Examples: 7, 2 sav, 3 men, 1 m.')}
                                                     disabled={loading}
                                                     {...form.getInputProps('expiryTolerance')}
+                                                    onBlur={() => {
+                                                        form.getInputProps('expiryTolerance').onBlur();
+                                                        usage.field('expiryTolerance', form.isDirty('expiryTolerance'));
+                                                    }}
                                                     error={
                                                         typeof form.errors.expiryTolerance === 'string'
                                                             ? _(form.errors.expiryTolerance)

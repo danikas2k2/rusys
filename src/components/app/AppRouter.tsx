@@ -1,5 +1,5 @@
 import { usePathname } from 'next/navigation';
-import React, { use } from 'react';
+import React, { use, useEffect, useRef } from 'react';
 
 import { AmountViewWrapper } from '~/components/amounts/AmountViewContext';
 import { InitialGroupContext } from '~/components/app/InitialGroupContext';
@@ -10,6 +10,7 @@ import { ProductsPage } from '~/features/products/ProductsPage';
 import { SummaryPage } from '~/features/summary/SummaryPage';
 import { VariantsPage } from '~/features/variants/VariantsPage';
 import { Links } from '~/lib/links';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { useGroups } from '~/store/groups';
 
 function QuickFilterLayout({ children }: React.PropsWithChildren) {
@@ -26,6 +27,23 @@ function GroupFilterLayout({ children, initialGroup }: React.PropsWithChildren<{
 
 export function AppRouter() {
     const pathname = usePathname();
+    const previousPage = useRef<string | undefined>(undefined);
+    useEffect(() => {
+        const page =
+            pathname === Links.CATEGORIES
+                ? 'categories'
+                : pathname === Links.VARIANTS
+                  ? 'variants'
+                  : pathname === Links.SUMMARY
+                    ? 'summary'
+                    : pathname === Links.PRODUCTS
+                      ? 'products'
+                      : undefined;
+        if (page && page !== previousPage.current) {
+            trackFaroEvent('navigation', { page });
+        }
+        previousPage.current = page;
+    }, [pathname]);
     const groups = useGroups();
     const initialGroup = use(InitialGroupContext) ?? groups[0]?.group ?? '';
     if (pathname === Links.CATEGORIES) {

@@ -74,6 +74,24 @@ describe('useReorderHandler', () => {
         expect(onReorder).not.toHaveBeenCalled();
     });
 
+    it('ignores different drag identifiers resolving to the same list position', async () => {
+        const items = [{ id: 1, name: 'Item 1' }];
+        const onReorder = vi.fn();
+        const { result } = renderHook(() =>
+            useReorderHandler({
+                items,
+                onReorder,
+                equals: (a: Item, b: Item) => a.id === b.id,
+                resolve: () => items[0],
+            })
+        );
+
+        await act(async () => await result.current.onDragEnd(createMockEvent(1, 2)));
+
+        expect(onReorder).not.toHaveBeenCalled();
+        expect(result.current.reordering).toBe(false);
+    });
+
     it('reorders items from first to last position', async () => {
         const items: Item[] = [
             { id: 1, name: 'Item 1' },

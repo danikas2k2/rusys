@@ -1,6 +1,7 @@
 import { Modal, Stack, type ModalProps } from '@mantine/core';
 import React, { useCallback } from 'react';
 
+import { useDialogTracking } from '~/components/common/useUsageTracking';
 import { SummaryHistoryTab } from '~/features/summary/SummaryHistoryTab';
 import { SummaryYearBar } from '~/features/summary/SummaryYearBar';
 import { useLabels } from '~/lib/hooks/useLabels';
@@ -21,6 +22,7 @@ export function SummaryHistoryBox({
     onClose,
     onAfterClose,
 }: SummaryHistoryBoxProps) {
+    useDialogTracking('summary_history', opened);
     const _ = useLabels();
 
     const handleClose = useCallback(() => onClose?.(), [onClose]);

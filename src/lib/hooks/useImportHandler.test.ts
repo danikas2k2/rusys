@@ -1,9 +1,11 @@
 import { renderHook } from '@testing-library/react';
 
 import { useImport } from '~/lib/hooks/useImport';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { useImportHandler } from './useImportHandler';
 
 vi.mock(import('~/lib/hooks/useImport'));
+vi.mock(import('~/lib/observability/faro'));
 
 describe('useImportHandler', () => {
     const mockHandle = vi.fn();
@@ -14,14 +16,19 @@ describe('useImportHandler', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    it('calls the handle function when data is provided', () => {
+    it('calls the handle function when data is provided', async () => {
         const { result } = renderHook(() => useImportHandler());
         const wrappedCallback = result.current;
         const formData = new FormData();
 
-        wrappedCallback(formData);
+        await wrappedCallback(formData);
 
         expect(mockHandle).toHaveBeenCalledWith(formData);
+        expect(trackFaroEvent).toHaveBeenLastCalledWith('data_action', {
+            entity: 'archive',
+            action: 'import',
+            result: 'success',
+        });
     });
 
     it('forwards the progress callback with the import data', () => {
@@ -52,5 +59,17 @@ describe('useImportHandler', () => {
         const secondCallback = result.current;
 
         expect(firstCallback).toBe(secondCallback);
+    });
+
+    it('reports import failure using only static attributes and rethrows', async () => {
+        mockHandle.mockRejectedValueOnce(new Error('private filename'));
+        const { result } = renderHook(() => useImportHandler());
+
+        await expect(result.current(new FormData())).rejects.toThrow('private filename');
+        expect(trackFaroEvent).toHaveBeenLastCalledWith('data_action', {
+            entity: 'archive',
+            action: 'import',
+            result: 'error',
+        });
     });
 });

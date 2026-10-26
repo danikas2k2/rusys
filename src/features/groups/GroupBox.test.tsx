@@ -8,7 +8,9 @@ import React from 'react';
 import { GroupBox } from '~/features/groups/GroupBox';
 import { useRenameGroup } from '~/features/groups/hooks/useRenameGroup';
 import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
+import { trackFaroEvent } from '~/lib/observability/faro';
 
+vi.mock(import('~/lib/observability/faro'), () => ({ trackFaroEvent: vi.fn() }));
 vi.mock(import('~/components/common/Label'));
 vi.mock(import('~/features/groups/hooks/useRenameGroup'));
 vi.mock(import('~/features/groups/hooks/useUpdateGroup'));
@@ -56,6 +58,29 @@ describe('<GroupBox>', () => {
     };
 
     const onClose = vi.fn();
+
+    it('tracks completed field edits and invalid input without sending values', async () => {
+        render(
+            <MockApp state={state}>
+                <GroupBox opened onClose={onClose} />
+            </MockApp>
+        );
+        const input = screen.getByRole('textbox', { name: 'Category name' });
+        await user.type(input, 'Private category name');
+
+        expect(trackFaroEvent).not.toHaveBeenCalledWith('form_field_changed', expect.anything());
+
+        await user.tab();
+
+        expect(trackFaroEvent).toHaveBeenCalledWith('form_field_changed', { form: 'group', field: 'group' });
+
+        await user.clear(input);
+        await user.click(screen.getByRole('button', { name: 'Add' }));
+
+        expect(trackFaroEvent).toHaveBeenCalledWith('form_submitted', { form: 'group' });
+        expect(trackFaroEvent).toHaveBeenCalledWith('form_validation_failed', { form: 'group', field: 'group' });
+        expect(JSON.stringify(vi.mocked(trackFaroEvent).mock.calls)).not.toContain('Private category name');
+    });
 
     it('does not render when opened=false', () => {
         render(

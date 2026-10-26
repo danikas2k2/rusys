@@ -8,6 +8,7 @@ import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 import { useHasFilteredMissing } from '~/features/products/hooks/useHasFilteredMissing';
 import { MissingOnlyCheckbox } from '~/features/products/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/features/products/MissingOnlyContext';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { useHasMissing, useProducts } from '~/store/products';
 
 vi.mock(import('~/features/products/MissingOnlyContext'), () => ({
@@ -25,6 +26,8 @@ vi.mock(import('~/store/products/useHasMissing'), () => ({
 vi.mock(import('~/store/products/useProducts'), () => ({
     useProducts: vi.fn(),
 }));
+
+vi.mock(import('~/lib/observability/faro'), () => ({ trackFaroEvent: vi.fn() }));
 
 describe('<MissingOnlyCheckbox>', () => {
     const setMissingOnly = vi.fn();
@@ -119,6 +122,10 @@ describe('<MissingOnlyCheckbox>', () => {
 
         expect(setMissingOnly).toHaveBeenCalledWith(true);
         expect(setFilter).toHaveBeenCalledWith('');
+        expect(trackFaroEvent).toHaveBeenCalledExactlyOnceWith('checkbox_changed', {
+            control: 'show_missing',
+            state: 'unchecked',
+        });
     });
 
     it('toggles to all items when currently missing only', async () => {
@@ -133,6 +140,10 @@ describe('<MissingOnlyCheckbox>', () => {
 
         expect(setMissingOnly).toHaveBeenCalledWith(false);
         expect(setFilter).not.toHaveBeenCalled();
+        expect(trackFaroEvent).toHaveBeenCalledExactlyOnceWith('checkbox_changed', {
+            control: 'show_missing',
+            state: 'checked',
+        });
     });
 
     it('does not clear filter when filtered missing exist', async () => {
@@ -160,6 +171,7 @@ describe('<MissingOnlyCheckbox>', () => {
         );
 
         expect(setMissingOnly).toHaveBeenCalledWith(false);
+        expect(trackFaroEvent).not.toHaveBeenCalled();
     });
 
     it('calls onClick on checkbox click', async () => {

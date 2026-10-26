@@ -2,11 +2,25 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
+import { Button } from '@mantine/core';
+import type * as Mantine from '@mantine/core';
 import React from 'react';
 
+import type * as SubmissionHooks from '~/features/products/hooks/useApplyReview';
 import { useApplyReview } from '~/features/products/hooks/useApplyReview';
+import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { ReviewBox } from '~/features/review/ReviewBox';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import type { Group, Product } from '~/schema';
+import { applyReviewAction } from '~/server/actions/products';
+
+vi.mock(import('@mantine/core'), async () => {
+    const actual = await vi.importActual<typeof Mantine>('@mantine/core');
+    return {
+        ...actual,
+        Button: vi.fn((props: React.ComponentProps<typeof actual.Button>) => <actual.Button {...props} />),
+    };
+});
 
 vi.mock(import('~/features/review/ReviewTable'), () => ({
     ReviewTable: vi.fn(({ checkedKeys, onToggle, onSelectAll, onReset }: any) => (
@@ -36,6 +50,13 @@ vi.mock(import('~/features/review/ReviewTable'), () => ({
 
 vi.mock(import('~/features/products/hooks/useApplyReview'), () => ({
     useApplyReview: vi.fn(),
+}));
+
+vi.mock(import('~/lib/observability/faro'), () => ({ trackFaroEvent: vi.fn() }));
+vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProducts: vi.fn() }));
+vi.mock(import('~/server/actions/products'), () => ({
+    applyReviewAction: vi.fn(),
+    setAmountsAction: vi.fn(),
 }));
 
 describe('<ReviewBox>', () => {
@@ -377,5 +398,87 @@ describe('<ReviewBox>', () => {
         await waitFor(() => {
             expect(onAfterClose).toHaveBeenCalledWith();
         });
+    });
+
+    describe('review submission telemetry', () => {
+        const refresh = vi.fn();
+
+        beforeEach(async () => {
+            const actual = await vi.importActual<typeof SubmissionHooks>('../products/hooks/useApplyReview');
+            vi.mocked(useApplyReview).mockImplementation(actual.useApplyReview);
+            vi.mocked(useGetProducts).mockReturnValue(refresh);
+            vi.mocked(applyReviewAction).mockResolvedValue(undefined);
+            refresh.mockReset().mockResolvedValue(undefined);
+        });
+
+        async function prepareApply(changed: boolean, onClose: () => void) {
+            render(
+                <MockApp state={state}>
+                    <ReviewBox opened onClose={onClose} />
+                </MockApp>
+            );
+            await user.click(screen.getByRole('button', { name: 'check-avietes' }));
+            if (changed) {
+                await user.click(screen.getByRole('button', { name: 'check-braskes' }));
+            }
+            const buttonProps = vi
+                .mocked(Button)
+                .mock.calls.findLast(
+                    ([props]) =>
+                        React.isValidElement<{ children: string }>(props.children) &&
+                        props.children.props.children === 'Apply'
+                )![0];
+            return buttonProps.onClick as unknown as () => Promise<void>;
+        }
+
+        it.each([true, false])('records completion for changed=%s without inventing mutations', async (changed) => {
+            const onClose = vi.fn();
+            const submit = await prepareApply(changed, onClose);
+            vi.mocked(trackFaroEvent).mockClear();
+
+            await act(async () => {
+                await submit();
+            });
+
+            expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
+                ['form_submitted', { form: 'review' }],
+                ...(changed
+                    ? [
+                          ['data_action', { entity: 'review', action: 'apply_review', result: 'started' }],
+                          ['data_action', { entity: 'review', action: 'apply_review', result: 'success' }],
+                      ]
+                    : []),
+                ['form_result', { form: 'review', result: 'success' }],
+            ]);
+            expect(applyReviewAction).toHaveBeenCalledTimes(changed ? 1 : 0);
+            expect(onClose).toHaveBeenCalledExactlyOnceWith();
+        });
+
+        it.each(['write', 'refresh'] as const)(
+            'records form failure on %s rejection and preserves the error',
+            async (stage) => {
+                const failure = new Error('private details');
+                const onClose = vi.fn();
+                const operation = { write: vi.mocked(applyReviewAction), refresh }[stage];
+                operation.mockRejectedValueOnce(failure);
+                const submit = await prepareApply(true, onClose);
+                vi.mocked(trackFaroEvent).mockClear();
+
+                await act(async () => {
+                    await expect(submit()).rejects.toBe(failure);
+                });
+
+                expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
+                    ['form_submitted', { form: 'review' }],
+                    ['data_action', { entity: 'review', action: 'apply_review', result: 'started' }],
+                    [
+                        'data_action',
+                        { entity: 'review', action: 'apply_review', result: stage === 'write' ? 'error' : 'success' },
+                    ],
+                    ['form_result', { form: 'review', result: 'error' }],
+                ]);
+                expect(onClose).not.toHaveBeenCalled();
+            }
+        );
     });
 });

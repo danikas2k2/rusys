@@ -12,6 +12,7 @@ import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useSetProductMissing } from '~/features/products/hooks/useSetProductMissing';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import type { Product, ProductAmounts, RemovingYearAmounts, VariantAmount } from '~/schema';
 
 import './ProductTile.css';
@@ -107,6 +108,10 @@ function ProductTileComponent({
 
     const handleMissingChange = useCallback(async () => {
         if (available) {
+            trackFaroEvent('checkbox_changed', {
+                control: 'missing',
+                state: product.missing ? 'unchecked' : 'checked',
+            });
             await setMissing({ group, name, missing: !product.missing });
         }
     }, [available, setMissing, group, name, product.missing]);
