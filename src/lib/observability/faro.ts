@@ -11,12 +11,12 @@ let loading = false;
 let sessionId = '';
 let started = false;
 
-function browserPrivacyRequested(): boolean {
+/*function browserPrivacyRequested(): boolean {
     return (
         navigator.doNotTrack === '1' ||
         (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true
     );
-}
+}*/
 
 function observabilityConfigured(): boolean {
     return (
@@ -27,7 +27,7 @@ function observabilityConfigured(): boolean {
 }
 
 function maySend(): boolean {
-    return observabilityConfigured() && !browserPrivacyRequested();
+    return observabilityConfigured(); /*&& !browserPrivacyRequested()*/
 }
 
 /** Recheck browser privacy after asynchronous SDK loading and before every transport item. */
