@@ -19,6 +19,7 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('private OTLP path', () =>
         }
         composeEnvironment.GC_OTLP_ENDPOINT = 'https://example.invalid/otlp';
         composeEnvironment.DOCKER_ROOT_DIR = '/tmp';
+        composeEnvironment.DB_KEYFILE = '/tmp/rusys-tracing-test-keyfile';
         const compose = (...args: string[]) =>
             execFileSync(
                 'docker',
@@ -76,6 +77,8 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('private OTLP path', () =>
                 validationNetwork: resolved.services['traces-validate'].network_mode,
                 privateNetwork: resolved.networks['traces-private'].internal,
                 collectorPorts: resolved.services.traces.ports,
+                collectorCpuQuota: resolved.services.traces.cpus,
+                collectorMemoryLimit: Number(resolved.services.traces.mem_limit),
                 privateMembers: Object.entries(resolved.services)
                     .filter(([, service]) =>
                         Object.keys((service as { networks?: object }).networks ?? {}).includes('traces-private')
@@ -86,6 +89,8 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('private OTLP path', () =>
                 validationNetwork: 'none',
                 privateNetwork: true,
                 collectorPorts: undefined,
+                collectorCpuQuota: undefined,
+                collectorMemoryLimit: 256 * 1024 * 1024,
                 privateMembers: ['rusys-app-blue', 'rusys-app-green', 'traces'],
             });
 

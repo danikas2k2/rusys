@@ -60,7 +60,6 @@ services:
     volumes: &traces-volumes
       - ./monitoring/traces.alloy:/etc/alloy/traces.alloy:ro
     mem_limit: 256m
-    cpus: 0.5
 
   traces-validate:
     image: grafana/alloy:v1.20.1
