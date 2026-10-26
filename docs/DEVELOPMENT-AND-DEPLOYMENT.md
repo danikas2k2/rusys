@@ -4,7 +4,7 @@ This guide covers local setup, checks, CI, and production deployment. [Project R
 
 ## Local development
 
-The package requires Node.js 24 or newer and specifies `pnpm@11.24.0`.
+Use the Node.js and pnpm versions specified in [package.json](../package.json).
 
 ```sh
 pnpm install
@@ -114,12 +114,28 @@ browser job admitted later stops before checkout or browser setup. To add anothe
 cancellation promptly after the first failure, so some other lint checks may be canceled before they finish. The
 [accessibility guide](../ACCESSIBILITY.md) covers JSX rules, component axe tests, Playwright scans, and Lighthouse CI.
 
+## Deployment targets
+
+The application needs a compatible Next.js server runtime, authenticated MongoDB access, persistent image storage, and
+outbound access for identity verification and telemetry. Keep service endpoints, credentials, release identity, and
+resource settings in the target environment's configuration.
+
+The repository supplies a Docker/SSH deployment implementation. Its commands and infrastructure integrations apply to
+that implementation. A target such as Cloudflare requires an appropriate build/runtime integration; this repository's
+SSH script does not deploy to that platform. Before choosing another target, validate support for Node.js APIs, the
+MongoDB driver, Sharp image processing, image storage, server sessions, and the OpenTelemetry exporter. Adapt storage,
+secret injection, and telemetry collection to the target platform where necessary.
+
+Preserve authentication, data consistency, privacy, health checks, and release rollback behavior across targets.
+Configure the platform's public URL and identity-provider settings without embedding environment-specific addresses in
+source documentation.
+
 ## Deployment and rollback
 
 The production image is built from [docker/Dockerfile](../docker/Dockerfile).
 [docker/compose.yaml](../docker/compose.yaml) defines a MongoDB replica set, blue and green application containers, an
-Nginx gateway, and an Alloy monitoring service. Both application containers share the MongoDB service and image
-directory.
+Nginx gateway, and separate Alloy services for monitoring and traces. Both application containers share the MongoDB
+service and image directory.
 
 ```mermaid
 flowchart LR
@@ -131,8 +147,8 @@ flowchart LR
     Gateway --> Drain[Wait for previous Nginx workers to exit]
     Drain --> Stop[Stop previous container]
     Stop --> Active[New active version]
-    Old[Previous version] --> Restart[Start and check previous container]
-    Restart --> Rollback[pnpm deploy:rollback]
+    Old[Previous version] --> Ready[Healthy previous slot]
+    Ready --> Rollback[pnpm deploy:rollback]
     Rollback --> Gateway
     Mongo[(MongoDB)] --> Idle
     Mongo --> Old
@@ -145,56 +161,46 @@ After the reload, it waits up to six minutes for the previous Nginx worker proce
 application container. If the workers do not exit or their status cannot be checked, deployment reports a failure and
 leaves the previous container running. Deployment requires a running `rusys-gateway`.
 
-The deployment uploads [monitoring configuration](../docker/monitoring/config.alloy), validates Compose and Alloy
-configuration, and recreates `monitoring` (Grafana Alloy) before building the new application slot. Alloy collects
-Docker container metrics with cAdvisor and NAS host metrics with the Unix exporter every 15 seconds. It sends both to
-Grafana Cloud using Prometheus remote write, with `project=rusys`, `environment=production`, and `host=synology-ds923`
-labels. It also discovers this Compose project's Docker logs, sanitizes them, and writes structured entries to Grafana
-Cloud Loki. The [Docker logging guide](monitoring/DOCKER-LOGGING.md) describes privacy filtering and Explore
-verification. It uses host networking so Unix network metrics reflect the NAS, and binds its local status UI only to
-`127.0.0.1:12345` on the NAS. Its write-ahead log uses a persistent Docker volume across recreations.
+The deployment validates infrastructure and collector configuration before building the candidate release. Application
+configuration comes from the target environment; local `.env.deploy.local` supplies only the SSH destination and command
+settings listed below. It is not copied to the target, and application database credentials are not read from it.
+Provision authenticated database access and monitoring credentials before running the supplied deployment script.
 
-MongoDB metrics use a dedicated `clusterMonitor` account over the discovered private Docker bridge address. The
-[MongoDB metrics guide](monitoring/MONGODB-METRICS.md) describes the required authorization rollout before deployment;
-deployment refuses to continue while MongoDB accepts unauthenticated `serverStatus`. The current database command still
-requires that separately approved rollout. Database and metrics ports must remain unpublished.
+### Monitoring integrations
 
-Set these values in the server's `.env` before deploying; Compose refuses to start if any is empty:
+The supplied container deployment exports host/container metrics, structured logs, database metrics, and backend traces
+through Alloy. For managed hosting, use the platform's supported infrastructure metrics and log interfaces; application
+span names and privacy rules can remain consistent across integrations.
 
-| Name                | Value                                                                                         |
-| ------------------- | --------------------------------------------------------------------------------------------- |
-| `GC_METRICS_URL`    | Grafana Cloud Prometheus remote write URL                                                     |
-| `GC_METRICS_USER`   | Grafana Cloud Prometheus username or instance ID                                              |
-| `GC_METRICS_TOKEN`  | Grafana Cloud token with metrics write permission                                             |
-| `GC_LOKI_URL`       | Grafana Cloud Loki push endpoint ending in `/loki/api/v1/push`                                |
-| `GC_LOKI_USER`      | Grafana Cloud logs instance ID                                                                |
-| `GC_LOKI_TOKEN`     | Grafana Cloud token with `logs:write` permission                                              |
-| `DOCKER_ROOT_DIR`   | NAS Docker data root from `docker info --format '{{.DockerRootDir}}'`                         |
-| `DB_MONITORING_URI` | Dedicated monitoring URI; see the MongoDB guide for authority and authorization prerequisites |
+| Configuration                                           | Purpose                                                              |
+| ------------------------------------------------------- | -------------------------------------------------------------------- |
+| `GC_METRICS_URL`, `GC_METRICS_USER`, `GC_METRICS_TOKEN` | Metrics destination and scoped write credentials                     |
+| `GC_LOKI_URL`, `GC_LOKI_USER`, `GC_LOKI_TOKEN`          | Log destination and scoped write credentials                         |
+| `GC_OTLP_ENDPOINT`, `GC_OTLP_USER`, `GC_OTLP_TOKEN`     | Trace destination and scoped write credentials                       |
+| `DB_MONITORING_URI`                                     | Dedicated database monitoring identity                               |
+| `DOCKER_ROOT_DIR`                                       | Docker data directory for the supplied container metrics integration |
 
-Alloy's cAdvisor exporter requires privileged mode and host filesystem mounts according to the
-[Grafana Alloy Docker guidance](https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.exporter.cadvisor/).
-The service mounts the Docker socket, host root, `/proc`, `/sys`, `/var/run` read-only, and the Docker data root.
-Synology may not have `/dev/disk`, so this path is not mounted; cAdvisor disk and container filesystem I/O metrics may
-be incomplete. The Docker socket and privileged mode grant broad host access even with read-only mounts. Keep the server
-and Grafana Cloud token restricted. Verify that `DOCKER_ROOT_DIR` matches the NAS value before deployment, since
-Synology installations may not use `/var/lib/docker`. The configured directory must exist, or Docker may create an empty
-bind mount and container metrics will be incomplete.
+Keep secrets in the deployment platform's secret store. The Compose implementation uses its own private environment
+file; do not upload a workstation copy or print resolved configuration. Database and collector interfaces must remain
+private or authenticated.
 
-After deployment, check Grafana Cloud Explore for `up{project="rusys",environment="production",host="synology-ds923"}`
-and confirm host and container scrape jobs report `1`. Check `node_network_receive_bytes_total` for NAS interfaces and
-`container_cpu_usage_seconds_total` and `container_memory_working_set_bytes` for containers. Confirm host CPU/RAM and
-container CPU/RAM series first, then inspect which disk and filesystem I/O series are available. A running Alloy
-container confirms startup only; it does not confirm successful scraping or Cloud authentication. If metrics are absent,
-inspect `docker logs rusys-monitoring` on the NAS and the loopback Alloy status UI through an SSH tunnel.
+Host/container exporters depend on the runtime and available permissions. The supplied cAdvisor integration uses
+privileged access and host filesystem mounts; Docker socket access grants broad host control even with a read-only
+mount. These requirements do not apply to platform-native metrics. Verify supported collectors and resource constraints
+for the chosen target rather than carrying host-specific configuration between providers.
 
-The public site and `/api/health` are also monitored by Grafana Cloud's external Frankfurt probe. Their checks,
-alerting, dashboard, and separate local Grafana credential keys are documented in the
-[Synthetic Monitoring guide](monitoring/SYNTHETIC-MONITORING.md). Those external checks do not depend on Alloy.
+Confirm metrics, logs, and traces through destination-side queries and representative traffic. Collector startup alone
+does not prove ingestion. External HTTP monitoring should remain independent of the application's collector.
 
-`pnpm deploy:rollback` requires a healthy previous container. After a successful deployment, start the stopped previous
-container on the server and wait for it to become healthy before running rollback. The previous image remains available,
-so this does not require a rebuild.
+Detailed guides: [monitoring overview](monitoring/MONITORING.md), [structured logs](monitoring/DOCKER-LOGGING.md),
+[database metrics](monitoring/MONGODB-METRICS.md), [backend traces](monitoring/BACKEND-TRACING.md), and
+[external HTTP checks](monitoring/SYNTHETIC-MONITORING.md).
+
+### Rollback
+
+`pnpm deploy:rollback` switches traffic to a healthy previous slot without rebuilding. It requires that slot to be
+available and ready; it does not start a stopped container. Establish release availability through the target
+environment's deployment controls before switching traffic.
 
 ### Automatic production releases
 
