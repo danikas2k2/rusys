@@ -9,10 +9,10 @@ configuration.
 Collection starts automatically in production on an exact allowed origin with a valid collector URL. The SDK is loaded
 by `src/instrumentation-client.ts`; no preference control or stored consent is used. Existing values of the former
 `rusys-observability-consent-v1` key are ignored. Diagnostics do not read or write browser storage. Do Not Track and
-Global Privacy Control disable collection. Privacy and configuration are rechecked after asynchronous SDK loading and
-before every outgoing item. Focus and visibility changes recheck browser privacy, pausing Faro and aborting pending
-transport requests when collection becomes disabled. Requests already received by Grafana cannot be recalled. Local
-development and preview origins do not collect.
+Global Privacy Control do not disable collection. Configuration is rechecked after asynchronous SDK loading and before
+every outgoing item. Focus and visibility changes recheck configuration, pausing Faro and aborting pending transport
+requests when the collector configuration is invalid or the origin is no longer allowed. Requests already received by
+Grafana cannot be recalled. Local development and preview origins do not collect.
 
 The outgoing allowlist reconstructs telemetry rather than editing arbitrary SDK payloads:
 
@@ -60,8 +60,8 @@ dialog session are deduplicated.
 These statistics cover eligible production browsers only, not every visitor or every interaction. They cannot measure
 unique people: the random session ID is memory-only, not a user ID. Asynchronous SDK loading can miss early
 interactions, errors and some navigation measurements. Events already in flight can be lost during navigation, logout or
-network failure, and browser privacy signals disable collection. No replay, automatic DOM click capture or input content
-capture is enabled.
+network failure. Browser extensions and network controls can also block delivery. No replay, automatic DOM click capture
+or input content capture is enabled.
 
 ### Usage queries
 
@@ -94,7 +94,7 @@ sum by (event_data_entity, event_data_action, event_data_result) (count_over_tim
 
 The application uses default-on collection with the data minimization controls above. Its configuration does not
 determine the operator's legal basis. Keep the privacy notice accurate about Grafana processing, data categories,
-retention and browser privacy controls, and review payloads when upgrading Faro.
+retention and the fact that DNT/GPC do not disable collection, and review payloads when upgrading Faro.
 
 ## Build and deployment
 
@@ -115,8 +115,8 @@ authentication: a nonbrowser client can forge an Origin header. Apply Cloud quot
 
 ## Verify a deployed release
 
-1. Open `https://rusys.andriaus.com` with a fresh browser profile and DNT/GPC disabled. Confirm collection starts
-   automatically without a preference prompt or storage entry.
+1. Open `https://rusys.andriaus.com` with a fresh browser profile. Confirm collection starts automatically without a
+   preference prompt or storage entry.
 2. Reload to observe a full navigation; interact with the page and hide the tab so deferred Web Vitals are reported.
    Inspect collector POST bodies: allowlisted measurements, fixed metadata, SDK version and a random session ID only.
    Confirm the `X-Faro-Session-Id` header matches `meta.session.id`.
@@ -128,12 +128,12 @@ authentication: a nonbrowser client can forge an Origin header. Apply Cloud quot
    exception appears with type `TypeError` and the fixed redacted message, without the supplied message.
 5. In Grafana Frontend Observability select `rusys-web`; confirm Web Vitals, the exception and `telemetry_enabled` for
    this build. In Explore, the application's Loki records can be checked with `{app_id="8029"}`.
-6. Enable DNT or GPC, then focus the page or reload. Confirm further actions produce no requests. Repeat on an unrelated
-   origin: collection must remain disabled. Verify Grafana rejects an unrelated browser origin and permits only the
-   production origin in its CORS response.
+6. Enable DNT and GPC where supported, then focus the page or reload. Confirm actions continue to send filtered
+   telemetry. Repeat on an unrelated origin: collection must remain disabled. Verify Grafana rejects an unrelated
+   browser origin and permits only the production origin in its CORS response.
 
-Repository tests validate default initialization, browser privacy overrides, privacy filtering and configuration. They
-cannot establish that a deployed release is actually delivering measurements; the deployment checks above remain
+Repository tests validate default initialization, collection with DNT/GPC enabled, privacy filtering and configuration.
+They cannot establish that a deployed release is actually delivering measurements; the deployment checks above remain
 required.
 
 ## Source maps and trace correlation

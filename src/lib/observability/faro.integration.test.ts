@@ -45,7 +45,7 @@ describe('real Faro SDK transport pipeline', () => {
 
     afterEach(async () => {
         const faro = await import('./faro');
-        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        vi.stubEnv('NEXT_PUBLIC_FARO_URL', '');
         await faro.syncObservability();
         measurementInstance?.pause();
         controller?.abort();
@@ -130,7 +130,7 @@ describe('real Faro SDK transport pipeline', () => {
         });
     });
 
-    it('delivers bounded usage categories, strips runtime content, and stops actions after a browser privacy request', async () => {
+    it('delivers bounded usage with DNT/GPC enabled, strips runtime content, and stops on invalid configuration', async () => {
         const faro = await import('./faro');
         await faro.syncObservability();
         const attributes = {
@@ -168,9 +168,51 @@ describe('real Faro SDK transport pipeline', () => {
         expect(JSON.stringify(bodies())).not.toMatch(/private|secret|content/);
 
         Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        Object.defineProperty(navigator, 'globalPrivacyControl', { configurable: true, value: true });
+        await faro.syncObservability();
+        faro.trackFaroEvent('form_field_changed', attributes);
+        faro.trackFaroEvent('form_field_changed', attributes);
+        await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(6));
+
+        expect(
+            bodies()
+                .slice(4)
+                .flatMap((body) => body.events ?? [])
+        ).toStrictEqual([
+            {
+                name: 'form_field_changed',
+                attributes: { form: 'product', field: 'name' },
+                timestamp: expect.any(String),
+            },
+            {
+                name: 'form_field_changed',
+                attributes: { form: 'product', field: 'name' },
+                timestamp: expect.any(String),
+            },
+        ]);
+        expect(JSON.stringify(bodies())).not.toMatch(/private|secret|content/);
+
+        fetchMock.mockImplementationOnce(
+            (_input, options) =>
+                new Promise((_resolve, reject) => {
+                    options?.signal?.addEventListener(
+                        'abort',
+                        () => reject(new DOMException('Aborted', 'AbortError')),
+                        { once: true }
+                    );
+                })
+        );
+        faro.trackFaroEvent('dialog_opened', { dialog: 'product' });
+        await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(7));
+        const signal = fetchMock.mock.lastCall?.[1]?.signal;
+
+        expect(signal?.aborted).toBe(false);
+
+        vi.stubEnv('NEXT_PUBLIC_FARO_URL', '');
         await faro.syncObservability();
         faro.trackFaroEvent('dialog_opened', { dialog: 'product' });
 
-        expect(fetchMock).toHaveBeenCalledTimes(4);
+        expect(signal?.aborted).toBe(true);
+        expect(fetchMock).toHaveBeenCalledTimes(7);
     });
 });

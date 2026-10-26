@@ -30,7 +30,7 @@ function maySend(): boolean {
     return observabilityConfigured(); /*&& !browserPrivacyRequested()*/
 }
 
-/** Recheck browser privacy after asynchronous SDK loading and before every transport item. */
+/** Recheck collection configuration after asynchronous SDK loading and before every transport item. */
 export async function syncObservability(): Promise<void> {
     if (!maySend()) {
         instance?.pause();
