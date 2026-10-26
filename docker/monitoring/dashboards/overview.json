@@ -1,0 +1,612 @@
+{
+  "uid": "rusys-overview",
+  "title": "Rusys Overview",
+  "id": null,
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "tags": ["rusys", "production", "monitoring"],
+  "timezone": "browser",
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "annotations": {
+    "list": []
+  },
+  "links": [
+    {
+      "title": "Rusys Overview",
+      "type": "link",
+      "url": "/d/rusys-overview",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Infrastructure",
+      "type": "link",
+      "url": "/d/rusys-infrastructure",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Application",
+      "type": "link",
+      "url": "/d/rusys-application",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Frontend & Usage",
+      "type": "link",
+      "url": "/d/rusys-frontend-usage",
+      "keepTime": true,
+      "includeVars": true
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "prometheus",
+        "label": "prometheus data source",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "refresh": 1
+      },
+      {
+        "name": "loki",
+        "label": "loki data source",
+        "type": "datasource",
+        "query": "loki",
+        "current": {},
+        "refresh": 1
+      },
+      {
+        "name": "tempo",
+        "label": "tempo data source",
+        "type": "datasource",
+        "query": "tempo",
+        "current": {},
+        "refresh": 1
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Coverage and interpretation",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Start with public checks, then follow the links to isolate infrastructure, application, or browser symptoms. Uptime is sampled probe success, not a contractual SLA. A startup log identifies the latest observed release for a slot; it does not prove that NGINX currently routes traffic to it. Missing backup/slot telemetry is an explicit coverage gap."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Public availability by check / probe",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bool",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "probe_success{project=\"rusys\",environment=\"production\",job=~\"rusys-homepage|rusys-health\"}",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{job}} · {{probe}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Uptime over 24 hours",
+      "type": "stat",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "100 * avg by (job) (avg_over_time(probe_success{project=\"rusys\",environment=\"production\",job=~\"rusys-homepage|rusys-health\"}[24h]))",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{job}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Uptime over 7 days",
+      "type": "stat",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "100 * avg by (job) (avg_over_time(probe_success{project=\"rusys\",environment=\"production\",job=~\"rusys-homepage|rusys-health\"}[7d]))",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{job}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "NAS CPU use",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "1 - avg(rate(node_cpu_seconds_total{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",mode=\"idle\"}[5m]))",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "NAS CPU use"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "NAS memory use",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "1 - node_memory_MemAvailable_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"} / node_memory_MemTotal_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "NAS memory use"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "API 5xx fraction",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 20,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "(sum(count_over_time({project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" | status >= 500 [5m])) or (sum(count_over_time({project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" [5m])) * 0)) / sum(count_over_time({project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" [5m]))",
+          "queryType": "range",
+          "editorMode": "code",
+          "legendFormat": "API 5xx fraction"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "API p95 duration",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "quantile_over_time(0.95, {project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" | unwrap request_time | __error__=\"\" [5m]) by (container)",
+          "queryType": "range",
+          "editorMode": "code",
+          "legendFormat": "API p95 duration"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Latest observed application startup / slot / release",
+      "type": "logs",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 28,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "{project=\"rusys\",environment=\"production\",service_name=\"rusys-web\"} | json | event=\"server_started\" | __error__=\"\"",
+          "queryType": "range",
+          "editorMode": "code",
+          "legendFormat": "{{name}}"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Currently observed running application slot",
+      "type": "stat",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bool",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "(max by (name) (container_last_seen{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-app-(blue|green)\"}) > time() - 60) * 0 + 1",
+          "queryType": "instant",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "legendFormat": "{{name}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "MongoDB connection health",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bool",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "mongodb_up{project=\"rusys\",environment=\"production\",job=\"integrations/mongodb\",instance=\"rusys-db\"}",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "MongoDB connection health"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Last successful backup age",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 36,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "time() - rusys_backup_last_success_timestamp_seconds{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "Last successful backup age"
+        }
+      ]
+    }
+  ]
+}

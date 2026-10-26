@@ -1,0 +1,892 @@
+[
+  {
+    "uid": "rusys-public-down",
+    "title": "Rusys public endpoint unavailable",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "0s",
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "critical"
+    },
+    "annotations": {
+      "summary": "All probes failed throughout the last 15 minutes with at least three executions per probe.",
+      "description": "Check public DNS/TLS, NAS connectivity, gateway, and active slot. Check both homepage and health checks in Synthetic Monitoring.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-overview",
+      "__panelId__": "2"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${prometheus}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "(max by (job) (max_over_time(probe_success{project=\"rusys\",environment=\"production\",job=~\"rusys-homepage|rusys-health\"}[15m])) == bool 0) and (min by (job) (count_over_time(probe_success{project=\"rusys\",environment=\"production\",job=~\"rusys-homepage|rusys-health\"}[15m])) >= 3)",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "uid": "rusys-public-missing",
+    "title": "Rusys public check telemetry missing",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "0s",
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "At least one required external check has no samples for 20 minutes.",
+      "description": "Check Synthetic Monitoring check definitions, probe health and metric ingestion. Missing probe data is not proof of public uptime.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-overview",
+      "__panelId__": "2"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${prometheus}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "absent_over_time(probe_success{project=\"rusys\",environment=\"production\",job=\"rusys-homepage\"}[20m]) or absent_over_time(probe_success{project=\"rusys\",environment=\"production\",job=\"rusys-health\"}[20m])",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "uid": "rusys-nas-memory",
+    "title": "Rusys NAS memory pressure",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "10m",
+    "noDataState": "Alerting",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "NAS available memory below 15% for 10 minutes.",
+      "description": "Inspect container working sets, NAS services and swap; identify sustained growth before restarting anything.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-infrastructure",
+      "__panelId__": "3"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${prometheus}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "node_memory_MemAvailable_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"} / node_memory_MemTotal_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"} < bool 0.15",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "uid": "rusys-container-memory",
+    "title": "Rusys container memory pressure",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "5m",
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "Container working set exceeds 85% of a finite configured memory limit for 5 minutes.",
+      "description": "Inspect the named container, its configured limit, release and workload. Unlimited containers are excluded.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-infrastructure",
+      "__panelId__": "6"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${prometheus}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "((container_memory_working_set_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"} / container_spec_memory_limit_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"}) > bool 0.85) and (container_spec_memory_limit_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"} > 0 and container_spec_memory_limit_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"} < 1e15)",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "uid": "rusys-disk-space",
+    "title": "Rusys filesystem capacity",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "15m",
+    "noDataState": "Alerting",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "Persistent filesystem usage above 80% for 15 minutes.",
+      "description": "Confirm the affected device/mount; inspect Docker storage, logs and backups. Do not delete database files.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-infrastructure",
+      "__panelId__": "7"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${prometheus}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "(1 - node_filesystem_avail_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"} / node_filesystem_size_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"}) > bool 0.80",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "uid": "rusys-gateway-missing",
+    "title": "Rusys gateway telemetry missing",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "0s",
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "No gateway log samples for 20 minutes, including scheduled external probes.",
+      "description": "Check gateway access logging, Alloy Docker discovery and Loki ingestion. This covers missing API metrics without alerting on ordinary low traffic.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-application",
+      "__panelId__": "2"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${loki}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "absent_over_time({project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} [20m])",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "uid": "rusys-api-errors",
+    "title": "Rusys API 5xx errors",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "5m",
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "API 5xx ratio exceeds 2% with at least 20 non-health API requests per 5-minute window, sustained for 5 minutes.",
+      "description": "Inspect gateway status, application failures and traces; correlate with release/slot. Low traffic does not trigger this rate alert.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-application",
+      "__panelId__": "6"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${loki}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "(((sum(count_over_time({project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" | status >= 500 [5m])) or (sum(count_over_time({project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" [5m])) * 0)) / sum(count_over_time({project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" [5m]))) > bool 0.02) and (sum(count_over_time({project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" [5m])) >= 20)",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "uid": "rusys-api-latency",
+    "title": "Rusys API p95 latency",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "10m",
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "API p95 exceeds 1 second with at least 20 non-health API requests per 5-minute window for 10 minutes.",
+      "description": "Open slow backend traces; inspect MongoDB, image work, CPU and memory before adjusting the threshold.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-application",
+      "__panelId__": "7"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${loki}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "(quantile_over_time(0.95, {project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" | unwrap request_time | __error__=\"\" [5m]) by (container) > bool 1) and on() (sum(count_over_time({project=\"rusys\",environment=\"production\",container=\"rusys-gateway\"} | json | uri != \"\" | __error__=\"\" | uri =~ \"^/api/.*\" | uri != \"/api/health\" [5m])) >= 20)",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "uid": "rusys-mongodb-down",
+    "title": "Rusys MongoDB monitoring unavailable",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "5m",
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "MongoDB exporter scrape or database connection unavailable/missing for 5 minutes.",
+      "description": "Check Alloy discovery, exporter credentials/clusterMonitor role and private MongoDB connectivity. Do not expose database ports.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-application",
+      "__panelId__": "11"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${prometheus}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "((up{project=\"rusys\",environment=\"production\",job=\"integrations/mongodb\",instance=\"rusys-db\"} == 0) + 1) or ((mongodb_up{project=\"rusys\",environment=\"production\",job=\"integrations/mongodb\",instance=\"rusys-db\"} == 0) + 1) or absent(up{project=\"rusys\",environment=\"production\",job=\"integrations/mongodb\",instance=\"rusys-db\"}) or absent(mongodb_up{project=\"rusys\",environment=\"production\",job=\"integrations/mongodb\",instance=\"rusys-db\"})",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "uid": "rusys-backup-status",
+    "title": "Rusys backup stale failed or missing",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "15m",
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "Backup failed, last success older than 26 hours, or backup telemetry missing for 15 minutes.",
+      "description": "Inspect the backup scheduler, latest exit status and storage destination. Missing telemetry requires wiring the documented backup metrics; never assume a backup succeeded.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-overview",
+      "__panelId__": "11"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "4h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${prometheus}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "((time() - rusys_backup_last_success_timestamp_seconds{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"} > 93600) * 0 + 1) or ((rusys_backup_last_run_success{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"} == 0) + 1) or absent(rusys_backup_last_success_timestamp_seconds{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}) or absent(rusys_backup_last_run_success{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"})",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

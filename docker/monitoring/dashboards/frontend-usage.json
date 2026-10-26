@@ -1,0 +1,1027 @@
+{
+  "uid": "rusys-frontend-usage",
+  "title": "Frontend & Usage",
+  "id": null,
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "tags": ["rusys", "production", "monitoring"],
+  "timezone": "browser",
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "annotations": {
+    "list": []
+  },
+  "links": [
+    {
+      "title": "Rusys Overview",
+      "type": "link",
+      "url": "/d/rusys-overview",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Infrastructure",
+      "type": "link",
+      "url": "/d/rusys-infrastructure",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Application",
+      "type": "link",
+      "url": "/d/rusys-application",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Frontend & Usage",
+      "type": "link",
+      "url": "/d/rusys-frontend-usage",
+      "keepTime": true,
+      "includeVars": true
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "grafanacloud-purplecheetah2525-logs",
+          "value": "grafanacloud-logs"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Loki data source",
+        "multi": false,
+        "name": "loki",
+        "options": [],
+        "query": "loki",
+        "refresh": 1,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "8029",
+          "value": "8029"
+        },
+        "hide": 0,
+        "label": "Faro app ID",
+        "name": "app_id",
+        "options": [
+          {
+            "selected": true,
+            "text": "8029",
+            "value": "8029"
+          }
+        ],
+        "query": "8029",
+        "type": "textbox"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Collection coverage",
+      "type": "text",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Tracking starts by default on configured production origins. Browser Do Not Track and Global Privacy Control do not disable collection. These are **event counts**, not all visitors or unique users. Forms record completed field edits and validation categories, never their contents. One action can emit started and success/error events; use **Confirmed data operations** for successful mutations. Legacy create/upload/export events are excluded from the usage totals. Empty panels can mean no eligible activity or that the instrumented release has not been deployed."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Recorded usage events",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "sum (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=~\"dialog_opened|dialog_closed|form_field_changed|form_submitted|form_validation_failed|form_result|checkbox_changed|list_reordered|refresh|auth|navigation|tab_changed|view_changed|data_action|search_performed|filter_applied\" | __error__=\"\" [$__range]))",
+          "legendFormat": "",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Confirmed data operations",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "sum (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=\"data_action\" | event_data_result=\"success\" | __error__=\"\" [$__range]))",
+          "legendFormat": "",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Failed operations",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "sum (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=~\"data_action|auth|refresh\" | event_data_result=\"error\" | __error__=\"\" [$__range]))",
+          "legendFormat": "",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Events by category",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_name) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=~\"dialog_opened|dialog_closed|form_field_changed|form_submitted|form_validation_failed|form_result|checkbox_changed|list_reordered|refresh|auth|navigation|tab_changed|view_changed|data_action|search_performed|filter_applied\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_name}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Page visits",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_page) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=\"navigation\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_page}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Dialog openings and closings",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_dialog, event_name) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=~\"dialog_opened|dialog_closed\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_dialog}} · {{event_name}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Completed form field edits",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_form, event_data_field) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=\"form_field_changed\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_form}} · {{event_data_field}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Form validation failures",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_form, event_data_field) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=\"form_validation_failed\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_form}} · {{event_data_field}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Form submissions and outcomes",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_form, event_name, event_data_result) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=~\"form_submitted|form_result\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_form}} · {{event_name}} · {{event_data_result}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Checkbox changes",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_control, event_data_state) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=\"checkbox_changed\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_control}} · {{event_data_state}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Saved list reorders",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_list, event_data_result) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=\"list_reordered\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_list}} · {{event_data_result}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Data operation outcomes",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_entity, event_data_action, event_data_result) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=\"data_action\" | event_data_result=~\"success|error\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_entity}} · {{event_data_action}} · {{event_data_result}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Login and logout",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 40
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_action, event_data_result) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=\"auth\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_action}} · {{event_data_result}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "User refreshes",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 48
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_data_source, event_data_result) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=\"refresh\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_data_source}} · {{event_data_result}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Tabs and amount views",
+      "type": "bargauge",
+      "description": "",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 48
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No recorded events"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "editorMode": "code",
+          "expr": "topk(20, sum by (event_name, event_data_tab, event_data_view) (count_over_time({app_id=\"$app_id\",kind=\"event\"} | logfmt | event_name=~\"tab_changed|view_changed\" | __error__=\"\" [$__range])))",
+          "legendFormat": "{{event_name}} · {{event_data_tab}} · {{event_data_view}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "title": "Browser exceptions",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 56,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "sum(count_over_time({app_id=\"$app_id\",kind=\"exception\"} [5m]))",
+          "queryType": "range",
+          "editorMode": "code",
+          "legendFormat": "Browser exceptions"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "title": "LCP p75",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 56,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "quantile_over_time(0.75, {app_id=\"$app_id\",kind=\"measurement\"} | logfmt | type=\"web-vitals\" | unwrap value_lcp | __error__=\"\" [5m]) by (app_id)",
+          "queryType": "range",
+          "editorMode": "code",
+          "legendFormat": "LCP p75"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "title": "INP p75",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 64,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "quantile_over_time(0.75, {app_id=\"$app_id\",kind=\"measurement\"} | logfmt | type=\"web-vitals\" | unwrap value_inp | __error__=\"\" [5m]) by (app_id)",
+          "queryType": "range",
+          "editorMode": "code",
+          "legendFormat": "INP p75"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "title": "CLS p75",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 64,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "quantile_over_time(0.75, {app_id=\"$app_id\",kind=\"measurement\"} | logfmt | type=\"web-vitals\" | unwrap value_cls | __error__=\"\" [5m]) by (app_id)",
+          "queryType": "range",
+          "editorMode": "code",
+          "legendFormat": "CLS p75"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "title": "Session coverage",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 72,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "The browser SDK sends a random memory-only session ID required by Faro. Session instrumentation/history is intentionally disabled. Usage events are not unique visitors or persistent sessions; use Frontend Observability for available session diagnostics. Browser panels may be empty before an eligible browser sends telemetry."
+      }
+    }
+  ]
+}

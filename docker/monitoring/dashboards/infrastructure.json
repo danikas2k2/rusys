@@ -1,0 +1,573 @@
+{
+  "uid": "rusys-infrastructure",
+  "title": "Infrastructure",
+  "id": null,
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "tags": ["rusys", "production", "monitoring"],
+  "timezone": "browser",
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "annotations": {
+    "list": []
+  },
+  "links": [
+    {
+      "title": "Rusys Overview",
+      "type": "link",
+      "url": "/d/rusys-overview",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Infrastructure",
+      "type": "link",
+      "url": "/d/rusys-infrastructure",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Application",
+      "type": "link",
+      "url": "/d/rusys-application",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Frontend & Usage",
+      "type": "link",
+      "url": "/d/rusys-frontend-usage",
+      "keepTime": true,
+      "includeVars": true
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "prometheus",
+        "label": "prometheus data source",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "refresh": 1
+      },
+      {
+        "name": "loki",
+        "label": "loki data source",
+        "type": "datasource",
+        "query": "loki",
+        "current": {},
+        "refresh": 1
+      },
+      {
+        "name": "tempo",
+        "label": "tempo data source",
+        "type": "datasource",
+        "query": "tempo",
+        "current": {},
+        "refresh": 1
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Coverage and interpretation",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Host metrics are scoped to the Synology deployment. Container memory percentages are shown only for finite, configured limits; unlimited containers still show working-set bytes. cAdvisor start time changes indicate recreation/restart, not a durable restart counter. Filesystem panels may be unavailable on DSM: no data is not free disk space."
+      }
+    },
+    {
+      "id": 2,
+      "title": "NAS CPU by mode",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "sum by (mode) (rate(node_cpu_seconds_total{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}[5m]))",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{mode}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "NAS available memory",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "node_memory_MemAvailable_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "NAS available memory"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Container CPU cores",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"}[5m]))",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{name}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Container working set (current and peak in legend)",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "container_memory_working_set_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"}",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{name}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Container memory / configured limit",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "(container_memory_working_set_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"} / container_spec_memory_limit_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"}) and (container_spec_memory_limit_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"} > 0 and container_spec_memory_limit_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"} < 1e15)",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{name}}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Filesystem used fraction",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 20,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "1 - node_filesystem_avail_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"} / node_filesystem_size_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"}",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{mountpoint}} · {{device}}"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "NAS disk read/write bytes per second",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "sum by (device) (rate(node_disk_read_bytes_total{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}[5m]) + rate(node_disk_written_bytes_total{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}[5m]))",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{device}}"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Container network receive / transmit bytes per second",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 28,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "sum by (name) (rate(container_network_receive_bytes_total{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"}[5m]) + rate(container_network_transmit_bytes_total{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"}[5m]))",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{name}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Observed container start-time changes over 24h",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "changes((max by (name, host) (container_start_time_seconds{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",name=~\"rusys-.*\"}))[24h:1m])",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{name}}"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Collector scrape availability",
+      "type": "timeseries",
+      "description": "Production Rusys telemetry. No data means missing telemetry or no eligible activity; verify collection before interpreting it as healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 36,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bool",
+          "noValue": "No data — check collection"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": ["lastNotNull", "max"]
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "up{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}",
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "{{job}} · {{instance}}"
+        }
+      ]
+    }
+  ]
+}
