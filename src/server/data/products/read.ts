@@ -3,89 +3,108 @@ import type { ClientSession, Filter } from 'mongodb';
 import type { Product } from '~/schema';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
+import { withSpan } from '~/server/tracing';
 
 export async function getProducts(years: readonly number[], session: ClientSession): Promise<Product[]> {
-    const database = await db();
-    const col = database.collection<Product>('products');
-    // A category archive is inherited by its products.  We deliberately keep the product
-    // document itself intact: historical summary queries read it independently of this list.
-    const archivedGroups = await database
-        .collection('groups')
-        .find({ archivedAt: { $exists: true } }, { projection: { _id: 0, group: 1 }, session })
-        .toArray();
-    const match: Filter<Product> = {
-        archivedAt: { $exists: false },
-        group: { $nin: archivedGroups.map(({ group }) => group) },
-        ...(years.length
-            ? {
-                  $or: [
-                      { years: { $exists: false } },
-                      { years: { $size: 0 } },
-                      { 'years.year': { $in: years } } as Filter<Product>,
-                  ],
-              }
-            : {}),
-    };
-    return col
-        .aggregate<Product>(
-            [
-                { $match: match },
-                {
-                    $project: {
-                        _id: 0,
-                        group: 1,
-                        name: 1,
-                        parent: 1,
-                        expiryToleranceDays: 1,
-                        years: 1,
-                        missing: 1,
-                        image: 1,
-                        photo: 1,
-                        variantImages: 1,
-                        variantPhotos: 1,
-                        updates: {
-                            $cond: [
-                                { $gt: [{ $size: { $ifNull: ['$updates', []] } }, 0] },
-                                {
-                                    $reduce: {
-                                        input: '$updates',
-                                        initialValue: [],
-                                        in: {
-                                            $concatArrays: [
-                                                '$$value',
-                                                { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
-                                            ],
+    return withSpan('products.read', async () => {
+        const database = await db();
+        const col = database.collection<Product>('products');
+        // A category archive is inherited by its products.  We deliberately keep the product
+        // document itself intact: historical summary queries read it independently of this list.
+        const archivedGroups = await withSpan('db.groups.find', () =>
+            database
+                .collection('groups')
+                .find({ archivedAt: { $exists: true } }, { projection: { _id: 0, group: 1 }, session })
+                .toArray()
+        );
+        const match: Filter<Product> = {
+            archivedAt: { $exists: false },
+            group: { $nin: archivedGroups.map(({ group }) => group) },
+            ...(years.length
+                ? {
+                      $or: [
+                          { years: { $exists: false } },
+                          { years: { $size: 0 } },
+                          { 'years.year': { $in: years } } as Filter<Product>,
+                      ],
+                  }
+                : {}),
+        };
+        return withSpan('db.products.aggregate', () =>
+            col
+                .aggregate<Product>(
+                    [
+                        { $match: match },
+                        {
+                            $project: {
+                                _id: 0,
+                                group: 1,
+                                name: 1,
+                                parent: 1,
+                                expiryToleranceDays: 1,
+                                years: 1,
+                                missing: 1,
+                                image: 1,
+                                photo: 1,
+                                variantImages: 1,
+                                variantPhotos: 1,
+                                updates: {
+                                    $cond: [
+                                        { $gt: [{ $size: { $ifNull: ['$updates', []] } }, 0] },
+                                        {
+                                            $reduce: {
+                                                input: '$updates',
+                                                initialValue: [],
+                                                in: {
+                                                    $concatArrays: [
+                                                        '$$value',
+                                                        {
+                                                            $map: {
+                                                                input: '$$this.years',
+                                                                as: 'y',
+                                                                in: { year: '$$y.year' },
+                                                            },
+                                                        },
+                                                    ],
+                                                },
+                                            },
                                         },
-                                    },
+                                        '$$REMOVE',
+                                    ],
                                 },
-                                '$$REMOVE',
-                            ],
-                        },
-                        undates: {
-                            $cond: [
-                                { $gt: [{ $size: { $ifNull: ['$undates', []] } }, 0] },
-                                {
-                                    $reduce: {
-                                        input: '$undates',
-                                        initialValue: [],
-                                        in: {
-                                            $concatArrays: [
-                                                '$$value',
-                                                { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
-                                            ],
+                                undates: {
+                                    $cond: [
+                                        { $gt: [{ $size: { $ifNull: ['$undates', []] } }, 0] },
+                                        {
+                                            $reduce: {
+                                                input: '$undates',
+                                                initialValue: [],
+                                                in: {
+                                                    $concatArrays: [
+                                                        '$$value',
+                                                        {
+                                                            $map: {
+                                                                input: '$$this.years',
+                                                                as: 'y',
+                                                                in: { year: '$$y.year' },
+                                                            },
+                                                        },
+                                                    ],
+                                                },
+                                            },
                                         },
-                                    },
+                                        '$$REMOVE',
+                                    ],
                                 },
-                                '$$REMOVE',
-                            ],
+                            },
                         },
-                    },
-                },
-                { $sort: { group: 1, name: 1, 'years.year': 1 } },
-            ],
-            { session }
-        )
-        .toArray();
+                        { $sort: { group: 1, name: 1, 'years.year': 1 } },
+                    ],
+                    { session }
+                )
+                .toArray()
+        );
+    });
 }
 
 export async function getProductsWithYears(session: ClientSession): Promise<{ products: Product[]; years: number[] }> {
@@ -107,40 +126,48 @@ export async function getProductVariants(
     name: string,
     session: ClientSession
 ): Promise<readonly string[] | undefined> {
-    if (!group || !name) {
-        return undefined;
-    }
-    const col = (await db()).collection('products');
-    const concatVariants = {
-        $concatArrays: [
-            '$$value',
-            { $map: { input: { $ifNull: ['$$this.amounts', []] }, as: 'a', in: '$$a.variant' } },
-        ],
-    };
-    const collectCurrentVariants = {
-        $reduce: { input: { $ifNull: ['$years', []] }, initialValue: [], in: concatVariants },
-    };
-    const collectUpdateVariants = {
-        $reduce: { input: { $ifNull: ['$$this.years', []] }, initialValue: [], in: concatVariants },
-    };
-    const concatUpdateVariants = { $concatArrays: ['$$value', collectUpdateVariants] };
-    const collectUpdatesVariants = {
-        $reduce: { input: { $ifNull: ['$updates', []] }, initialValue: [], in: concatUpdateVariants },
-    };
-    return (
-        await col
-            .aggregate<{
-                variants?: string[];
-            }>(
-                [
-                    { $match: { group, name } },
-                    { $project: { allVariants: { $setUnion: [collectCurrentVariants, collectUpdatesVariants] } } },
-                    { $unwind: '$allVariants' },
-                    { $group: { _id: null, variants: { $addToSet: '$allVariants' } } },
-                    { $project: { _id: 0, variants: 1 } },
-                ],
-                { session }
+    return withSpan('products.variants', async () => {
+        if (!group || !name) {
+            return undefined;
+        }
+        const col = (await db()).collection('products');
+        const concatVariants = {
+            $concatArrays: [
+                '$$value',
+                { $map: { input: { $ifNull: ['$$this.amounts', []] }, as: 'a', in: '$$a.variant' } },
+            ],
+        };
+        const collectCurrentVariants = {
+            $reduce: { input: { $ifNull: ['$years', []] }, initialValue: [], in: concatVariants },
+        };
+        const collectUpdateVariants = {
+            $reduce: { input: { $ifNull: ['$$this.years', []] }, initialValue: [], in: concatVariants },
+        };
+        const concatUpdateVariants = { $concatArrays: ['$$value', collectUpdateVariants] };
+        const collectUpdatesVariants = {
+            $reduce: { input: { $ifNull: ['$updates', []] }, initialValue: [], in: concatUpdateVariants },
+        };
+        return (
+            await withSpan('db.products.aggregate', () =>
+                col
+                    .aggregate<{
+                        variants?: string[];
+                    }>(
+                        [
+                            { $match: { group, name } },
+                            {
+                                $project: {
+                                    allVariants: { $setUnion: [collectCurrentVariants, collectUpdatesVariants] },
+                                },
+                            },
+                            { $unwind: '$allVariants' },
+                            { $group: { _id: null, variants: { $addToSet: '$allVariants' } } },
+                            { $project: { _id: 0, variants: 1 } },
+                        ],
+                        { session }
+                    )
+                    .next()
             )
-            .next()
-    )?.variants;
+        )?.variants;
+    });
 }

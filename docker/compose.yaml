@@ -18,6 +18,7 @@ x-app: &app
     GOOGLE_ALLOWED_USERS: ${GOOGLE_ALLOWED_USERS}
     DB: ${DB}
     IMAGES_DIR: ${IMAGES_DIR:-/app/data/images}
+    OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://${OTLP_PRIVATE_IP:-172.30.79.2}:4318/v1/traces
   depends_on:
     rusys-db:
       condition: service_healthy
@@ -25,6 +26,7 @@ x-app: &app
     - 3000
   networks:
     - rusys-net
+    - traces-private
   volumes:
     - /volume1/docker/rusys-app/images:/app/data/images
   healthcheck:
@@ -41,6 +43,32 @@ x-app: &app
     start_period: 10s
 
 services:
+  traces:
+    container_name: rusys-traces
+    image: grafana/alloy:v1.20.1
+    restart: unless-stopped
+    environment: &traces-environment
+      OTLP_LISTEN_ADDRESS: ${OTLP_PRIVATE_IP:-172.30.79.2}:4318
+      GC_OTLP_ENDPOINT: ${GC_OTLP_ENDPOINT:?Set GC_OTLP_ENDPOINT in the NAS .env}
+      GC_OTLP_USER: ${GC_OTLP_USER:?Set GC_OTLP_USER in the NAS .env}
+      GC_OTLP_TOKEN: ${GC_OTLP_TOKEN:?Set GC_OTLP_TOKEN in the NAS .env}
+    command: ["run", "--server.http.listen-addr=127.0.0.1:12345", "/etc/alloy/traces.alloy"]
+    networks:
+      traces-private:
+        ipv4_address: ${OTLP_PRIVATE_IP:-172.30.79.2}
+      traces-egress:
+    volumes: &traces-volumes
+      - ./monitoring/traces.alloy:/etc/alloy/traces.alloy:ro
+    mem_limit: 256m
+
+  traces-validate:
+    image: grafana/alloy:v1.20.1
+    profiles: [tools]
+    network_mode: none
+    environment: *traces-environment
+    volumes: *traces-volumes
+    command: ["validate", "/etc/alloy/traces.alloy"]
+
   rusys-db:
     container_name: rusys-db
     hostname: rusys-db
@@ -49,10 +77,11 @@ services:
       - 27017
     volumes:
       - rusys-db-data:/data/db
+      - ${DB_KEYFILE}:/etc/mongo-keyfile:ro
     restart: unless-stopped
     networks:
       - rusys-net
-    command: ["mongod", "--replSet", "rusys-rs", "--bind_ip_all"]
+    command: ["mongod", "--replSet", "rusys-rs", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile"]
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ hello: 1 }).isWritablePrimary || quit(1)"]
       interval: 5s
@@ -105,7 +134,7 @@ services:
       GC_LOKI_URL: ${GC_LOKI_URL:?Set GC_LOKI_URL in the NAS .env}
       GC_LOKI_USER: ${GC_LOKI_USER:?Set GC_LOKI_USER in the NAS .env}
       GC_LOKI_TOKEN: ${GC_LOKI_TOKEN:?Set GC_LOKI_TOKEN in the NAS .env}
-      MONGODB_MONITORING_URI: ${MONGODB_MONITORING_URI:?Set MONGODB_MONITORING_URI in the NAS .env after the MongoDB authorization rollout}
+      DB_MONITORING_URI: ${DB_MONITORING_URI:?Set DB_MONITORING_URI in the NAS .env after the MongoDB authorization rollout}
     command:
       [
         "run",
@@ -125,6 +154,14 @@ services:
       - ${DOCKER_ROOT_DIR:?Set DOCKER_ROOT_DIR to the NAS DockerRootDir in the server .env}:/var/lib/docker:ro
 
 networks:
+  traces-private:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: ${OTLP_PRIVATE_SUBNET:-172.30.79.0/24}
+  traces-egress:
+    driver: bridge
   rusys-net:
     driver: bridge
 

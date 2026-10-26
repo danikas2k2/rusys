@@ -1,21 +1,38 @@
 # RUSYS monitoring
 
-RUSYS uses Grafana Cloud for external uptime checks, NAS/Docker metrics, and Docker logs. These are separate data paths:
+Monitoring should follow the application across hosting providers. Collect service identity, release, and environment
+consistently; choose infrastructure integrations that match the target platform.
 
-| Path                                                                              | Current state                                                                                                                                                                                                                              | Guide                                                                                  |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| Synthetic Monitoring public probe → public site and `/api/health` → Grafana Cloud | Deployed: two Frankfurt HTTP checks every five minutes, an email alert after three failed executions in 15 minutes, and an uptime dashboard. A temporary failure check triggered a successfully delivered test notification on 2026-10-19. | [Synthetic Monitoring setup](SYNTHETIC-MONITORING.md)                                  |
-| Grafana Alloy on the NAS → host and Docker metrics → Grafana Cloud                | Alloy deployment is implemented; verify metric coverage in the target stack.                                                                                                                                                               | [Development and deployment](../DEVELOPMENT-AND-DEPLOYMENT.md#deployment-and-rollback) |
-| Grafana Alloy on the NAS → sanitized Docker logs → Grafana Cloud Loki             | Deployed and verified through Grafana’s Loki API on 2026-10-24: both application slots, MongoDB, gateway, and Alloy produce structured logs.                                                                                               | [Docker logging](DOCKER-LOGGING.md)                                                    |
+| Signal                 | Purpose                                                    | Guide                                                                               |
+| ---------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| External HTTP checks   | Availability and response time from outside the deployment | [Synthetic Monitoring](SYNTHETIC-MONITORING.md)                                     |
+| Infrastructure metrics | Resource usage and infrastructure health                   | [Deployment integrations](../DEVELOPMENT-AND-DEPLOYMENT.md#monitoring-integrations) |
+| Structured logs        | Bounded operational events and request diagnostics         | [Logging](DOCKER-LOGGING.md)                                                        |
+| Database metrics       | Connections, operation rates, and database health          | [MongoDB metrics](MONGODB-METRICS.md)                                               |
+| Backend traces         | Request timing and nested application operations           | [Backend tracing](BACKEND-TRACING.md)                                               |
 
-MongoDB metrics are configured in the repository and await the approved authorization rollout and production Explore
-verification. The [MongoDB metrics guide](MONGODB-METRICS.md) covers the private path, dedicated account, NAS secret,
-deployment prerequisite, and connection/operation queries.
+The supplied deployment uses Grafana Cloud and Alloy. External HTTP checks run independently of application-side
+collectors. Logs, metrics, and traces use separate credentials and ingestion paths; validate each signal at its
+destination rather than treating a running collector as proof of successful ingestion.
 
-The public probe checks RUSYS from outside the NAS. It continues to detect a site outage if Alloy is unavailable.
-`/api/health` is a lightweight Next.js liveness route, so it does not require MongoDB or Alloy. The uptime dashboard
-shows availability, last check time, response time, uptime over the selected range, and check/incident history.
+## Hosting boundaries
 
-The [original Lithuanian monitoring roadmap](MONITORING-ROADMAP.lt.md) is retained as a historical planning document.
-Its stage statuses and checklist predate the Synthetic Monitoring deployment; use the current guides above for setup and
-operational status.
+Application spans and structured events describe application behavior. Container discovery, host exporters, network
+addresses, and secret injection belong to the deployment integration. When moving to a managed platform, replace those
+integrations with the platform's supported telemetry interfaces while preserving privacy and service identity.
+
+The supplied Docker network, SSH deployment commands, and host metrics collection apply to the repository's container
+deployment. They are not prerequisites for every hosting target. See the
+[deployment guide](../DEVELOPMENT-AND-DEPLOYMENT.md#deployment-targets) before selecting another runtime.
+
+## Acceptance checks
+
+- External checks verify the public application and `/api/health` without depending on an internal collector.
+- Logs are structured and exclude credentials, personal data, and unrestricted request content.
+- Metrics have bounded labels and reflect the relevant infrastructure and database activity.
+- Traces identify the service, environment, release, and deployment slot where applicable.
+- Collector and database interfaces remain private or authenticated.
+- Alert routing is tested independently of dashboard visibility.
+
+The [Lithuanian installation roadmap](MONITORING-ROADMAP.lt.md) remains the working plan for the current installation.
+The [general monitoring roadmap](MONITORING-ROADMAP.md) describes capabilities for other deployment targets.

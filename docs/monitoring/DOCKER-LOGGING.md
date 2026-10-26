@@ -1,21 +1,24 @@
 # Docker logs in Grafana Cloud Loki
 
-Alloy collects stdout/stderr from the `rusys-app` Compose project, including both application slots, MongoDB, the
-gateway, and Alloy itself. Collection follows container recreation through Docker discovery. Stopped slots retain their
-previously ingested history; they produce new logs only while running.
+The supplied Docker integration uses Alloy to collect stdout/stderr from the `rusys-app` Compose project, including both
+application slots, MongoDB, the gateway, and Alloy itself. Collection follows container recreation through Docker
+discovery. Stopped slots retain their previously ingested history; they produce new logs only while running.
+
+For another hosting platform, forward the same structured application events through its supported log collection
+interface. Container discovery and gateway access logging belong to this Docker integration.
 
 ## Credentials and deployment
 
-Keep `GC_LOKI_URL`, `GC_LOKI_USER`, and `GC_LOKI_TOKEN` only in the NAS Compose `.env`. The URL must be the Grafana
-Cloud Loki push endpoint ending in `/loki/api/v1/push`; the username is the logs instance ID, and the token needs
-`logs:write`. Compose passes these values only to `monitoring`. Do not copy them into application environment files,
-source code, images, or browser variables. The existing Grafana administration credential in `.env.grafana.local` is
-separate and is used only for administration and read-only verification.
+Keep `GC_LOKI_URL`, `GC_LOKI_USER`, and `GC_LOKI_TOKEN` in the target environment's secret store; Compose deployments
+inject them through a private `.env`. The URL must be the Grafana Cloud Loki push endpoint ending in
+`/loki/api/v1/push`; the username is the logs instance ID, and the token needs `logs:write`. Compose passes these values
+only to `monitoring`. Do not copy them into application environment files, source code, images, or browser variables.
+The existing Grafana administration credential in `.env.grafana.local` is separate and is used only for administration
+and read-only verification.
 
 The existing deployment command uploads and validates Alloy configuration before recreating monitoring and building the
-inactive application slot. Follow the [deployment guide](../DEVELOPMENT-AND-DEPLOYMENT.md#deployment-and-rollback). Both
-slots need to be rebuilt through normal blue/green deployments before both use the new application logger. Restarting an
-old image does not add logging instrumentation. Never stop the whole Compose project to update Alloy.
+inactive application slot. Follow the [deployment guide](../DEVELOPMENT-AND-DEPLOYMENT.md#deployment-and-rollback).
+Application logging is part of the application build; collector configuration does not modify application images.
 
 ## Privacy and useful context
 
@@ -62,9 +65,9 @@ and payload fields must never become labels. Use JSON parsing at query time for 
 
 ## Verify in Grafana Explore
 
-Open [Grafana Explore](https://purplecheetah2525.grafana.net/explore), select `grafanacloud-purplecheetah2525-logs`, and
-use a time range containing a deployment. Synthetic Monitoring also uses `project="rusys"`, so select Docker containers
-explicitly when verifying this pipeline.
+Open Grafana Explore in the target stack, select its Loki data source, and choose a time range containing representative
+traffic. Synthetic Monitoring also uses `project="rusys"`, so select Docker containers explicitly when verifying this
+pipeline.
 
 ```logql
 {project="rusys", container=~"rusys-app-(blue|green)"}
@@ -113,63 +116,26 @@ output while verifying privacy. Check that release versions and personal identif
 After recreating Alloy, confirm fresh entries still arrive; its persistent storage preserves Docker positions.
 
 If entries are missing, inspect the loopback Alloy status UI through an SSH tunnel and check Docker discovery,
-processing, and Loki write component health. A healthy container alone does not prove Cloud ingestion. Verify the NAS
-credentials and token scope without printing their values. Grafana queries use the data source's read access; the NAS
-token needs only write access.
+processing, and Loki write component health. A healthy container alone does not prove Cloud ingestion. Verify the
+collector credentials and token scope without printing their values. Grafana queries use the data source's read access;
+the collector token needs only write access.
 
-On first activation, Docker discovery may replay older container history. Loki can reject entries outside its allowed
-timestamp window with HTTP 400. Confirm fresh entries arrive and distinguish this initial backfill rejection from
-recurring write failures.
+## Configuration and acceptance
 
-## Validate NGINX before rollout
+Validate gateway and collector configuration as part of the deployment pipeline. Confirm representative application and
+access events arrive with the expected schema, bounded labels, and release/environment context. A configuration change
+must preserve these contracts across supported deployment targets.
 
-Normal blue/green deployment runs `nginx -t` before reload, including when restoring the previous configuration after a
-failed switch. For a logging-only rollout, render the template with the active backend into the existing mounted
-`.deploy/nginx/default.conf`, retain a backup, and validate before reloading:
+Regression tests for the supplied container integration:
 
 ```sh
-docker exec rusys-gateway nginx -t
-# Continue only after successful validation.
-docker exec rusys-gateway nginx -s reload
+pnpm exec vitest run scripts/nginx-logging.test.ts scripts/deploy.test.ts
+RUN_DOCKER_TESTS=1 pnpm exec vitest run scripts/nginx-logging.test.ts
 ```
 
-If a gateway recreation is necessary, validate the rendered mounted configuration with the same image and network before
-running Compose `up`. Restore the backup on validation failure. Do not recreate or reload with unvalidated
-configuration. Validate Alloy before recreating monitoring and verify fresh Loki ingestion after rollout.
+The opt-in tests use disposable containers and dummy sensitive values to verify gateway log formatting, single access
+entries, sanitization, and collector filtering. Validate actual destination-side ingestion separately for every
+environment.
 
-Regression tests run with `pnpm exec vitest run scripts/nginx-logging.test.ts scripts/deploy.test.ts`. The real NGINX
-and Alloy container fixtures are opt-in: `RUN_DOCKER_TESTS=1 pnpm exec vitest run scripts/nginx-logging.test.ts`. They
-use local Docker, `nginx:stable-alpine`, and `grafana/alloy:v1.20.1`. They validate before NGINX startup, check
-duplicate access entries, send dummy sensitive headers/queries and encoded delimiters/controls, and run safe/unsafe
-records through the actual Alloy pipeline. Temporary files and containers are isolated and cleaned up.
-
-## Verification record
-
-On 2026-10-25, a logging-only rollout validated the rendered candidate with the gateway image, validated Alloy,
-recreated monitoring, and ran `nginx -t` again before reloading `rusys-gateway`. The blue backend remained active. Fresh
-public health and unauthenticated image probes returned 200 and 401. Grafana's Loki data-source API returned both
-statuses and passed numeric duration filtering, request counts, and container-grouped p95 queries. The `>= 0.5` duration
-query was valid and returned no slow requests in the sample. All 712 sampled access records had exactly the expected
-schema and contained no dummy query, Authorization, or Cookie markers. The Explore UI was not manually exercised.
-
-Final local checks passed TypeScript, formatting, ESLint, Stylelint, and 2,885 tests. The two opt-in real-container
-tests also passed separately: 42 focused checks passed with Docker enabled, including NGINX syntax validation, one JSON
-access entry per request, encoded/terminal-newline URI redaction, and real Alloy startup/filtering. Independent code and
-security reviews found no actionable issues; accessibility review found no user-facing impact.
-
-On 2026-10-24, two normal blue/green deployments rebuilt both application slots. Grafana's Loki query API returned
-structured entries for `rusys-app-blue`, `rusys-app-green`, `rusys-db`, `rusys-gateway`, and `rusys-monitoring`. Both
-application slots emitted `server_started` with their own slot and version `4.2.10`. A 1,000-entry production sample
-contained only allowed fields, values, and stored labels; every line parsed as JSON. The LogQL JSON parsing query above
-also succeeded. These queries were validated through Grafana's data-source API; the Explore UI was not manually
-exercised. Blue was healthy and active after rollout, Green was stopped normally, and public `/api/health` returned HTTP
-200 with `{"status":"ok"}` and `Cache-Control: no-store`.
-
-Local validation passed all 2,857 tests, TypeScript, formatting, ESLint, Stylelint, and the production build. The pinned
-Alloy image validated the configuration. Isolated real-Alloy fixtures verified privacy filtering, Docker discovery, both
-application slots' stdout/stderr, and exclusion of unrelated containers and sensitive Docker labels. Independent code
-and security reviews found no actionable issues; accessibility review found no user-facing impact.
-
-The pipeline follows the official
-[Docker collection guide](https://grafana.com/docs/alloy/latest/monitor/monitor-docker-containers/) and
-[Loki processing reference](https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/).
+References: [Docker log collection](https://grafana.com/docs/alloy/latest/monitor/monitor-docker-containers/),
+[Loki processing](https://grafana.com/docs/alloy/latest/reference/components/loki/loki.process/).

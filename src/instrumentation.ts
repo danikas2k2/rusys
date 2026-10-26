@@ -4,6 +4,8 @@ export async function register(): Promise<void> {
     if (process.env.NEXT_RUNTIME === 'nodejs') {
         const { installConsoleLogging, logEvent } = await import('~/server/logging');
         installConsoleLogging();
+        const { registerTracing } = await import('~/server/telemetry');
+        registerTracing();
         logEvent('server_started');
     }
 }

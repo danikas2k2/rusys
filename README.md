@@ -11,7 +11,9 @@ organized by topic, with Mermaid diagrams placed alongside the concepts they exp
 - [Development and deployment](docs/DEVELOPMENT-AND-DEPLOYMENT.md) — local setup, commands, CI, and production releases.
 - [Synthetic Monitoring](docs/monitoring/SYNTHETIC-MONITORING.md) — external uptime checks, alerts, dashboard, and
   Grafana credentials.
-- [Monitoring overview](docs/monitoring/MONITORING.md) — current monitoring paths and the historical roadmap.
+- [Monitoring overview](docs/monitoring/MONITORING.md) — telemetry signals, integration boundaries, and roadmap.
+- [Backend tracing](docs/monitoring/BACKEND-TRACING.md) — private OTLP transport, credentials, privacy, and
+  verification.
 
 Related guides: [accessibility](ACCESSIBILITY.md), [table components](src/components/table/TABLE.md), and the
 [Service Worker](src/components/app/ServiceWorker/README.md).
@@ -83,7 +85,7 @@ pnpm assets
 
 `pnpm deploy` checks the project and uploads only the source files needed for the Docker build directly to the server.
 It builds the inactive blue or green app slot. Once that slot starts and passes its health check, Nginx switches traffic
-to it. The previous slot keeps running for a quick rollback:
+to it. The previous image remains available for rollback to a healthy previous slot:
 
 ```sh
 pnpm deploy:rollback

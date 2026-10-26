@@ -80,6 +80,7 @@ const requiredBuildSources = [
     'docker/compose.yaml',
     'docker/nginx.conf.template',
     'docker/monitoring/config.alloy',
+    'docker/monitoring/traces.alloy',
     'package.json',
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
@@ -190,7 +191,7 @@ services:
   monitoring-preflight:
     image: grafana/alloy:v1.20.1
     environment:
-      MONGODB_MONITORING_URI: \${MONGODB_MONITORING_URI:?Set MONGODB_MONITORING_URI in the NAS .env after the authorization rollout}
+      DB_MONITORING_URI: \${DB_MONITORING_URI:?Set DB_MONITORING_URI in the NAS .env after the authorization rollout}
 MONGODB_MONITORING_PREFLIGHT
 `);
 }
@@ -324,6 +325,15 @@ export function deploy(config?: DeployConfig) {
                 connection.remote(
                     '"$docker" compose --env-file .env -f docker/compose.yaml run --rm --no-deps monitoring validate /etc/alloy/config.alloy\n'
                 );
+                connection.remote(
+                    '"$docker" compose --env-file .env -f docker/compose.yaml run --rm --no-deps traces-validate\n'
+                );
+                connection.remote(
+                    '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate traces\n'
+                );
+                if (!isRunning(connection, 'rusys-traces')) {
+                    throw new Error('The traces collector is not running. Check its Alloy configuration.');
+                }
                 connection.remote(
                     '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps rusys-db\n'
                 );

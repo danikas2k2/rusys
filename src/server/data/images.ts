@@ -6,6 +6,7 @@ import sharp from 'sharp';
 
 import { IMAGE_EXTENSION_BY_MIME_TYPE } from '~/common/utils/files';
 import { SchemaError } from '~/schema';
+import { withSpan } from '~/server/tracing';
 
 // Mounted as a persistent Docker volume in production - see docker/compose.yaml
 export const IMAGES_DIR = path.resolve(/*turbopackIgnore: true*/ process.env.IMAGES_DIR ?? 'images');
@@ -26,23 +27,25 @@ function shardedPath(uid: string, extension: string): string {
 }
 
 export async function saveImage(dataUrl: string): Promise<string> {
-    const match = DATA_URL_PATTERN.exec(dataUrl);
-    if (!match) {
-        throw new Error(SchemaError.InvalidImageType);
-    }
-    const [, mimeType, base64] = match;
-    const extension = IMAGE_EXTENSION_BY_MIME_TYPE[mimeType];
-    if (!extension) {
-        throw new Error(SchemaError.InvalidImageType);
-    }
+    return withSpan('image.save', async () => {
+        const match = DATA_URL_PATTERN.exec(dataUrl);
+        if (!match) {
+            throw new Error(SchemaError.InvalidImageType);
+        }
+        const [, mimeType, base64] = match;
+        const extension = IMAGE_EXTENSION_BY_MIME_TYPE[mimeType];
+        if (!extension) {
+            throw new Error(SchemaError.InvalidImageType);
+        }
 
-    const relativePath = shardedPath(randomUUID().replace(/-/g, ''), extension);
-    const filePath = path.join(/*turbopackIgnore: true*/ IMAGES_DIR, relativePath);
+        const relativePath = shardedPath(randomUUID().replace(/-/g, ''), extension);
+        const filePath = path.join(/*turbopackIgnore: true*/ IMAGES_DIR, relativePath);
 
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
-    await fs.writeFile(filePath, Buffer.from(base64, 'base64'));
+        await fs.mkdir(path.dirname(filePath), { recursive: true });
+        await fs.writeFile(filePath, Buffer.from(base64, 'base64'));
 
-    return `${IMAGES_URL_PATH}/${relativePath}`;
+        return `${IMAGES_URL_PATH}/${relativePath}`;
+    });
 }
 
 // Removes now-empty shard directories left behind after deleting a file, up to (but not including) IMAGES_DIR.
@@ -94,14 +97,16 @@ async function isPhotoSized(filePath: string): Promise<boolean> {
 }
 
 async function saveThumbnail(sourcePath: string): Promise<string> {
-    const extension = path.extname(sourcePath).slice(1) || 'jpg';
-    const relativePath = shardedPath(randomUUID().replace(/-/g, ''), extension);
-    const filePath = path.join(/*turbopackIgnore: true*/ IMAGES_DIR, relativePath);
+    return withSpan('image.thumbnail', async () => {
+        const extension = path.extname(sourcePath).slice(1) || 'jpg';
+        const relativePath = shardedPath(randomUUID().replace(/-/g, ''), extension);
+        const filePath = path.join(/*turbopackIgnore: true*/ IMAGES_DIR, relativePath);
 
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
-    await sharp(sourcePath).resize(ICON_MAX_SIZE, ICON_MAX_SIZE, { fit: 'cover' }).toFile(filePath);
+        await fs.mkdir(path.dirname(filePath), { recursive: true });
+        await sharp(sourcePath).resize(ICON_MAX_SIZE, ICON_MAX_SIZE, { fit: 'cover' }).toFile(filePath);
 
-    return `${IMAGES_URL_PATH}/${relativePath}`;
+        return `${IMAGES_URL_PATH}/${relativePath}`;
+    });
 }
 
 export interface ClassifiedImage {
@@ -112,9 +117,11 @@ export interface ClassifiedImage {
 // Classifies an already-saved local image by its real pixel dimensions, generating an icon-sized
 // thumbnail (returned as `image`) when it's a photo (kept in full as `photo`). Used after a fresh upload.
 export async function classifyImage(url: string): Promise<ClassifiedImage> {
-    const filePath = resolveImagePath(url);
-    if (!filePath || !(await isPhotoSized(filePath))) {
-        return { image: url };
-    }
-    return { image: await saveThumbnail(filePath), photo: url };
+    return withSpan('image.classify', async () => {
+        const filePath = resolveImagePath(url);
+        if (!filePath || !(await isPhotoSized(filePath))) {
+            return { image: url };
+        }
+        return { image: await saveThumbnail(filePath), photo: url };
+    });
 }
