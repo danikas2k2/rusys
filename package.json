@@ -155,7 +155,7 @@
         "postcss-simple-vars": "^7.0.1",
         "prettier": "^3.9.10",
         "pwa-asset-generator": "^8.1.7",
-        "rolldown": "^1.2.14",
+        "rolldown": "^1.2.15",
         "stylelint": "^17.16.0",
         "stylelint-config-recommended": "^18.0.0",
         "stylelint-config-standard": "^40.0.0",
