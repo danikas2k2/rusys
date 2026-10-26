@@ -101,33 +101,61 @@ describe('default Faro lifecycle', () => {
         expect(mocks.pushEvent).toHaveBeenCalledWith('telemetry_enabled', undefined, undefined, { skipDedupe: true });
     });
 
-    it('aborts pending requests, drops signals and rotates session when privacy is enabled', async () => {
+    it('aborts pending requests, drops items and rotates session when an origin is revoked', async () => {
         const faro = await import('./faro');
         await faro.syncObservability();
         const config = mocks.initialize.mock.calls[0]?.[0] as BrowserConfig;
         const sample = { type: 'event', meta: {}, payload: { name: 'export_started' } } as TransportItem;
         const first = config.beforeSend?.(sample);
         const signal = mocks.transport.mock.calls[0]?.[0].requestOptions.signal as AbortSignal;
-        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        mocks.allowedOrigins.splice(0);
         await faro.syncObservability();
 
         expect(signal.aborted).toBe(true);
         expect(config.beforeSend?.(sample)).toBeNull();
         expect(mocks.pause).toHaveBeenCalledWith();
 
-        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '0' });
+        mocks.allowedOrigins.push(window.location.origin);
         await faro.syncObservability();
         await vi.waitFor(() => expect(mocks.unpause).toHaveBeenCalledExactlyOnceWith());
 
         expect(config.beforeSend?.(sample)?.meta.session?.id).not.toBe(first?.meta.session?.id);
     });
 
-    it.each(['doNotTrack', 'globalPrivacyControl'])('honors browser privacy signal %s', async (signal) => {
-        const faro = await import('./faro');
-        Object.defineProperty(navigator, signal, { configurable: true, value: signal === 'doNotTrack' ? '1' : true });
-        await faro.syncObservability();
+    it.each(['doNotTrack', 'globalPrivacyControl'])(
+        'initializes and delivers actions with browser privacy signal %s',
+        async (signal) => {
+            const faro = await import('./faro');
+            Object.defineProperty(navigator, signal, {
+                configurable: true,
+                value: signal === 'doNotTrack' ? '1' : true,
+            });
+            await faro.syncObservability();
 
-        expect(mocks.initialize).not.toHaveBeenCalled();
+            faro.trackFaroEvent('export_started');
+
+            expect(mocks.initialize).toHaveBeenCalledTimes(1);
+            expect(mocks.pushEvent).toHaveBeenCalledWith('export_started', undefined, undefined, { skipDedupe: true });
+        }
+    );
+
+    it('keeps the active transport and sanitized items when both browser privacy signals are enabled', async () => {
+        const faro = await import('./faro');
+        await faro.syncObservability();
+        const config = mocks.initialize.mock.calls[0]?.[0] as BrowserConfig;
+        const signal = mocks.transport.mock.calls[0]?.[0].requestOptions.signal as AbortSignal;
+        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        Object.defineProperty(navigator, 'globalPrivacyControl', { configurable: true, value: true });
+        await faro.syncObservability();
+        faro.trackFaroEvent('export_started');
+
+        expect(signal.aborted).toBe(false);
+        expect(mocks.pause).not.toHaveBeenCalled();
+        expect(mocks.transport).toHaveBeenCalledTimes(1);
+        expect(
+            config.beforeSend?.({ type: 'event', meta: {}, payload: { name: 'export_started' } } as TransportItem)
+        ).toMatchObject({ payload: { name: 'export_started' } });
+        expect(mocks.pushEvent).toHaveBeenCalledWith('export_started', undefined, undefined, { skipDedupe: true });
     });
 
     it('fails closed for malformed collector configuration', async () => {
@@ -154,13 +182,16 @@ describe('default Faro lifecycle', () => {
         expect(mocks.initialize).not.toHaveBeenCalled();
     });
 
-    it('rechecks browser privacy while the SDK loads', async () => {
+    it('continues initialization when both browser privacy signals change while the SDK loads', async () => {
         const faro = await import('./faro');
         const pending = faro.syncObservability();
         Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        Object.defineProperty(navigator, 'globalPrivacyControl', { configurable: true, value: true });
         await pending;
+        faro.trackFaroEvent('export_started');
 
-        expect(mocks.initialize).not.toHaveBeenCalled();
+        expect(mocks.initialize).toHaveBeenCalledTimes(1);
+        expect(mocks.pushEvent).toHaveBeenCalledWith('export_started', undefined, undefined, { skipDedupe: true });
     });
 
     it('cancels initialization when configuration becomes invalid during SDK loading', async () => {
@@ -195,7 +226,7 @@ describe('default Faro lifecycle', () => {
         expect(mocks.initialize).toHaveBeenCalledTimes(1);
     });
 
-    it('registers privacy rechecks once and aborts on focus or visibility changes', async () => {
+    it('registers configuration rechecks once and aborts or resumes on focus and visibility changes', async () => {
         const faro = await import('./faro');
         const windowListener = vi.spyOn(window, 'addEventListener');
         const documentListener = vi.spyOn(document, 'addEventListener');
@@ -206,12 +237,12 @@ describe('default Faro lifecycle', () => {
         expect(windowListener.mock.calls.filter(([name]) => name === 'focus')).toHaveLength(1);
         expect(documentListener.mock.calls.filter(([name]) => name === 'visibilitychange')).toHaveLength(1);
 
-        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        vi.stubEnv('NEXT_PUBLIC_FARO_URL', '');
         window.dispatchEvent(new Event('focus'));
 
         expect((mocks.transport.mock.calls[0]?.[0].requestOptions.signal as AbortSignal).aborted).toBe(true);
 
-        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '0' });
+        vi.stubEnv('NEXT_PUBLIC_FARO_URL', 'https://faro-collector-test.grafana.net/collect/test-key');
         document.dispatchEvent(new Event('visibilitychange'));
         await vi.waitFor(() => expect(mocks.unpause).toHaveBeenCalledTimes(1));
         for (const [name, listener] of windowListener.mock.calls) {
@@ -242,11 +273,11 @@ describe('default Faro lifecycle', () => {
         expect(() => faro.trackFaroEvent('export_started')).not.toThrow();
     });
 
-    it('drops custom events as soon as browser privacy is requested', async () => {
+    it('drops custom events as soon as collector configuration becomes invalid', async () => {
         const faro = await import('./faro');
         await faro.syncObservability();
         mocks.pushEvent.mockClear();
-        Object.defineProperty(navigator, 'globalPrivacyControl', { configurable: true, value: true });
+        vi.stubEnv('NEXT_PUBLIC_FARO_URL', '');
         faro.trackFaroEvent('export_started');
 
         expect(mocks.pushEvent).not.toHaveBeenCalled();
