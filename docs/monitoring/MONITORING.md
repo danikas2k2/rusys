@@ -11,6 +11,7 @@ consistently; choose infrastructure integrations that match the target platform.
 | Database metrics       | Connections, operation rates, and database health          | [MongoDB metrics](MONGODB-METRICS.md)                                               |
 | Backend traces         | Request timing and nested application operations           | [Backend tracing](BACKEND-TRACING.md)                                               |
 | Dashboards and alerts  | Cross-signal diagnosis and actionable notifications        | [Dashboards and alerts](DASHBOARDS-AND-ALERTS.md)                                   |
+| Retention              | Required history and when to activate daily aggregates     | [Retention decision](RETENTION.md)                                                  |
 
 The supplied deployment uses Grafana Cloud and Alloy. External HTTP checks run independently of application-side
 collectors. Logs, metrics, and traces use separate credentials and ingestion paths; validate each signal at its
