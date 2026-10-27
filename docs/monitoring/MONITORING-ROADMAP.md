@@ -40,3 +40,27 @@ required behavior rather than individual machines, accounts, incidents, or compl
 Each signal needs a destination-side query, representative traffic, and a defined failure indicator. Confirm bounded
 resource use, restricted ingestion, and absence of sensitive content. Test alerts without disrupting production data,
 and define retention and operating limits for the chosen observability service.
+
+## Implementation and remaining acceptance
+
+Reviewed on **2026-10-27** against the supplied implementation and recorded **2026-10-26** destination checks. This is
+not a fresh production audit or a claim that another hosting target is deployed. The
+[installation roadmap](MONITORING-ROADMAP.lt.md#12-atlikti-ir-likę-darbai) tracks detailed evidence, priorities and
+installation-specific follow-up work.
+
+- [x] Implement external page/health checks, infrastructure collection, structured logs and database monitoring.
+- [x] Implement backend tracing with bounded service/release/slot identity and private collector transport.
+- [x] Implement privacy-filtered frontend measurements, errors and bounded usage events.
+- [x] Provide four dashboards, ten baseline alerts and a recorded successful provider send through a disposable
+      query/evaluator/routing test.
+- [x] Document the [retention assessment](RETENTION.md), provisional 14-day window and revisit triggers.
+- [ ] Connect actual backup-job outcomes and an authoritative routed active-release signal to monitoring.
+- [ ] Confirm notification receipt independently, the operator's required history and effective account retention.
+- [ ] Record resilience, external probe failure/recovery, deployed permission/network-boundary and representative
+      operation checks; validate rendered dashboards and tune thresholds against representative load.
+- [ ] Revisit retention by **2026-11-09**, or sooner on a documented trigger. Implement and verify an independent daily
+      aggregate archive only if longer history is required; no archive is currently deployed.
+
+Session history/replay are intentionally excluded from the frontend privacy configuration. A future AWS, Cloudflare or
+other platform migration is separate work; validate the new integration at its destination before transferring
+completion status.
