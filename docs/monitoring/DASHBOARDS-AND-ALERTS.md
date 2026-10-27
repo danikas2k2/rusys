@@ -47,7 +47,7 @@ after 4 hours.
 | API 5xx errors                  | More than 2% 5xx and at least 20 real API requests in each 5m window, sustained for 5m                                                   | Correlate failure events, gateway status, release/slot and backend traces              |
 | API p95 latency                 | More than 1s and at least 20 real API requests in each 5m window, sustained for 10m                                                      | Inspect slow traces, MongoDB, image work and resource pressure                         |
 | MongoDB monitoring unavailable  | Exporter `up` or database `mongodb_up` is zero or absent for 5m                                                                          | Check private discovery/connectivity and monitoring permissions                        |
-| Backup stale, failed or missing | Last success older than 26h, latest run failed, or either required status metric absent, for 15m                                         | Inspect scheduler, exit status, destination and the backup metrics integration         |
+| Backup stale, failed or missing | Last success older than 2h, latest run failed, or either required status metric absent, for 15m                                          | Inspect scheduler, exit status, destination and the backup metrics integration         |
 
 Public check windows accommodate the currently configured five-minute check interval. The sample count is a metric
 coverage guard, not a guarantee of distinct probe executions; compare check history during validation. Missing either
@@ -94,9 +94,9 @@ actionable findings corrected and re-reviewed.
 
 ## Backup telemetry contract
 
-There is no scheduler backup-status metric in the current monitoring integration. MongoDB internal metrics containing
-the word `backup` do not prove a scheduled application backup succeeded. The baseline backup rule therefore detects the
-missing integration rather than silently claiming protection.
+The [backup job](BACKUPS.md) publishes its status through Alloy's textfile collector. MongoDB internal metrics
+containing the word `backup` do not prove a scheduled application backup succeeded. Until the job is deployed, the
+baseline backup rule detects the missing integration rather than silently claiming protection.
 
 The rule expects these gauges with `project="rusys"`, `environment="production"`, `host="synology-ds923"`:
 
@@ -105,11 +105,9 @@ rusys_backup_last_success_timestamp_seconds  # Unix seconds of last completed su
 rusys_backup_last_run_success                # 1 for the latest completed successful run, 0 for failure
 ```
 
-Persist the last-success timestamp across failed runs and restarts; update the latest-run result only after a run
-completes. Publish through the scheduler's supported private metrics/textfile integration. Do not export filenames,
-credentials or backup contents. The 26h threshold assumes daily backups plus two hours of slack; align it with the
-actual approved schedule before treating it as a backup service objective. Adding a backup producer or changing its
-schedule is separate operational work.
+The job preserves the last-success timestamp across failed runs and restarts and updates the result on completion. It
+does not export filenames, credentials or backup contents. The two-hour threshold allows one hour of slack for the
+hourly schedule; review it against observed run durations before treating it as a service objective.
 
 ## Provision and verify
 
