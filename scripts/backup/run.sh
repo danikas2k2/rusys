@@ -9,7 +9,7 @@ if [ "$#" -ne 1 ] || [ ! -r "$1" ]; then
 fi
 . "$1"
 : "${RESTIC_REPOSITORY:?}" "${RESTIC_PASSWORD_FILE:?}" "${MONGO_BACKUP_CONFIG:?}" "${BACKUP_WORK_DIR:?}" "${BACKUP_IMAGES_DIR:?}"
-export RESTIC_REPOSITORY RESTIC_PASSWORD_FILE
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 METRICS_DIR=${BACKUP_METRICS_DIR:-/volume1/docker/rusys-app/backup-metrics}
 mkdir -p "$BACKUP_WORK_DIR" "$METRICS_DIR"
 chmod 700 "$BACKUP_WORK_DIR"
@@ -50,10 +50,10 @@ docker exec -i rusys-db mongodump --config /dev/stdin --archive --oplog < "$MONG
 [ -s "$BACKUP_WORK_DIR/mongodb.archive" ]
 # A weekly complete scan. Restic still deduplicates stored content.
 if [ "$backup_start" = 7-02 ]; then
-    restic backup --force --tag rusys -- "$BACKUP_IMAGES_DIR" "$BACKUP_WORK_DIR/mongodb.archive"
+    sh "$script_dir/restic.sh" "$1" backup --force --tag rusys -- /backup/images /backup/work/mongodb.archive
 else
-    restic backup --tag rusys -- "$BACKUP_IMAGES_DIR" "$BACKUP_WORK_DIR/mongodb.archive"
+    sh "$script_dir/restic.sh" "$1" backup --tag rusys -- /backup/images /backup/work/mongodb.archive
 fi
-restic forget --tag rusys --keep-within 3m --prune
+sh "$script_dir/restic.sh" "$1" forget --tag rusys --keep-within 3m --prune
 last_success=$(date +%s)
 success=1
