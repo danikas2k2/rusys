@@ -69,7 +69,7 @@
         "@opentelemetry/otlp-exporter-base": "0.219.0",
         "@opentelemetry/resources": "2.8.0",
         "@opentelemetry/sdk-trace-base": "2.8.0",
-        "@opentelemetry/sdk-trace-node": "2.8.0",
+        "@opentelemetry/sdk-trace-node": "2.12.0",
         "@react-oauth/google": "^0.13.5",
         "@tabler/icons-react": "^3.50.0",
         "@tanstack/query-core": "^5.105.0",
