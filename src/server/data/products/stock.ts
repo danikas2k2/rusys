@@ -1,4 +1,4 @@
-import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter, WithId } from 'mongodb';
+import type { AnyBulkWriteOperation, ClientSession, Filter, WithId } from 'mongodb';
 
 import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import type {
@@ -37,11 +37,11 @@ export async function setAmounts(
     if (!group || !name || !changes?.length) {
         return false;
     }
-    const filter: UpdateFilter<Product> = { group, name };
+    const filter: Filter<Product> = { group, name };
     const operations: AnyBulkWriteOperation<Product>[] = [];
 
     const col = (await db()).collection<Product>('products');
-    const product = await col.findOne(filter, {
+    const product = await col.findOne<Pick<Product, 'years' | 'missing' | 'updates'>>(filter, {
         projection: { years: 1, missing: 1, updates: 1 },
         session,
     });
@@ -224,14 +224,14 @@ export async function undoProduct(
         return false;
     }
 
-    const filter: UpdateFilter<Product> = { group, name };
+    const filter: Filter<Product> = { group, name };
     const col = (await db()).collection<Product>('products');
-    const product = await col.findOne(filter, {
+    const product = await col.findOne<Pick<Product, 'years' | 'updates' | 'undates'>>(filter, {
         projection: { years: 1, updates: 1, undates: 1 },
         session,
     });
 
-    const updates = (product?.updates ?? []) as Update[];
+    const updates = product?.updates ?? [];
     const entryIndex = [...updates].reverse().findIndex((u) => u.years.some((y) => y.year === year));
     if (entryIndex === -1) {
         return false;
@@ -299,14 +299,14 @@ export async function redoProduct(
         return false;
     }
 
-    const filter: UpdateFilter<Product> = { group, name };
+    const filter: Filter<Product> = { group, name };
     const col = (await db()).collection<Product>('products');
-    const product = await col.findOne(filter, {
+    const product = await col.findOne<Pick<Product, 'years' | 'updates' | 'undates'>>(filter, {
         projection: { years: 1, updates: 1, undates: 1 },
         session,
     });
 
-    const undates = (product?.undates ?? []) as Update[];
+    const undates = product?.undates ?? [];
     const entryIndex = [...undates].reverse().findIndex((u) => u.years.some((y) => y.year === year));
     if (entryIndex === -1) {
         return false;
@@ -380,7 +380,7 @@ export async function setRemoving(
         return false;
     }
     return (await db())
-        .collection('products')
+        .collection<Product>('products')
         .updateOne(
             { group, name, 'years.year': year } as Filter<Product>,
             { [removing ? '$set' : '$unset']: { 'years.$.removing': removing } },
@@ -412,7 +412,7 @@ export async function setMissingBulk({ updates }: ApplyReview, session: ClientSe
             update: missing ? { $set: { missing: true } } : { $unset: { missing: 1 } },
         },
     }));
-    return (await db()).collection('products').bulkWrite(operations, { session }).then(hasEffect);
+    return (await db()).collection<Product>('products').bulkWrite(operations, { session }).then(hasEffect);
 }
 
 async function getProductHistory(

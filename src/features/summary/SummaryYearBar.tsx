@@ -18,7 +18,7 @@ export function SummaryYearBar() {
         () => summary.find(({ group, name }) => group === activeData?.group && name === activeData?.name),
         [summary, activeData?.group, activeData?.name]
     );
-    const years = useMemo(() => item?.years?.map(({ year }) => year).sort((a, b) => b - a) ?? [], [item]);
+    const years = useMemo(() => item?.years?.map(({ year }) => year).toSorted((a, b) => b - a) ?? [], [item]);
 
     const handleYearChange = useCallback(
         (value: string) => {

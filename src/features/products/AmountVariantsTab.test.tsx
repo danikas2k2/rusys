@@ -469,7 +469,7 @@ describe('<AmountVariantsTab>', () => {
             {
                 group: baseActive.group,
                 name: baseActive.name,
-                updates: [{ year: baseActive.year }],
+                updates: [{ time: 1, years: [{ year: baseActive.year, amounts: [] }] }],
                 undates: [],
             },
         ]);
@@ -487,7 +487,7 @@ describe('<AmountVariantsTab>', () => {
                 group: baseActive.group,
                 name: baseActive.name,
                 updates: [],
-                undates: [{ year: baseActive.year }],
+                undates: [{ time: 1, years: [{ year: baseActive.year, amounts: [] }] }],
             },
         ]);
 
@@ -502,7 +502,7 @@ describe('<AmountVariantsTab>', () => {
             {
                 group: baseActive.group,
                 name: baseActive.name,
-                updates: [{ year: baseActive.year }],
+                updates: [{ time: 1, years: [{ year: baseActive.year, amounts: [] }] }],
                 undates: [],
                 years: [{ year: baseActive.year, amounts: baseActive.amounts! }],
             },
@@ -524,7 +524,7 @@ describe('<AmountVariantsTab>', () => {
             {
                 group: baseActive.group,
                 name: baseActive.name,
-                updates: [{ year: baseActive.year }],
+                updates: [{ time: 1, years: [{ year: baseActive.year, amounts: [] }] }],
                 undates: [],
             },
         ]);
@@ -548,7 +548,7 @@ describe('<AmountVariantsTab>', () => {
                 group: baseActive.group,
                 name: baseActive.name,
                 updates: [],
-                undates: [{ year: baseActive.year }],
+                undates: [{ time: 1, years: [{ year: baseActive.year, amounts: [] }] }],
             },
         ]);
 

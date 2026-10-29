@@ -47,6 +47,7 @@ describe('backend tracing', () => {
         });
         await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
         const address = server.address();
+        // eslint-disable-next-line vitest/no-conditional-in-test
         if (!address || typeof address === 'string') {
             throw new Error('Missing test server address');
         }

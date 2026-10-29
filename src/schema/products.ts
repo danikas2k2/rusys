@@ -27,6 +27,7 @@ export const productSchema = productIdentitySchema.safeExtend({
     expiryToleranceDays: z.number().optional(),
     years: z.array(removingYearAmountsSchema).readonly().optional(),
     missing: z.boolean().optional(),
+    historyYears: z.array(z.number()).readonly().optional(),
     updates: productHistoryEntries.optional(),
     undates: productHistoryEntries.optional(),
     history: productHistoryCache.optional(),

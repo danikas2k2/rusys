@@ -48,8 +48,8 @@ describe('next.js app shell', () => {
         const htmlClasses = markup.match(/<html[^>]* class="([^"]*)"/)?.[1].split(/\s+/);
 
         expect(markup).toContain('<html lang="lt"');
-        expect(htmlClasses?.sort()).toStrictEqual(
-            ['noto-color-emoji', 'noto-sans', 'noto-sans-display', 'noto-sans-mono'].sort()
+        expect(htmlClasses?.toSorted()).toStrictEqual(
+            ['noto-color-emoji', 'noto-sans', 'noto-sans-display', 'noto-sans-mono'].toSorted()
         );
         expect(markup).toContain('<main>Application loaded</main>');
         expect(markup).toContain('<div class="pwa-top-blur-fix" aria-hidden="true"></div>');

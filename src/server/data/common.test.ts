@@ -1,7 +1,7 @@
 /** @vitest-environment node */
-import { bulk } from '@tests/bulk';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
+import _ from 'lodash';
 import { ClientSession } from 'mongodb';
 
 import { SchemaError } from '~/schema';
@@ -590,9 +590,7 @@ describe('common', () => {
             ]);
             await expect($all('products')).resolves.toStrictEqual([
                 ...products.slice(0, 2),
-                bulk(products[2], {
-                    $set: { 'updates.0.years.0.amounts.0.variant': '2' },
-                }),
+                _.set(_.cloneDeep(products[2]), 'updates.0.years.0.amounts.0.variant', '2'),
                 { ...products[3], years: [{ ...products[3].years![0], amounts: [{ variant: '2', amount: 2 }] }] },
                 ...products.slice(4),
             ]);
@@ -635,9 +633,7 @@ describe('common', () => {
             ]);
             await expect($all('products')).resolves.toStrictEqual([
                 ...products.slice(0, 2),
-                bulk(products[2], {
-                    $set: { 'updates.0.years.0.amounts.0.variant': '2' },
-                }),
+                _.set(_.cloneDeep(products[2]), 'updates.0.years.0.amounts.0.variant', '2'),
                 { ...products[3], years: [{ ...products[3].years![0], amounts: [{ variant: '2', amount: 2 }] }] },
                 ...products.slice(4),
             ]);

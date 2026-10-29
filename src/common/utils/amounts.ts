@@ -47,7 +47,7 @@ export function combineProductYears(
     }
     return Array.from(byYear.entries())
         .map(([year, amounts]) => ({ year, amounts }))
-        .sort((a, b) => a.year - b.year);
+        .toSorted((a, b) => a.year - b.year);
 }
 
 export interface AmountTotals {

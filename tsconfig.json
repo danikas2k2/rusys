@@ -22,7 +22,6 @@
         "allowSyntheticDefaultImports": true,
         "noFallthroughCasesInSwitch": true,
         "resolveJsonModule": true,
-        "preserveSymlinks": true,
         "jsx": "react-jsx",
         "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
         "strict": true,

@@ -30,7 +30,7 @@ export const getAggregatedVariantsFixture = (): Variant[] => {
                 (v.variant === 'm' && v.group === 'Daržovės') ||
                 (v.variant === 'm' && v.group === 'Uogienės'),
         }))
-        .sort((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
+        .toSorted((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
 };
 
 export const getProductsFixture = (): Product[] => [

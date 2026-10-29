@@ -5,7 +5,7 @@ export const IMAGE_EXTENSION_BY_MIME_TYPE: Readonly<Record<string, string>> = {
     'image/webp': 'webp',
 };
 
-export const IMAGE_MIME_TYPES: readonly string[] = Object.keys(IMAGE_EXTENSION_BY_MIME_TYPE);
+export const IMAGE_MIME_TYPES: string[] = Object.keys(IMAGE_EXTENSION_BY_MIME_TYPE);
 
 export const MAX_IMAGE_FILE_MB = 20;
 

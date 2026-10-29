@@ -1,6 +1,7 @@
 /** @vitest-environment node */
-import { bulk } from '@tests/bulk';
 import { getProductsFixture } from '@tests/fixtures';
+
+import _ from 'lodash';
 
 import { addVariantAmount } from '~/common/utils/amounts';
 import { SchemaError } from '~/schema';
@@ -98,6 +99,37 @@ describe('products', () => {
             expect(result.years).toStrictEqual([25, 23, 22, 21]);
         });
 
+        it('returns full updates and undates with unique history years', async () => {
+            const updates = [
+                {
+                    time: 1,
+                    years: [
+                        { year: 19, amounts: [] },
+                        { year: 20, amounts: [] },
+                    ],
+                },
+            ];
+            const undates = [
+                {
+                    time: 2,
+                    years: [
+                        { year: 20, amounts: [] },
+                        { year: 18, amounts: [] },
+                    ],
+                },
+            ];
+            await (
+                await db()
+            )
+                .collection('products')
+                .insertOne({ group: 'Daržovės', name: 'History', updates, undates });
+            const result = (await withinTransaction((session) => getProducts([], session))).find(
+                ({ name }) => name === 'History'
+            );
+
+            expect(result).toMatchObject({ updates, undates, historyYears: [19, 20, 18] });
+        });
+
         it('returns expiry tolerance days', async () => {
             await (
                 await db()
@@ -115,26 +147,30 @@ describe('products', () => {
                 {
                     group: 'Daržovės',
                     name: 'Kopūstai',
+                    historyYears: [],
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
                 },
                 {
                     group: 'Daržovės',
                     name: 'Morkos',
                     years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
-                    updates: expect.arrayContaining([{ year: 22 }]),
+                    updates: products.find((product) => product.name === 'Morkos')?.updates,
+                    historyYears: [22],
                 },
                 {
                     group: 'Uogienės',
                     name: 'Avietės',
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
-                    updates: expect.arrayContaining([{ year: 21 }]),
+                    updates: products.find((product) => product.name === 'Avietės')?.updates,
+                    historyYears: [20, 21, 22],
                 },
                 {
                     group: 'Uogienės',
                     name: 'Braškės',
                     years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
                     missing: true,
-                    updates: expect.arrayContaining([{ year: 22 }]),
+                    updates: products.find((product) => product.name === 'Braškės')?.updates,
+                    historyYears: [21, 22],
                 },
             ]);
         });
@@ -144,13 +180,15 @@ describe('products', () => {
                 {
                     group: 'Daržovės',
                     name: 'Kopūstai',
+                    historyYears: [],
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
                 },
                 {
                     group: 'Uogienės',
                     name: 'Avietės',
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
-                    updates: expect.arrayContaining([{ year: 21 }]),
+                    updates: products.find((product) => product.name === 'Avietės')?.updates,
+                    historyYears: [20, 21, 22],
                 },
             ]);
         });
@@ -160,26 +198,30 @@ describe('products', () => {
                 {
                     group: 'Daržovės',
                     name: 'Kopūstai',
+                    historyYears: [],
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
                 },
                 {
                     group: 'Daržovės',
                     name: 'Morkos',
                     years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
-                    updates: expect.arrayContaining([{ year: 22 }]),
+                    updates: products.find((product) => product.name === 'Morkos')?.updates,
+                    historyYears: [22],
                 },
                 {
                     group: 'Uogienės',
                     name: 'Avietės',
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
-                    updates: expect.arrayContaining([{ year: 21 }]),
+                    updates: products.find((product) => product.name === 'Avietės')?.updates,
+                    historyYears: [20, 21, 22],
                 },
                 {
                     group: 'Uogienės',
                     name: 'Braškės',
                     years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
                     missing: true,
-                    updates: expect.arrayContaining([{ year: 22 }]),
+                    updates: products.find((product) => product.name === 'Braškės')?.updates,
+                    historyYears: [21, 22],
                 },
             ]);
         });
@@ -453,16 +495,15 @@ describe('products', () => {
                 )
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '2.years.0.amounts': [
-                            { variant: 'd', amount: 2 },
-                            { variant: 'p', amount: 1 },
-                            { variant: 'm', amount: 2 },
-                        ],
-                    },
-                    $push: {
-                        '2.updates': {
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.years.0.amounts', [
+                        { variant: 'd', amount: 2 },
+                        { variant: 'p', amount: 1 },
+                        { variant: 'm', amount: 2 },
+                    ]);
+                    _.update(result, '2.updates', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        {
                             time,
                             user,
                             years: [
@@ -476,7 +517,7 @@ describe('products', () => {
                                 },
                             ],
                         },
-                    },
+                    ]);
                 })
             );
         });
@@ -497,20 +538,19 @@ describe('products', () => {
                 )
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '2.years.0.amounts': [
-                            { variant: 'd', amount: 3 },
-                            { variant: 'x', amount: 1 },
-                        ],
-                    },
-                    $push: {
-                        '2.updates': {
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.years.0.amounts', [
+                        { variant: 'd', amount: 3 },
+                        { variant: 'x', amount: 1 },
+                    ]);
+                    _.update(result, '2.updates', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        {
                             time,
                             user,
                             years: [{ year: 22, amounts: [{ variant: 'x', amount: 1, recycled: false }] }],
                         },
-                    },
+                    ]);
                 })
             );
         });
@@ -522,17 +562,16 @@ describe('products', () => {
                 )
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '2.years.0.year': 0,
-                        '2.years.0.amounts': [
-                            { variant: 'd', amount: 2 },
-                            { variant: 'p', amount: 1 },
-                            { variant: 'm', amount: 2 },
-                        ],
-                    },
-                    $push: {
-                        '2.updates': {
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.years.0.year', 0);
+                    _.set(result, '2.years.0.amounts', [
+                        { variant: 'd', amount: 2 },
+                        { variant: 'p', amount: 1 },
+                        { variant: 'm', amount: 2 },
+                    ]);
+                    _.update(result, '2.updates', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        {
                             time,
                             user,
                             years: [
@@ -546,7 +585,7 @@ describe('products', () => {
                                 },
                             ],
                         },
-                    },
+                    ]);
                 })
             );
         });
@@ -644,16 +683,17 @@ describe('products', () => {
             );
 
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $unset: ['1.missing'],
-                    $set: { '1.years.0.amounts.0.amount': 1 },
-                    $push: {
-                        '1.updates': {
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.unset(result, '1.missing');
+                    _.set(result, '1.years.0.amounts.0.amount', 1);
+                    _.update(result, '1.updates', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        {
                             time,
                             user,
                             years: [{ year: 22, amounts: [{ variant: 'p', amount: -1, recycled: false }] }],
                         },
-                    },
+                    ]);
                 })
             );
         });
@@ -673,15 +713,16 @@ describe('products', () => {
             );
 
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: { '1.years.0.amounts.0.amount': 3 },
-                    $push: {
-                        '1.updates': {
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '1.years.0.amounts.0.amount', 3);
+                    _.update(result, '1.updates', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        {
                             time,
                             user,
                             years: [{ year: 22, amounts: [{ variant: 'p', amount: 1, recycled: false }] }],
                         },
-                    },
+                    ]);
                 })
             );
         });
@@ -693,9 +734,12 @@ describe('products', () => {
             );
 
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: { '1.years.0.amounts.0.amount': 1 },
-                    $push: { '1.updates': { time, user, years: [{ year: 22, amounts: [amount] }] } },
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '1.years.0.amounts.0.amount', 1);
+                    _.update(result, '1.updates', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        { time, user, years: [{ year: 22, amounts: [amount] }] },
+                    ]);
                 })
             );
         });
@@ -715,15 +759,17 @@ describe('products', () => {
             );
 
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $unset: ['1.missing', '1.years'],
-                    $push: {
-                        '1.updates': {
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.unset(result, '1.missing');
+                    _.unset(result, '1.years');
+                    _.update(result, '1.updates', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        {
                             time,
                             user,
                             years: [{ year: 22, amounts: [{ variant: 'p', amount: -2, recycled: false }] }],
                         },
-                    },
+                    ]);
                 })
             );
         });
@@ -851,23 +897,22 @@ describe('products', () => {
             ).resolves.toBe(true);
 
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $push: {
-                        '2.updates': {
-                            time,
-                            user,
-                            years: [
-                                {
-                                    year: 22,
-                                    amounts: [
-                                        { variant: 'd', amount: 2, recycled: false },
-                                        { variant: 'd', amount: -2, recycled: true },
-                                    ],
-                                },
-                            ],
-                        },
+                _.update(_.cloneDeep(products), '2.updates', (items: unknown[] | undefined) => [
+                    ...(items ?? []),
+                    {
+                        time,
+                        user,
+                        years: [
+                            {
+                                year: 22,
+                                amounts: [
+                                    { variant: 'd', amount: 2, recycled: false },
+                                    { variant: 'd', amount: -2, recycled: true },
+                                ],
+                            },
+                        ],
                     },
-                })
+                ])
             );
         });
 
@@ -981,17 +1026,13 @@ describe('products', () => {
             await withinTransaction((session) => undoProduct({ group: 'Daržovės', name: 'Morkos', year: 22 }, session));
 
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '2.undates': [
-                            {
-                                time,
-                                user,
-                                years: [{ year: 22, amounts: [{ variant: 'd', amount: -1, recycled: false }] }],
-                            },
-                        ],
+                _.set(_.cloneDeep(products), '2.undates', [
+                    {
+                        time,
+                        user,
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -1, recycled: false }] }],
                     },
-                })
+                ])
             );
         });
 
@@ -1604,7 +1645,7 @@ describe('products', () => {
                     renameProduct({ group: 'Daržovės', name: 'Morkos', targetName: 'Z' }, session)
                 )
             ).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '2.name': 'Z' } }));
+            await expect($all('products')).resolves.toStrictEqual(_.set(_.cloneDeep(products), '2.name', 'Z'));
         });
 
         it('renames products for different group', async () => {
@@ -1613,7 +1654,7 @@ describe('products', () => {
                     renameProduct({ group: 'Uogienės', name: 'Avietės', targetName: 'Agrastai' }, session)
                 )
             ).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '0.name': 'Agrastai' } }));
+            await expect($all('products')).resolves.toStrictEqual(_.set(_.cloneDeep(products), '0.name', 'Agrastai'));
         });
 
         it.each`
@@ -1682,11 +1723,9 @@ describe('products', () => {
                 withinTransaction((session) => renameProductsVariant('Daržovės', 'd', '3/4', session))
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '2.years.0.amounts.0.variant': '3/4',
-                        '2.updates.0.years.0.amounts.1.variant': '3/4',
-                    },
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.years.0.amounts.0.variant', '3/4');
+                    _.set(result, '2.updates.0.years.0.amounts.1.variant', '3/4');
                 })
             );
         });
@@ -1718,15 +1757,13 @@ describe('products', () => {
                 withinTransaction((session) => renameProductsVariant('Daržovės', 'd', '3/4', session))
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk([...products, d], {
-                    $set: {
-                        '2.years.0.amounts.0.variant': '3/4',
-                        '2.updates.0.years.0.amounts.1.variant': '3/4',
-                        '4.years.1.amounts.0.variant': '3/4',
-                        '4.years.2.amounts.0.variant': '3/4',
-                        '4.updates.0.years.1.amounts.0.variant': '3/4',
-                        '4.updates.0.years.2.amounts.0.variant': '3/4',
-                    },
+                _.tap(_.cloneDeep([...products, d]), (result) => {
+                    _.set(result, '2.years.0.amounts.0.variant', '3/4');
+                    _.set(result, '2.updates.0.years.0.amounts.1.variant', '3/4');
+                    _.set(result, '4.years.1.amounts.0.variant', '3/4');
+                    _.set(result, '4.years.2.amounts.0.variant', '3/4');
+                    _.set(result, '4.updates.0.years.1.amounts.0.variant', '3/4');
+                    _.set(result, '4.updates.0.years.2.amounts.0.variant', '3/4');
                 })
             );
         });
@@ -1736,19 +1773,17 @@ describe('products', () => {
                 withinTransaction((session) => renameProductsVariant('Uogienės', 'p', '1/2', session))
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '0.years.0.amounts.0.variant': '1/2',
-                        '0.updates.0.years.0.amounts.0.variant': '1/2',
-                        '0.updates.0.years.1.amounts.0.variant': '1/2',
-                        '0.updates.1.years.0.amounts.0.variant': '1/2',
-                        '0.updates.1.years.1.amounts.0.variant': '1/2',
-                        '0.updates.2.years.0.amounts.0.variant': '1/2',
-                        '1.years.0.amounts.0.variant': '1/2',
-                        '1.updates.0.years.0.amounts.0.variant': '1/2',
-                        '1.updates.1.years.0.amounts.0.variant': '1/2',
-                        '1.updates.2.years.0.amounts.0.variant': '1/2',
-                    },
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '0.years.0.amounts.0.variant', '1/2');
+                    _.set(result, '0.updates.0.years.0.amounts.0.variant', '1/2');
+                    _.set(result, '0.updates.0.years.1.amounts.0.variant', '1/2');
+                    _.set(result, '0.updates.1.years.0.amounts.0.variant', '1/2');
+                    _.set(result, '0.updates.1.years.1.amounts.0.variant', '1/2');
+                    _.set(result, '0.updates.2.years.0.amounts.0.variant', '1/2');
+                    _.set(result, '1.years.0.amounts.0.variant', '1/2');
+                    _.set(result, '1.updates.0.years.0.amounts.0.variant', '1/2');
+                    _.set(result, '1.updates.1.years.0.amounts.0.variant', '1/2');
+                    _.set(result, '1.updates.2.years.0.amounts.0.variant', '1/2');
                 })
             );
         });
@@ -1771,19 +1806,21 @@ describe('products', () => {
                 withinTransaction((session) => renameProductsVariant('Daržovės', 'p', '1/2', session))
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '2.updates.0.years.0.amounts.0.variant': '1/2',
-                        '3.years.0.amounts.0.variant': '1/2',
-                    },
-                    $push: {
-                        '3.years': { year: 22, amounts: [{ variant: '1/2', amount: 1 }] },
-                        '3.updates': {
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.updates.0.years.0.amounts.0.variant', '1/2');
+                    _.set(result, '3.years.0.amounts.0.variant', '1/2');
+                    _.update(result, '3.years', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        { year: 22, amounts: [{ variant: '1/2', amount: 1 }] },
+                    ]);
+                    _.update(result, '3.updates', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        {
                             time,
                             user,
                             years: [{ year: 22, amounts: [{ variant: '1/2', amount: 1, recycled: false }] }],
                         },
-                    },
+                    ]);
                 })
             );
         });
@@ -1806,19 +1843,21 @@ describe('products', () => {
                 withinTransaction((session) => renameProductsVariant('Daržovės', 'd', '3/4', session))
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '2.years.0.amounts.0.variant': '3/4',
-                        '2.updates.0.years.0.amounts.1.variant': '3/4',
-                    },
-                    $push: {
-                        '3.years.0.amounts': { variant: '3/4', amount: 1 },
-                        '3.updates': {
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.years.0.amounts.0.variant', '3/4');
+                    _.set(result, '2.updates.0.years.0.amounts.1.variant', '3/4');
+                    _.update(result, '3.years.0.amounts', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        { variant: '3/4', amount: 1 },
+                    ]);
+                    _.update(result, '3.updates', (items: unknown[] | undefined) => [
+                        ...(items ?? []),
+                        {
                             time,
                             user,
                             years: [{ year: 21, amounts: [{ variant: '3/4', amount: 1, recycled: false }] }],
                         },
-                    },
+                    ]);
                 })
             );
         });
@@ -1848,7 +1887,10 @@ describe('products', () => {
                 withinTransaction((session) => renameProductsGroup('Daržovės', 'Šaldyti', session))
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, { $set: { '2.group': 'Šaldyti', '3.group': 'Šaldyti' } })
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.group', 'Šaldyti');
+                    _.set(result, '3.group', 'Šaldyti');
+                })
             );
         });
 
@@ -1857,7 +1899,10 @@ describe('products', () => {
                 withinTransaction((session) => renameProductsGroup('Uogienės', 'Šaldyti', session))
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, { $set: { '0.group': 'Šaldyti', '1.group': 'Šaldyti' } })
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '0.group', 'Šaldyti');
+                    _.set(result, '1.group', 'Šaldyti');
+                })
             );
         });
 
@@ -1885,7 +1930,7 @@ describe('products', () => {
                     moveProduct({ group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti' }, session)
                 )
             ).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '2.group': 'Šaldyti' } }));
+            await expect($all('products')).resolves.toStrictEqual(_.set(_.cloneDeep(products), '2.group', 'Šaldyti'));
         });
 
         it('moves products from different group', async () => {
@@ -1894,7 +1939,7 @@ describe('products', () => {
                     moveProduct({ group: 'Uogienės', name: 'Avietės', targetGroup: 'Šaldyti' }, session)
                 )
             ).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '0.group': 'Šaldyti' } }));
+            await expect($all('products')).resolves.toStrictEqual(_.set(_.cloneDeep(products), '0.group', 'Šaldyti'));
         });
 
         it('moves products with new name', async () => {
@@ -1907,7 +1952,10 @@ describe('products', () => {
                 )
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, { $set: { '2.group': 'Šaldyti', '2.name': 'Agurkėliai' } })
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.group', 'Šaldyti');
+                    _.set(result, '2.name', 'Agurkėliai');
+                })
             );
         });
 
@@ -1917,7 +1965,7 @@ describe('products', () => {
                     moveProduct({ group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: '' }, session)
                 )
             ).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '2.group': 'Šaldyti' } }));
+            await expect($all('products')).resolves.toStrictEqual(_.set(_.cloneDeep(products), '2.group', 'Šaldyti'));
         });
 
         it.each`
@@ -2089,7 +2137,7 @@ describe('products', () => {
             expect(classifyImage).toHaveBeenCalledWith('/images/ab/cd/new-image.png');
             expect(deleteImages).toHaveBeenCalledWith(undefined, undefined);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, { $set: { '2.image': '/images/ab/cd/new-image.png' } })
+                _.set(_.cloneDeep(products), '2.image', '/images/ab/cd/new-image.png')
             );
         });
 
@@ -2107,8 +2155,9 @@ describe('products', () => {
             ).resolves.toBe(true);
 
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: { '2.image': '/images/ab/cd/thumb.png', '2.photo': '/images/ab/cd/saved.png' },
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.image', '/images/ab/cd/thumb.png');
+                    _.set(result, '2.photo', '/images/ab/cd/saved.png');
                 })
             );
         });
@@ -2188,7 +2237,7 @@ describe('products', () => {
             expect(saveImage).toHaveBeenCalledWith('data:image/png;base64,AAA');
             expect(deleteImages).toHaveBeenCalledWith(undefined, undefined);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, { $set: { '2.variantImages.d': '/images/ab/cd/new-image.png' } })
+                _.set(_.cloneDeep(products), '2.variantImages.d', '/images/ab/cd/new-image.png')
             );
         });
 
@@ -2209,11 +2258,9 @@ describe('products', () => {
             ).resolves.toBe(true);
 
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '2.variantImages.d': '/images/ab/cd/thumb.png',
-                        '2.variantPhotos.d': '/images/ab/cd/saved.png',
-                    },
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.variantImages.d', '/images/ab/cd/thumb.png');
+                    _.set(result, '2.variantPhotos.d', '/images/ab/cd/saved.png');
                 })
             );
         });
@@ -2254,7 +2301,7 @@ describe('products', () => {
             );
 
             expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '2.variantImages': {} } }));
+            await expect($all('products')).resolves.toStrictEqual(_.set(_.cloneDeep(products), '2.variantImages', {}));
         });
 
         it('does not touch image files when the image is unchanged', async () => {
@@ -2298,11 +2345,9 @@ describe('products', () => {
 
             expect(deleteImages).toHaveBeenCalledWith(undefined, undefined);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $set: {
-                        '2.variantImages.d': '/images/old/d.png',
-                        '2.variantImages.p': '/images/ab/cd/p.png',
-                    },
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '2.variantImages.d', '/images/old/d.png');
+                    _.set(result, '2.variantImages.p', '/images/ab/cd/p.png');
                 })
             );
         });
@@ -2373,7 +2418,7 @@ describe('products', () => {
                 )
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, { $set: { '2.years.0.removing': true } })
+                _.set(_.cloneDeep(products), '2.years.0.removing', true)
             );
         });
 
@@ -2384,7 +2429,7 @@ describe('products', () => {
                 )
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, { $set: { '1.years.0.removing': true } })
+                _.set(_.cloneDeep(products), '1.years.0.removing', true)
             );
         });
 
@@ -2394,7 +2439,9 @@ describe('products', () => {
                     setRemoving({ group: 'Daržovės', name: 'Kopūstai', year: 21, removing: false }, session)
                 )
             ).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $unset: '3.years.0.removing' }));
+            await expect($all('products')).resolves.toStrictEqual(
+                _.update(_.cloneDeep(products), '3.years.0', (year) => _.omit(year, 'removing'))
+            );
         });
 
         it.each`
@@ -2435,7 +2482,7 @@ describe('products', () => {
                     setMissing({ group: 'Uogienės', name: 'Avietės', missing: true }, session)
                 )
             ).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '0.missing': true } }));
+            await expect($all('products')).resolves.toStrictEqual(_.set(_.cloneDeep(products), '0.missing', true));
         });
 
         it('unsets missing item', async () => {
@@ -2444,7 +2491,9 @@ describe('products', () => {
                     setMissing({ group: 'Uogienės', name: 'Braškės', missing: false }, session)
                 )
             ).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $unset: '1.missing' }));
+            await expect($all('products')).resolves.toStrictEqual(
+                _.update(_.cloneDeep(products), '1', (product) => _.omit(product, 'missing'))
+            );
         });
 
         it.each`
@@ -2482,7 +2531,10 @@ describe('products', () => {
                 )
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, { $set: { '0.missing': true } }, { $unset: '1.missing' })
+                _.tap(_.cloneDeep(products), (result) => {
+                    _.set(result, '0.missing', true);
+                    _.unset(result, '1.missing');
+                })
             );
         });
 

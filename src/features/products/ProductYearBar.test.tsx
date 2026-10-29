@@ -126,8 +126,7 @@ describe('<ProductYearBar>', () => {
                     group,
                     name: baseActive.name,
                     years: [{ year: 2023, amounts: baseActive.amounts! }],
-                    updates: [{ year: 2020 }],
-                    undates: [{ year: 2019 }],
+                    historyYears: [2020, 2019],
                 },
             ]);
 
@@ -149,8 +148,7 @@ describe('<ProductYearBar>', () => {
                     group,
                     name: baseActive.name,
                     years: [{ year: 2023, amounts: baseActive.amounts! }],
-                    updates: [{ year: 2020 }],
-                    undates: [{ year: 2019 }],
+                    historyYears: [2020, 2019],
                 },
             ]);
             render(

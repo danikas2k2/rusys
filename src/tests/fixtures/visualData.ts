@@ -7,20 +7,22 @@ import { createScenarioData, currentYear, type Scenario } from '~/tests/fixtures
 function visualVariants(variants: Variant[]): Variant[] {
     return variants
         .map((variant) => ({ ...variant, used: variant.variant !== 'Didelis indelis' }))
-        .sort((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
+        .toSorted((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
 }
 
 function visualProducts(products: Product[]): Product[] {
     return products
         .map((product) => ({
             ...product,
-            ...(product.updates && {
-                updates: product.updates.flatMap((update) =>
-                    'years' in update ? update.years.map(({ year }) => ({ year })) : [update]
-                ),
-            }),
+            historyYears: Array.from(
+                new Set(
+                    [...(product.updates ?? []), ...(product.undates ?? [])].flatMap((entry) =>
+                        entry.years.map(({ year }) => year)
+                    )
+                )
+            ),
         }))
-        .sort((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name));
+        .toSorted((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name));
 }
 
 function visualSummary(scenario: Scenario, products: Product[]): Summary[] {

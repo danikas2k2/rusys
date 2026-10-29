@@ -22,7 +22,7 @@ export function localeFromAcceptLanguage(value: string | null): AppLocale {
                 quality: qualityParameter === undefined ? 1 : Number(quality ?? 0),
             };
         })
-        .sort((a, b) => b.quality - a.quality);
+        .toSorted((a, b) => b.quality - a.quality);
 
     for (const { language, quality } of preferences) {
         if (quality === 0) {

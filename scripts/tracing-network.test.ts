@@ -84,7 +84,7 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('private OTLP path', () =>
                         Object.keys((service as { networks?: object }).networks ?? {}).includes('traces-private')
                     )
                     .map(([name]) => name)
-                    .sort(),
+                    .toSorted(),
             }).toStrictEqual({
                 validationNetwork: 'none',
                 privateNetwork: true,

@@ -17,7 +17,7 @@ peerDependencyRules:
 
 overrides:
   # Faro accepts 1.9, while its OpenTelemetry 2.x dependencies require an API below 1.10.
-  "@opentelemetry/api": 1.9.0
+  "@opentelemetry/api": 1.10.0
   braces: ^3.0.3
   deepmerge-ts: ^8.0.2
   diff: ^9.0.0

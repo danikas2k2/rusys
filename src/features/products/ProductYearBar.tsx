@@ -10,7 +10,7 @@ import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext';
 import { useLabels } from '~/lib/hooks/useLabels';
-import type { Product, ProductAmounts, RemovingYearAmounts } from '~/schema';
+import type { ProductAmounts, RemovingYearAmounts } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
 
@@ -20,10 +20,6 @@ import './ProductYearBar.css';
 export interface ProductYearBarProps {
     disabled?: boolean;
     onHistoryYearChange?: () => void;
-}
-
-export function getHistoryYears(history: Product['updates'] | Product['undates']): number[] {
-    return history?.flatMap((entry) => ('year' in entry ? [entry.year] : entry.years.map(({ year }) => year))) ?? [];
 }
 
 export const OLD_YEARS_THRESHOLD = 4;
@@ -76,7 +72,7 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
     // yet, so switching to a brand new year (or back to one just left) is possible.
     const yearOptions = useMemo(() => {
         const set = new Set([...(activeProduct?.years?.map((y) => y.year) ?? []), thisYear, year]);
-        return Array.from(set).sort((a, b) => b - a);
+        return Array.from(set).toSorted((a, b) => b - a);
     }, [activeProduct, thisYear, year]);
 
     // The product list includes compact update/undo metadata specifically so archived history
@@ -84,11 +80,9 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
     // than expanding the always-visible year control with a potentially long archive.
     const historyOnlyYears = useMemo(() => {
         const amountYears = new Set(activeProduct?.years?.map(({ year: amountYear }) => amountYear) ?? []);
-        return Array.from(
-            new Set([...getHistoryYears(activeProduct?.updates), ...getHistoryYears(activeProduct?.undates)])
-        )
+        return Array.from(new Set(activeProduct?.historyYears ?? []))
             .filter((historyYear) => historyYear > 0 && !amountYears.has(historyYear))
-            .sort((a, b) => b - a);
+            .toSorted((a, b) => b - a);
     }, [activeProduct]);
 
     const liveAmounts = useMemo(

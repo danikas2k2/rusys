@@ -55,6 +55,9 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
     }, []);
 
     const handleSubmit = useCallback(async () => {
+        if (!file) {
+            return;
+        }
         trackFaroEvent('form_submitted', { form: 'import' });
         setLoading(true);
         setError(undefined);
@@ -132,7 +135,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
                                     <Text size="xl" inline>
                                         {file ? file.name : <Label>Drag ZIP file here or click to select</Label>}
                                     </Text>
-                                    {(!file || file.length > MAX_IMPORT_FILE_SIZE) && (
+                                    {(!file || file.size > MAX_IMPORT_FILE_SIZE) && (
                                         <Text size="sm" c="dimmed" inline mt="xs">
                                             <Label>File should not exceed</Label>
                                             {` ${MAX_IMPORT_FILE_MB}MB`}

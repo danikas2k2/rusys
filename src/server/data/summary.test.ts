@@ -440,7 +440,7 @@ describe('updates', () => {
             );
 
             const times = result.map((e) => e.time);
-            const sorted = [...times].sort((a, b) => b - a);
+            const sorted = times.toSorted((a, b) => b - a);
 
             expect(times).toStrictEqual(sorted);
         });
