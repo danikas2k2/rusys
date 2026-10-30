@@ -22,7 +22,7 @@ export function AmountsCell({
             </Text>
         );
     }
-    const sorted = [...amounts].sort(
+    const sorted = amounts.toSorted(
         (a, b) =>
             comparator(a.variant, b.variant) ||
             (!!a.suspicious === !!b.suspicious && !!a.home === !!b.home ? 0 : a.suspicious || a.home ? 1 : -1)

@@ -21,7 +21,7 @@ function HomeAmountLine({ children }: React.PropsWithChildren) {
             <ApproxAmountIcon size={12} />
             {children}
             <sub>
-                <HomeIcon size={10} style={{ selfAlign: 'end' }} />
+                <HomeIcon size={10} />
             </sub>
         </Text>
     );
@@ -36,7 +36,7 @@ function HomeAmounts({ group, homeBalance }: HomeAmountsProps) {
         const { volume, weight, count, unitless } = getAmountTotals(homeBalance, variants);
         const formattedVolume = volume != null ? formatVolume(volume) : undefined;
         const formattedWeight = weight != null ? formatWeight(weight) : undefined;
-        const sorted = [...unitless].sort((a, b) => compareVariants(a.variant, b.variant));
+        const sorted = unitless.toSorted((a, b) => compareVariants(a.variant, b.variant));
         return (
             <span data-type="consumed">
                 {formattedVolume && (
@@ -62,7 +62,7 @@ function HomeAmounts({ group, homeBalance }: HomeAmountsProps) {
         );
     }
 
-    const sorted = [...homeBalance].sort((a, b) => compareVariants(a.variant, b.variant));
+    const sorted = homeBalance.toSorted((a, b) => compareVariants(a.variant, b.variant));
     return (
         <span data-type="consumed">
             {sorted.map(({ variant, amount }) => (

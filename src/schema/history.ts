@@ -2,15 +2,6 @@ import z from 'zod';
 
 import { groupAmountsSchema, yearAmountsSchema } from '~/schema/amounts';
 
-/** Recorded stock change with an epoch-millisecond time and readonly yearly rows; optional audit text stays optional. */
-export const updateSchema = z.object({
-    time: z.number(),
-    user: z.string().optional(),
-    comment: z.string().optional(),
-    years: z.array(yearAmountsSchema).readonly(),
-});
-export type Update = z.infer<typeof updateSchema>;
-
 /** Flattened history projection retaining its group and optional stock rows, plus product and audit information. */
 export const historySchema = groupAmountsSchema.extend({
     sessionId: z.string().optional(),
@@ -29,14 +20,17 @@ export const productHistorySchema = z.object({
 });
 export type ProductHistory = z.infer<typeof productHistorySchema>;
 
-/**
- * A history list contains full updates or year-only markers, rather than a mixture of the two shapes.
- * Strict metadata entries prevent full updates with extra fields from being silently reduced to markers.
- */
-export const productHistoryEntries = z.union([
-    z.array(updateSchema).readonly(),
-    z.array(z.strictObject({ year: z.number() })).readonly(),
-]);
+/** Recorded stock change with an epoch-millisecond time and readonly yearly rows; optional audit text stays optional. */
+export const updateSchema = z.object({
+    time: z.number(),
+    user: z.string().optional(),
+    comment: z.string().optional(),
+    years: z.array(yearAmountsSchema).readonly(),
+});
+export type Update = z.infer<typeof updateSchema>;
+
+/** Full persisted history entries. */
+export const productHistoryEntries = z.array(updateSchema).readonly();
 
 /**
  * Client-only loaded history indexed by numeric year; never persisted.

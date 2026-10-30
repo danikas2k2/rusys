@@ -1,4 +1,4 @@
-import { createTheme, virtualColor, type MantineThemeColorsOverride } from '@mantine/core';
+import { createTheme, virtualColor, type MantineColorsTuple } from '@mantine/core';
 
 export function getTheme() {
     return createTheme({
@@ -21,8 +21,11 @@ export function getTheme() {
             'moderate',
             'neutral',
         ].reduce(
-            (acc, color) => ({ ...acc, [color]: virtualColor({ name: color, dark: '', light: '' }) }),
-            {} as MantineThemeColorsOverride
+            (acc: Record<string, MantineColorsTuple>, color) => ({
+                ...acc,
+                [color]: virtualColor({ name: color, dark: '', light: '' }),
+            }),
+            {}
         ),
         components: {
             Alert: {

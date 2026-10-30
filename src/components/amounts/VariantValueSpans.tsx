@@ -18,8 +18,7 @@ export function VariantValueSpans({ group, amounts }: VariantValueSpansProps) {
     return (
         <>
             {mergeAmountsIgnoringExpiry(amounts)
-                .slice()
-                .sort(
+                .toSorted(
                     (a, b) =>
                         compareVariants(a.variant, b.variant) ||
                         (!!a.suspicious === !!b.suspicious && !!a.home === !!b.home

@@ -54,15 +54,15 @@ export async function exportEverything(session: ClientSession): Promise<ExportAr
     const d = await db();
     return {
         products: await d
-            .collection('products')
+            .collection<Product>('products')
             .find({}, { projection: { _id: 0 }, session })
             .toArray(),
         variants: await d
-            .collection('variants')
+            .collection<Variant>('variants')
             .find({}, { projection: { _id: 0 }, session })
             .toArray(),
         groups: await d
-            .collection('groups')
+            .collection<Group>('groups')
             .find({}, { projection: { _id: 0 }, session })
             .toArray(),
     };

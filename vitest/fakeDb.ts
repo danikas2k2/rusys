@@ -68,7 +68,9 @@ export class FakeMongo {
                 };
                 const read = (filter: Filter = {}, projection?: Document, sort?: Sort) => {
                     const cursor = find(clone(rows), filter, projection);
-                    if (sort) cursor.sort(sort);
+                    if (sort) {
+                        cursor.sort(sort);
+                    }
                     const result = cursor.all();
                     if (
                         collectionName === 'variants' &&

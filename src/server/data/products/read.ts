@@ -30,7 +30,7 @@ export async function getProducts(years: readonly number[], session: ClientSessi
                   }
                 : {}),
         };
-        return withSpan('db.products.aggregate', () =>
+        const products = await withSpan('db.products.aggregate', () =>
             col
                 .aggregate<Product>(
                     [
@@ -48,54 +48,8 @@ export async function getProducts(years: readonly number[], session: ClientSessi
                                 photo: 1,
                                 variantImages: 1,
                                 variantPhotos: 1,
-                                updates: {
-                                    $cond: [
-                                        { $gt: [{ $size: { $ifNull: ['$updates', []] } }, 0] },
-                                        {
-                                            $reduce: {
-                                                input: '$updates',
-                                                initialValue: [],
-                                                in: {
-                                                    $concatArrays: [
-                                                        '$$value',
-                                                        {
-                                                            $map: {
-                                                                input: '$$this.years',
-                                                                as: 'y',
-                                                                in: { year: '$$y.year' },
-                                                            },
-                                                        },
-                                                    ],
-                                                },
-                                            },
-                                        },
-                                        '$$REMOVE',
-                                    ],
-                                },
-                                undates: {
-                                    $cond: [
-                                        { $gt: [{ $size: { $ifNull: ['$undates', []] } }, 0] },
-                                        {
-                                            $reduce: {
-                                                input: '$undates',
-                                                initialValue: [],
-                                                in: {
-                                                    $concatArrays: [
-                                                        '$$value',
-                                                        {
-                                                            $map: {
-                                                                input: '$$this.years',
-                                                                as: 'y',
-                                                                in: { year: '$$y.year' },
-                                                            },
-                                                        },
-                                                    ],
-                                                },
-                                            },
-                                        },
-                                        '$$REMOVE',
-                                    ],
-                                },
+                                updates: 1,
+                                undates: 1,
                             },
                         },
                         { $sort: { group: 1, name: 1, 'years.year': 1 } },
@@ -104,6 +58,16 @@ export async function getProducts(years: readonly number[], session: ClientSessi
                 )
                 .toArray()
         );
+        return products.map((product) => ({
+            ...product,
+            historyYears: Array.from(
+                new Set(
+                    [...(product.updates ?? []), ...(product.undates ?? [])].flatMap((entry) =>
+                        entry.years.map(({ year }) => year)
+                    )
+                )
+            ),
+        }));
     });
 }
 
@@ -118,7 +82,7 @@ export async function getProductsWithYears(session: ClientSession): Promise<{ pr
             }
         }
     }
-    return { products, years: Array.from(availableYears).sort((a, b) => b - a) };
+    return { products, years: Array.from(availableYears).toSorted((a, b) => b - a) };
 }
 
 export async function getProductVariants(

@@ -25,7 +25,7 @@ export async function getVariants(session: ClientSession): Promise<readonly Vari
     };
     return (await db())
         .collection('variants')
-        .aggregate(
+        .aggregate<Variant>(
             [
                 { $match: { archivedAt: { $exists: false } } },
                 {

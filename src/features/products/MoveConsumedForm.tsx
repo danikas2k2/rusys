@@ -35,7 +35,7 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
     const setAmount = form.setFieldValue;
 
     const sortedLines = useMemo(
-        () => [...lines].sort((a, b) => compareVariants(a.variant, b.variant)),
+        () => lines.toSorted((a, b) => compareVariants(a.variant, b.variant)),
         [lines, compareVariants]
     );
 

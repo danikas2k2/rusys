@@ -320,7 +320,7 @@ describe('<ImportBox>', () => {
 
     it('shows file size warning when file exceeds max size', async () => {
         const largeFile = new File(['zip-bytes'], 'large.zip', { type: 'application/zip' });
-        Object.defineProperty(largeFile, 'length', {
+        Object.defineProperty(largeFile, 'size', {
             value: 201 * 1024 * 1024,
             writable: false,
             configurable: true,
@@ -367,7 +367,7 @@ describe('<ImportBox>', () => {
 
     it('does not show file size warning when file is within size limit', async () => {
         const smallFile = new File(['zip-bytes'], 'small.zip', { type: 'application/zip' });
-        Object.defineProperty(smallFile, 'length', { value: 5 * 1024 * 1024, writable: false, configurable: true });
+        Object.defineProperty(smallFile, 'size', { value: 5 * 1024 * 1024, writable: false, configurable: true });
 
         render(
             <MockPage state={state}>

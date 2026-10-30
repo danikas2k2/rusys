@@ -153,8 +153,8 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
         [activeProduct, year, amounts]
     );
 
-    const undoCount = activeProduct?.updates?.filter((u) => 'year' in u && u.year === year).length ?? 0;
-    const redoCount = activeProduct?.undates?.filter((u) => 'year' in u && u.year === year).length ?? 0;
+    const undoCount = activeProduct?.updates?.filter((u) => u.years.some((y) => y.year === year)).length ?? 0;
+    const redoCount = activeProduct?.undates?.filter((u) => u.years.some((y) => y.year === year)).length ?? 0;
     const canUndo = undoCount > 0;
     const canRedo = redoCount > 0;
 
@@ -166,7 +166,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
         return (
             current?.filter((a) => a.amount > 0).map((a) => toKey(a.variant, !!a.suspicious, !!a.home, a.expiresAt)) ??
             []
-        ).sort((a, b) => compareKeys(a, b, compareVariants));
+        ).toSorted((a, b) => compareKeys(a, b, compareVariants));
     }, [liveAmounts, amounts, compareVariants]);
 
     const [extraKeys, setExtraKeys] = useState<string[]>([]);
@@ -181,7 +181,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                     getVariantAmount(liveAmounts ?? amounts, variant, suspicious, home, expiresAt) > 0
                 );
             })
-            .sort((a, b) => compareKeys(a, b, compareVariants));
+            .toSorted((a, b) => compareKeys(a, b, compareVariants));
     }, [compareVariants, extraKeys, presentKeys, liveAmounts, amounts]);
 
     const datedCountByVariant = useMemo(() => {

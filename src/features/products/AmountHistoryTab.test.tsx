@@ -90,7 +90,7 @@ describe('<AmountHistoryTab>', () => {
             {
                 group: activeData.group,
                 name: activeData.name,
-                updates: [{ year: activeData.year }],
+                updates: [{ time: 1, years: [{ year: activeData.year, amounts: [] }] }],
                 history: { 2026: cached },
             },
         ]);

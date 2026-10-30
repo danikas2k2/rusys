@@ -16,7 +16,7 @@ vi.mock(import('~/server/db'));
 vi.mock(import('~/server/data/images'));
 
 describe('groups', () => {
-    const groups = getGroupsFixture().sort((a, b) => a.order - b.order);
+    const groups = getGroupsFixture().toSorted((a, b) => a.order - b.order);
 
     beforeEach(async () => {
         await (await db()).collection('groups').insertMany(getGroupsFixture());
