@@ -152,7 +152,7 @@
         "postcss-discard-comments": "^9.0.8",
         "postcss-import": "^17.0.1",
         "postcss-less": "^7.0.1",
-        "postcss-preset-env": "^11.6.1",
+        "postcss-preset-env": "^11.6.2",
         "postcss-preset-mantine": "^1.18.0",
         "postcss-simple-vars": "^7.0.1",
         "prettier": "^3.9.10",
