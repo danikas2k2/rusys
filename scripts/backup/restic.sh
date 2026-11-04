@@ -12,7 +12,7 @@ shift
 export RESTIC_REPOSITORY
 
 # Fixed container paths and hostname allow Restic to find its parent snapshot.
-set -- ghcr.io/restic/restic:0.18.1 "$@"
+set -- rusys-restic-rclone:0.18.1-1.71.2 "$@"
 set -- --rm --hostname rusys-backup \
     --mount "type=bind,src=$RESTIC_PASSWORD_FILE,dst=/run/secrets/restic-password,readonly" \
     --mount "type=bind,src=$BACKUP_IMAGES_DIR,dst=/backup/images,readonly" \
@@ -21,6 +21,9 @@ set -- --rm --hostname rusys-backup \
     "$@"
 if [ -n "${RESTIC_ENV_FILE:-}" ]; then
     set -- --env-file "$RESTIC_ENV_FILE" "$@"
+fi
+if [ -n "${RCLONE_CONFIG_FILE:-}" ]; then
+    set -- --mount "type=bind,src=$RCLONE_CONFIG_FILE,dst=/run/secrets/rclone.conf,readonly" --env RCLONE_CONFIG=/run/secrets/rclone.conf "$@"
 fi
 if [ -n "${BACKUP_REPOSITORY_DIR:-}" ]; then
     set -- --mount "type=bind,src=$BACKUP_REPOSITORY_DIR,dst=/repository" "$@"

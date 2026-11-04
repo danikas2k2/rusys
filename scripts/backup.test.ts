@@ -57,7 +57,7 @@ describe('backup job', () => {
         expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('backup --tag rusys --');
         expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('forget --tag rusys --keep-within 3m --prune');
         expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('--hostname rusys-backup');
-        expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('ghcr.io/restic/restic:0.18.1');
+        expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('rusys-restic-rclone:0.18.1-1.71.2');
         expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('/backup/images /backup/work/mongodb.archive');
         expect(readFileSync(path.join(dir, 'metrics/backup.prom'), 'utf8')).toContain(
             'rusys_backup_last_run_success 1'
@@ -109,7 +109,7 @@ describe('backup job', () => {
         const { dir, run } = fixture();
         writeFileSync(
             path.join(dir, 'config'),
-            `\nBACKUP_REPOSITORY_DIR='${dir}/repository'\nRESTIC_ENV_FILE='${dir}/env'\n`,
+            `\nBACKUP_REPOSITORY_DIR='${dir}/repository'\nRESTIC_ENV_FILE='${dir}/env'\nRCLONE_CONFIG_FILE='${dir}/rclone.conf'\n`,
             {
                 flag: 'a',
             }
@@ -120,6 +120,8 @@ describe('backup job', () => {
 
         expect(log).toContain(`--mount type=bind,src=${dir}/repository,dst=/repository`);
         expect(log).toContain(`--env-file ${dir}/env`);
+        expect(log).toContain(`--mount type=bind,src=${dir}/rclone.conf,dst=/run/secrets/rclone.conf,readonly`);
+        expect(log).toContain('--env RCLONE_CONFIG=/run/secrets/rclone.conf');
         expect(log).toContain(`--mount type=bind,src=${dir}/password,dst=/run/secrets/restic-password,readonly`);
     });
 });

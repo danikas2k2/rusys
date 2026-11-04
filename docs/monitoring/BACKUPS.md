@@ -9,11 +9,11 @@ data. If backups stop, retention does not advance until the job runs again.
 This repository provides the job and collector configuration; it does not create a repository, install a NAS scheduler,
 provision secrets, or deploy Grafana rules. Use a separate storage destination and test recovery before relying on it.
 Docker and `flock` must be available on the NAS, and `mongodump` must be available in `rusys-db`. The job runs the
-official `ghcr.io/restic/restic:0.18.1` image as a short-lived container; Restic is not required on the NAS host. Pull
-the image before scheduling and ensure the NAS architecture is supported:
+custom Restic and rclone image as a short-lived container; neither binary is required on the NAS host. Build it from the
+deployed checkout before scheduling (repeat after updating the Dockerfile):
 
 ```sh
-docker pull ghcr.io/restic/restic:0.18.1
+docker build -f /path/to/rusys/docker/backup/Dockerfile -t rusys-restic-rclone:0.18.1-1.71.2 /path/to/rusys
 ```
 
 Run the job as a dedicated trusted account with access to Docker, the image files, private configuration, work directory
@@ -31,11 +31,12 @@ inspect and remove it after an interruption.
 Create a trusted shell configuration outside the repository, for example:
 
 ```sh
-RESTIC_REPOSITORY='destination configured for Restic'
+RESTIC_REPOSITORY='rclone:ftpremote:path/to/existing/repository'
 RESTIC_PASSWORD_FILE='/secure/restic-password'
 MONGO_BACKUP_CONFIG='/secure/mongodump.yaml'
 BACKUP_WORK_DIR='/secure/rusys-backup-work'
 BACKUP_IMAGES_DIR='/volume1/docker/rusys-app/images'
+RCLONE_CONFIG_FILE='/secure/rclone.conf'
 # Optional, for a repository on a mounted filesystem:
 # BACKUP_REPOSITORY_DIR='/path/to/dedicated/repository'
 # Optional, for remote backend credentials:
@@ -54,11 +55,18 @@ as code, so never allow untrusted users to modify it. Docker bind mount source p
 contain commas. The wrapper supports network backends configured through environment variables; SFTP requiring SSH keys
 or custom host-key configuration requires additional container mounts and is not configured here.
 
-Create the image source, work and optional local repository directories, then initialize the dedicated repository once
-(do not run `init` against an existing repository):
+For the existing repository, copy the working rclone configuration to `/secure/rclone.conf`, keep its remote name and
+path unchanged, and set `RCLONE_CONFIG_FILE` above. The file contains FTP credentials: restrict its directory and set
+mode 0600. FTP passwords in rclone configuration are obscured, not encrypted. Prefer FTPS where supported; plain FTP
+exposes credentials and traffic on the network. If the rclone config is encrypted, supply `RCLONE_CONFIG_PASS` via the
+private `RESTIC_ENV_FILE` described above. Do not put secrets in the project Compose `.env` or Git. The job
+configuration `/secure/backup.conf` is a shell file, not the Compose `.env`; paths must be absolute.
+
+Create the image source and encrypted work directories. The repository already exists: **do not run `init`**. Check
+access with:
 
 ```sh
-sh /path/to/rusys/scripts/backup/restic.sh /secure/backup.conf init
+sh /path/to/rusys/scripts/backup/restic.sh /secure/backup.conf snapshots
 ```
 
 Configure one hourly NAS Task Scheduler job, including Sunday 02:00, with an absolute path to the checked-out script:
@@ -109,5 +117,7 @@ periodically. Keep the operational log free of credentials and data; Restic outp
 
 References: [Restic backup and snapshots](https://restic.readthedocs.io/en/stable/040_backup.html),
 [Restic retention](https://restic.readthedocs.io/en/stable/060_forget.html),
+[rclone FTP configuration](https://rclone.org/ftp/),
+[Restic rclone backend](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#rclone),
 [Restic Docker image](https://restic.readthedocs.io/en/stable/020_installation.html#docker-container),
 [MongoDB mongodump](https://www.mongodb.com/docs/database-tools/mongodump/).
