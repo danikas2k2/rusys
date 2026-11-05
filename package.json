@@ -28,6 +28,8 @@
         "assets:icons": "pwa-asset-generator public/assets/logo.svg public/assets --padding '1%' --type png --opaque false --icon-only --favicon --mstile --manifest public/manifest.json --path-override /assets --log false",
         "assets:metadata": "tsx scripts/generate-pwa-assets.ts && prettier --write public/manifest.json src/app/pwa-assets.json",
         "assets:compress": "tsx scripts/optimize-pwa-assets.ts",
+        "backup:list": "dotenv -e .env.deploy.local -- node scripts/backup/remote.mjs list",
+        "backup:restore": "dotenv -e .env.deploy.local -- node scripts/backup/remote.mjs restore",
         "check": "pnpm lint && pnpm test",
         "check:all": "pnpm lint && pnpm test:coverage && pnpm test:visual && pnpm test:e2e",
         "lint": "pnpm format:check && pnpm lint:ts && pnpm lint:es && pnpm lint:styles",
