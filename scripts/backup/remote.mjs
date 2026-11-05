@@ -43,7 +43,7 @@ const args = [quote(script), quote(BACKUP_CONFIG_PATH)];
 let command;
 
 if (action === 'list') {
-    command = ['sh', ...args, 'snapshots', '--long'].join(' ');
+    command = ['sh', ...args, 'snapshots'].join(' ');
 } else {
     // Use a unique directory for every restore operation.
     const timestamp = new Date().toISOString().replaceAll(/[:.]/g, '-');
