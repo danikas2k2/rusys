@@ -16,14 +16,11 @@ function fixture() {
     mkdirSync(path.join(dir, 'images'));
     writeFileSync(path.join(dir, 'mongo'), 'fixture');
     writeFileSync(path.join(dir, 'password'), 'fixture');
-    writeFileSync(
-        path.join(dir, 'config'),
-        `RESTIC_REPOSITORY=fixture\nRESTIC_PASSWORD_FILE=${dir}/password\nMONGO_BACKUP_CONFIG=${dir}/mongo\nBACKUP_WORK_DIR=${dir}/work\nBACKUP_IMAGES_DIR=${dir}/images\nBACKUP_METRICS_DIR=${dir}/metrics\n`
-    );
     const commands: Record<string, string> = {
         flock: 'exit 0',
         date: '[ "$1" = +%s ] && echo 123456 || { if [ -f "$TEST_LOG.dumped" ] && [ -n "$TEST_DATE_AFTER_DUMP" ]; then echo "$TEST_DATE_AFTER_DUMP"; else echo "$TEST_DATE"; fi; }',
-        docker: 'if [ "$1" = exec ]; then [ "$FAIL_DUMP" = 1 ] && exit 1; touch "$TEST_LOG.dumped"; echo archive; else printf "%s\\n" "$*" >> "$TEST_LOG"; [ "$FAIL_RESTIC" = 1 ] && exit 1; fi; exit 0',
+        mongodump: '[ "$FAIL_DUMP" = 1 ] && exit 1; touch "$TEST_LOG.dumped"; echo archive',
+        restic: 'printf "%s\\n" "$*" >> "$TEST_LOG"; [ "$FAIL_RESTIC" != 1 ]',
     };
     for (const [name, body] of Object.entries(commands)) {
         const executable = path.join(bin, name);
@@ -31,12 +28,18 @@ function fixture() {
         chmodSync(executable, 0o755);
     }
     const run = (extra: Record<string, string> = {}) =>
-        execFileSync('sh', [script, path.join(dir, 'config')], {
+        execFileSync('sh', [script], {
             env: {
                 ...process.env,
                 PATH: `${bin}:${process.env.PATH}`,
                 TEST_LOG: path.join(dir, 'log'),
                 TEST_DATE: '1-02',
+                RESTIC_REPOSITORY: 'fixture',
+                RESTIC_PASSWORD_FILE: `${dir}/password`,
+                MONGO_BACKUP_CONFIG: `${dir}/mongo`,
+                BACKUP_WORK_DIR: `${dir}/work`,
+                BACKUP_IMAGES_DIR: `${dir}/images`,
+                BACKUP_METRICS_DIR: `${dir}/metrics`,
                 ...extra,
             },
         });
@@ -56,9 +59,7 @@ describe('backup job', () => {
 
         expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('backup --tag rusys --');
         expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('forget --tag rusys --keep-within 3m --prune');
-        expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('--hostname rusys-backup');
-        expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('rusys-restic-rclone:0.18.1-1.71.2');
-        expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain('/backup/images /backup/work/mongodb.archive');
+        expect(readFileSync(path.join(dir, 'log'), 'utf8')).toContain(`${dir}/images ${dir}/work/mongodb.archive`);
         expect(readFileSync(path.join(dir, 'metrics/backup.prom'), 'utf8')).toContain(
             'rusys_backup_last_run_success 1'
         );
@@ -103,25 +104,5 @@ describe('backup job', () => {
         expect(readFileSync(path.join(dir, 'metrics/backup.prom'), 'utf8')).toContain(
             'rusys_backup_last_run_success 0'
         );
-    });
-
-    it('passes the optional repository mount and backend environment file to Docker', () => {
-        const { dir, run } = fixture();
-        writeFileSync(
-            path.join(dir, 'config'),
-            `\nBACKUP_REPOSITORY_DIR='${dir}/repository'\nRESTIC_ENV_FILE='${dir}/env'\nRCLONE_CONFIG_FILE='${dir}/rclone.conf'\n`,
-            {
-                flag: 'a',
-            }
-        );
-        run();
-
-        const log = readFileSync(path.join(dir, 'log'), 'utf8');
-
-        expect(log).toContain(`--mount type=bind,src=${dir}/repository,dst=/repository`);
-        expect(log).toContain(`--env-file ${dir}/env`);
-        expect(log).toContain(`--mount type=bind,src=${dir}/rclone.conf,dst=/run/secrets/rclone.conf,readonly`);
-        expect(log).toContain('--env RCLONE_CONFIG=/run/secrets/rclone.conf');
-        expect(log).toContain(`--mount type=bind,src=${dir}/password,dst=/run/secrets/restic-password,readonly`);
     });
 });

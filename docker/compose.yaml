@@ -44,6 +44,26 @@ x-app: &app
     start_period: 10s
 
 services:
+  backup:
+    container_name: rusys-backup
+    image: rusys-backup:1
+    build:
+      context: ..
+      dockerfile: docker/backup/Dockerfile
+    profiles: [backup]
+    restart: unless-stopped
+    hostname: rusys-backup
+    environment:
+      TZ: ${TZ:-UTC}
+      RESTIC_REPOSITORY: ${RESTIC_REPOSITORY:-}
+    networks:
+      - rusys-net
+    volumes:
+      - ${BACKUP_IMAGES_DIR:-/volume1/docker/rusys-app/images}:/backup/images:ro
+      - ${BACKUP_WORK_DIR:-/volume1/docker/rusys-app/backup-work}:/backup/work
+      - ${BACKUP_METRICS_DIR:-/volume1/docker/rusys-app/backup-metrics}:/backup/metrics
+      - ${BACKUP_SECRETS_DIR:-/volume1/docker/rusys-app/backup-secrets}:/run/secrets:ro
+
   traces:
     container_name: rusys-traces
     image: grafana/alloy:v1.20.1

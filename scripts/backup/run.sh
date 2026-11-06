@@ -1,16 +1,9 @@
 #!/bin/sh
-# Run from a trusted root-owned configuration file on the NAS.
 set -eu
 umask 077
 
-if [ "$#" -ne 1 ] || [ ! -r "$1" ]; then
-    echo "Usage: run.sh /path/to/private-backup.conf" >&2
-    exit 2
-fi
-. "$1"
-: "${RESTIC_REPOSITORY:?}" "${RESTIC_PASSWORD_FILE:?}" "${MONGO_BACKUP_CONFIG:?}" "${BACKUP_WORK_DIR:?}" "${BACKUP_IMAGES_DIR:?}"
-script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-METRICS_DIR=${BACKUP_METRICS_DIR:-/volume1/docker/rusys-app/backup-metrics}
+: "${RESTIC_REPOSITORY:?}" "${RESTIC_PASSWORD_FILE:?}" "${MONGO_BACKUP_CONFIG:?}" "${BACKUP_WORK_DIR:?}" "${BACKUP_IMAGES_DIR:?}" "${BACKUP_METRICS_DIR:?}"
+METRICS_DIR=$BACKUP_METRICS_DIR
 mkdir -p "$BACKUP_WORK_DIR" "$METRICS_DIR"
 chmod 700 "$BACKUP_WORK_DIR"
 exec 9>"$BACKUP_WORK_DIR/lock"
@@ -46,14 +39,14 @@ trap 'exit 1' HUP INT TERM
 backup_start=$(date +%u-%H)
 [ -d "$BACKUP_IMAGES_DIR" ]
 [ -r "$MONGO_BACKUP_CONFIG" ]
-docker exec -i rusys-db mongodump --config /dev/stdin --archive --oplog < "$MONGO_BACKUP_CONFIG" > "$BACKUP_WORK_DIR/mongodb.archive"
+mongodump --config "$MONGO_BACKUP_CONFIG" --archive --oplog > "$BACKUP_WORK_DIR/mongodb.archive"
 [ -s "$BACKUP_WORK_DIR/mongodb.archive" ]
 # A weekly complete scan. Restic still deduplicates stored content.
 if [ "$backup_start" = 7-02 ]; then
-    sh "$script_dir/restic.sh" "$1" backup --force --tag rusys -- /backup/images /backup/work/mongodb.archive
+    restic backup --force --tag rusys -- "$BACKUP_IMAGES_DIR" "$BACKUP_WORK_DIR/mongodb.archive"
 else
-    sh "$script_dir/restic.sh" "$1" backup --tag rusys -- /backup/images /backup/work/mongodb.archive
+    restic backup --tag rusys -- "$BACKUP_IMAGES_DIR" "$BACKUP_WORK_DIR/mongodb.archive"
 fi
-sh "$script_dir/restic.sh" "$1" forget --tag rusys --keep-within 3m --prune
+restic forget --tag rusys --keep-within 3m --prune
 last_success=$(date +%s)
 success=1

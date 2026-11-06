@@ -94,7 +94,7 @@ actionable findings corrected and re-reviewed.
 
 ## Backup telemetry contract
 
-The [backup job](BACKUPS.md) publishes its status through Alloy's textfile collector. MongoDB internal metrics
+The [backup job](../BACKUP.md) publishes its status through Alloy's textfile collector. MongoDB internal metrics
 containing the word `backup` do not prove a scheduled application backup succeeded. Until the job is deployed, the
 baseline backup rule detects the missing integration rather than silently claiming protection.
 

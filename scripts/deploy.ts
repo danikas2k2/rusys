@@ -74,6 +74,9 @@ const requiredBuildSources = [
     'public',
     'docker',
     'docker/Dockerfile',
+    'docker/backup/Dockerfile',
+    'scripts/backup/run.sh',
+    'scripts/backup/scheduler.sh',
     'docker/compose.yaml',
     'docker/nginx.conf.template',
     'docker/monitoring/config.alloy',
@@ -285,7 +288,7 @@ export function deploy(config?: DeployConfig) {
                 const candidate: Slot = previous === 'blue' ? 'green' : 'blue';
                 requireMongoAuthorization(connection);
                 requireMongoMonitoringSecret(connection);
-                connection.remote('mkdir -p src public scripts/postcss docker/monitoring\n');
+                connection.remote('mkdir -p src public scripts/postcss scripts/backup docker/monitoring\n');
 
                 console.log('📤 Uploading source files for the Docker build...');
                 connection.upload('src/', ['src/'], ['--delete', '--delete-excluded', ...deployExcludes]);
@@ -294,6 +297,11 @@ export function deploy(config?: DeployConfig) {
                     'scripts/postcss/',
                     ['scripts/postcss/'],
                     ['--delete', '--delete-excluded', ...deployExcludes]
+                );
+                connection.upload(
+                    'scripts/backup/',
+                    ['scripts/backup/run.sh', 'scripts/backup/scheduler.sh'],
+                    deployExcludes
                 );
                 connection.upload(
                     'docker/',
@@ -305,6 +313,7 @@ export function deploy(config?: DeployConfig) {
                         '--include=/compose.yaml',
                         '--include=/nginx.conf.template',
                         '--include=/monitoring/***',
+                        '--include=/backup/***',
                         '--exclude=*',
                     ]
                 );

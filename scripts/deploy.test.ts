@@ -11,6 +11,9 @@ vi.mock(import('node:child_process'), () => ({ execFileSync: vi.fn() }));
 
 const requiredFiles = [
     'docker/Dockerfile',
+    'docker/backup/Dockerfile',
+    'scripts/backup/run.sh',
+    'scripts/backup/scheduler.sh',
     'docker/compose.yaml',
     'docker/nginx.conf.template',
     'docker/monitoring/config.alloy',
@@ -29,7 +32,7 @@ const roots: string[] = [];
 function buildSourceFixture(): string {
     const root = mkdtempSync(path.join(tmpdir(), 'rusys-deploy-test-'));
     roots.push(root);
-    for (const directory of ['src', 'public', 'docker/monitoring']) {
+    for (const directory of ['src', 'public', 'docker/monitoring', 'docker/backup', 'scripts/backup']) {
         mkdirSync(path.join(root, directory), { recursive: true });
     }
     for (const file of requiredFiles) {
@@ -92,7 +95,6 @@ describe('prepareBuildSources', () => {
 
     it('rejects a file where the optional PostCSS directory must be', () => {
         const root = buildSourceFixture();
-        mkdirSync(path.join(root, 'scripts'));
         writeFileSync(path.join(root, 'scripts/postcss'), 'fixture');
 
         expect(() => prepareBuildSources(root)).toThrow(
@@ -219,6 +221,22 @@ describe('deploy previous slot cleanup', () => {
         expect(database).toBeGreaterThan(validate);
         expect(monitoring).toBeGreaterThan(database);
         expect(build).toBeGreaterThan(monitoring);
+    });
+
+    it('uploads the backup image inputs without deleting the backup Dockerfile', async () => {
+        mockRemote();
+        await deployment();
+
+        const uploads = vi.mocked(execFileSync).mock.calls.filter(([file]) => file === 'rsync');
+        expect(uploads.some(([, args]) => Array.isArray(args) && args.includes('--include=/backup/***'))).toBe(true);
+        expect(
+            uploads.some(
+                ([, args]) =>
+                    Array.isArray(args) &&
+                    args.some((arg) => typeof arg === 'string' && arg.endsWith('/scripts/backup/run.sh')) &&
+                    args.some((arg) => typeof arg === 'string' && arg.endsWith('/scripts/backup/scheduler.sh'))
+            )
+        ).toBe(true);
     });
 
     it('validates Nginx before every reload, including restoration after failed validation', async () => {
