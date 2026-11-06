@@ -6,6 +6,7 @@ import { Button, Select } from '@mantine/core';
 import type * as Mantine from '@mantine/core';
 import React from 'react';
 
+import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { AmountVariantRow } from '~/features/products/AmountVariantRow';
 import { AmountVariantsTab } from '~/features/products/AmountVariantsTab';
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
@@ -92,6 +93,9 @@ vi.mock(import('~/features/products/AmountExpanded'), () => ({
             </button>
             <button type="button" onClick={() => onChange('consumed', delta.consumed - 1)}>
                 decrease-consumed
+            </button>
+            <button type="button" onClick={() => onChange('consumed', delta.consumed + 1)}>
+                increase-consumed
             </button>
             <button type="button" onClick={() => onChange('recycled', delta.recycled - 1)}>
                 decrease-recycled
@@ -366,6 +370,76 @@ describe('<AmountVariantsTab>', () => {
         });
     });
 
+    it('retains drafts across years and submits them together', async () => {
+        const mockUpdate = vi.fn().mockResolvedValue(undefined);
+        const onDirtyYearsUpdate = vi.fn();
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
+        function SwitchYear() {
+            const [active, setActive] = useActiveContent<ProductAmounts>();
+            return (
+                <button onClick={() => setActive({ action: 'values', data: { ...active!.data, year: 2024 } })}>
+                    Switch year
+                </button>
+            );
+        }
+        function Wrapper() {
+            const [active, setActive] = React.useState({ action: 'values', data: baseActive });
+            return (
+                <MockThemeActive active={active} setActive={setActive}>
+                    <SwitchYear />
+                    <AmountVariantsTab onDirtyYearsUpdate={onDirtyYearsUpdate} />
+                </MockThemeActive>
+            );
+        }
+        render(<Wrapper />);
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-consumed')[0]);
+
+        expect(onDirtyYearsUpdate).toHaveBeenLastCalledWith([2023]);
+
+        await user.click(screen.getByRole('button', { name: 'Switch year' }));
+        await waitFor(() =>
+            expect(screen.getByRole('button', { name: /\bd\b/ })).toHaveAttribute('aria-expanded', 'false')
+        );
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-recycled')[0]);
+
+        expect(onDirtyYearsUpdate).toHaveBeenLastCalledWith([2023, 2024]);
+
+        await user.click(screen.getByRole('button', { name: /^update$/i }));
+
+        await waitFor(() => expect(onDirtyYearsUpdate).toHaveBeenLastCalledWith([]));
+
+        expect(mockUpdate).toHaveBeenCalledWith(
+            expect.arrayContaining([
+                expect.objectContaining({ year: 2023, amounts: [{ variant: 'd', amount: -1, recycled: false }] }),
+                expect.objectContaining({ year: 2024, amounts: [{ variant: 'd', amount: -1, recycled: true }] }),
+            ])
+        );
+    });
+
+    it('clears dirty years when changes are cancelled or reverted to zero', async () => {
+        const onDirtyYearsUpdate = vi.fn();
+        render(
+            <MockThemeActive active={{ action: 'values', data: baseActive }}>
+                <AmountVariantsTab onDirtyYearsUpdate={onDirtyYearsUpdate} />
+            </MockThemeActive>
+        );
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-consumed')[0]);
+
+        expect(onDirtyYearsUpdate).toHaveBeenLastCalledWith([2023]);
+
+        await user.click(screen.getAllByText('increase-consumed')[0]);
+
+        expect(onDirtyYearsUpdate).toHaveBeenLastCalledWith([]);
+
+        await user.click(screen.getAllByText('decrease-consumed')[0]);
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+        expect(onDirtyYearsUpdate).toHaveBeenLastCalledWith([]);
+    });
+
     it('disables Update immediately and delays its loader', async () => {
         let resolveUpdate!: () => void;
         const mockUpdate = vi.fn(
@@ -375,9 +449,14 @@ describe('<AmountVariantsTab>', () => {
                 })
         );
         vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
+        const onSubmittingUpdate = vi.fn();
 
         try {
-            renderTab();
+            render(
+                <MockThemeActive active={{ action: 'values', data: baseActive }}>
+                    <AmountVariantsTab onSubmittingUpdate={onSubmittingUpdate} />
+                </MockThemeActive>
+            );
             await user.click(screen.getByRole('button', { name: /\bd\b/ }));
             await user.click(screen.getAllByText('decrease-updated')[0]);
 
@@ -386,6 +465,7 @@ describe('<AmountVariantsTab>', () => {
             fireEvent.click(updateButton);
 
             expect(updateButton).toBeDisabled();
+            expect(onSubmittingUpdate).toHaveBeenLastCalledWith(true);
             expect(within(updateButton).queryByRole('progressbar', { hidden: true })).not.toBeInTheDocument();
 
             await act(() => vi.advanceTimersByTimeAsync(300));
@@ -393,6 +473,8 @@ describe('<AmountVariantsTab>', () => {
             expect(within(updateButton).getByRole('progressbar', { hidden: true })).toBeInTheDocument();
 
             await act(async () => resolveUpdate());
+
+            expect(onSubmittingUpdate).toHaveBeenLastCalledWith(false);
         } finally {
             vi.useRealTimers();
         }

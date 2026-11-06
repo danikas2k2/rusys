@@ -114,11 +114,19 @@ function compareKeys(a: string, b: string, compareVariants: (x: string, y: strin
 
 interface AmountVariantsTabProps {
     onChangesUpdate?: (hasChanges: boolean) => void;
+    onDirtyYearsUpdate?: (years: number[]) => void;
+    onSubmittingUpdate?: (submitting: boolean) => void;
     onClose?: () => void;
     scrollContainerRef?: RefObject<HTMLElement | null>;
 }
 
-export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef }: AmountVariantsTabProps = {}) {
+export function AmountVariantsTab({
+    onChangesUpdate,
+    onDirtyYearsUpdate,
+    onSubmittingUpdate,
+    onClose,
+    scrollContainerRef,
+}: AmountVariantsTabProps = {}) {
     const _ = useLabels();
     const listRef = useRef<HTMLDivElement>(null);
     const [active] = useActiveContent<ProductAmounts>();
@@ -170,19 +178,35 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
     }, [liveAmounts, amounts, compareVariants]);
 
     const [extraKeys, setExtraKeys] = useState<string[]>([]);
+    const [deltasByYear, setDeltasByYear] = useState<Record<number, Record<string, VariantDelta>>>({});
+    const allDeltas = useMemo(() => deltasByYear[year] ?? {}, [deltasByYear, year]);
+    const setAllDeltas = useCallback(
+        (
+            update:
+                | Record<string, VariantDelta>
+                | ((previous: Record<string, VariantDelta>) => Record<string, VariantDelta>)
+        ) => {
+            setDeltasByYear((previous) => ({
+                ...previous,
+                [year]: typeof update === 'function' ? update(previous[year] ?? {}) : update,
+            }));
+        },
+        [year]
+    );
 
     const visibleKeys = useMemo(() => {
-        const combined = Array.from(new Set([...presentKeys, ...extraKeys]));
+        const combined = Array.from(new Set([...presentKeys, ...extraKeys, ...Object.keys(allDeltas)]));
         return combined
             .filter((k) => {
                 const { variant, suspicious, home, expiresAt } = fromKey(k);
                 return (
                     extraKeys.includes(k) ||
+                    !!allDeltas[k] ||
                     getVariantAmount(liveAmounts ?? amounts, variant, suspicious, home, expiresAt) > 0
                 );
             })
             .toSorted((a, b) => compareKeys(a, b, compareVariants));
-    }, [compareVariants, extraKeys, presentKeys, liveAmounts, amounts]);
+    }, [compareVariants, extraKeys, presentKeys, liveAmounts, amounts, allDeltas]);
 
     const datedCountByVariant = useMemo(() => {
         const counts = new Map<string, number>();
@@ -201,7 +225,6 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
     );
 
     const [expandedKey, setExpandedKey] = useState<string | null>(null);
-    const [allDeltas, setAllDeltas] = useState<Record<string, VariantDelta>>({});
     const [comment, setComment] = useState('');
     const [moving, setMoving] = useState(false);
     const [movingKeys, setMovingKeys] = useState<string[]>([]);
@@ -316,74 +339,78 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                 [expandedKey!]: { ...(prev[expandedKey!] ?? ZERO_DELTA), [type]: value },
             }));
         },
-        [expandedKey]
+        [expandedKey, setAllDeltas]
     );
 
-    const hasChanges = useMemo(
-        () => Object.values(allDeltas).some((d) => d.updated !== 0 || d.consumed !== 0 || d.recycled !== 0),
-        [allDeltas]
+    const dirtyYears = useMemo(
+        () =>
+            Object.entries(deltasByYear)
+                .filter(([, entries]) =>
+                    Object.values(entries).some((d) => d.updated !== 0 || d.consumed !== 0 || d.recycled !== 0)
+                )
+                .map(([editYear]) => Number(editYear)),
+        [deltasByYear]
     );
+    const hasChanges = dirtyYears.length > 0;
 
     useEffect(() => {
         onChangesUpdate?.(hasChanges);
     }, [hasChanges, onChangesUpdate]);
 
+    useEffect(() => {
+        onDirtyYearsUpdate?.(dirtyYears);
+    }, [dirtyYears, onDirtyYearsUpdate]);
+
     const handleCancel = useCallback(() => {
-        setAllDeltas({});
+        setDeltasByYear({});
         setComment('');
         setExpandedKey(null);
         setExtraKeys([]);
     }, [setExpandedKey]);
 
-    // Year switching itself now lives in the shared ProductYearBar (rendered above both tabs in
-    // AmountBox), which disables itself while hasChanges is true - so by the time `year` actually
-    // changes here, any pending edit has already been resolved. This just clears local state left
-    // over from the previous year once that happens.
     const prevYearRef = useRef(year);
     useEffect(() => {
         if (prevYearRef.current !== year) {
             prevYearRef.current = year;
-            setAllDeltas({});
-            setComment('');
             setExpandedKey(null);
             setExtraKeys([]);
         }
     }, [year]);
 
     const handleUpdate = useCallback(async () => {
-        const changes: VariantAmount[] = [];
-        for (const [key, deltas] of Object.entries(allDeltas)) {
-            const { variant, suspicious, home, expiresAt } = fromKey(key);
-            const flags = {
-                ...(suspicious ? { suspicious } : {}),
-                ...(home ? { home } : {}),
-                ...(expiresAt ? { expiresAt } : {}),
-            };
-            if (deltas.updated !== 0) {
-                changes.push({ variant, amount: deltas.updated, ...flags });
-            }
-            if (deltas.consumed !== 0) {
-                changes.push({ variant, amount: deltas.consumed, recycled: false, ...flags });
-            }
-            if (deltas.recycled !== 0) {
-                changes.push({ variant, amount: deltas.recycled, recycled: true, ...flags });
-            }
-        }
+        const requests = Object.entries(deltasByYear)
+            .map(([editYear, entries]) => {
+                const changes: VariantAmount[] = [];
+                for (const [key, deltas] of Object.entries(entries)) {
+                    const { variant, suspicious, home, expiresAt } = fromKey(key);
+                    const flags = {
+                        ...(suspicious ? { suspicious } : {}),
+                        ...(home ? { home } : {}),
+                        ...(expiresAt ? { expiresAt } : {}),
+                    };
+                    if (deltas.updated !== 0) {
+                        changes.push({ variant, amount: deltas.updated, ...flags });
+                    }
+                    if (deltas.consumed !== 0) {
+                        changes.push({ variant, amount: deltas.consumed, recycled: false, ...flags });
+                    }
+                    if (deltas.recycled !== 0) {
+                        changes.push({ variant, amount: deltas.recycled, recycled: true, ...flags });
+                    }
+                }
+                return { group, name, year: Number(editYear), amounts: changes, comment: comment || undefined };
+            })
+            .filter((request) => request.amounts.length > 0);
         if (activeData) {
             trackFaroEvent('form_submitted', { form: 'amount' });
             setSubmitting(true);
+            onSubmittingUpdate?.(true);
             const loadingTimeout = setTimeout(() => setLoading(true), 300);
             setUpdating(activeData, true);
             try {
-                await updateProduct({
-                    group,
-                    name,
-                    year,
-                    amounts: changes,
-                    comment: comment || undefined,
-                });
+                await updateProduct(requests.length === 1 ? requests[0] : requests);
                 trackFaroEvent('form_result', { form: 'amount', result: 'success' });
-                setAllDeltas({});
+                setDeltasByYear({});
                 setComment('');
                 setExpandedKey(null);
                 setExtraKeys([]);
@@ -395,10 +422,22 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                 clearTimeout(loadingTimeout);
                 setUpdating(activeData, false);
                 setSubmitting(false);
+                onSubmittingUpdate?.(false);
                 setLoading(false);
             }
         }
-    }, [allDeltas, activeData, group, name, year, comment, setUpdating, updateProduct, setExpandedKey, onClose]);
+    }, [
+        deltasByYear,
+        activeData,
+        group,
+        name,
+        comment,
+        setUpdating,
+        updateProduct,
+        setExpandedKey,
+        onClose,
+        onSubmittingUpdate,
+    ]);
 
     // Only ever wired to onClick while canUndo/canRedo is true, which itself requires activeData
     // (see activeProduct above) - so activeData is always defined here.
@@ -407,14 +446,14 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
         setExpandedKey(null);
         setUpdating(activeData!, true);
         await undoProduct({ group, name, year }).finally(() => setUpdating(activeData!, false));
-    }, [activeData, group, name, year, setUpdating, undoProduct, setExpandedKey]);
+    }, [activeData, group, name, year, setUpdating, undoProduct, setExpandedKey, setAllDeltas]);
 
     const handleRedo = useCallback(async (): Promise<void> => {
         setAllDeltas({});
         setExpandedKey(null);
         setUpdating(activeData!, true);
         await redoProduct({ group, name, year }).finally(() => setUpdating(activeData!, false));
-    }, [activeData, group, name, year, setUpdating, redoProduct, setExpandedKey]);
+    }, [activeData, group, name, year, setUpdating, redoProduct, setExpandedKey, setAllDeltas]);
 
     const handleMoveStart = useCallback(() => {
         startTransition(() => {

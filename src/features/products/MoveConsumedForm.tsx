@@ -69,10 +69,9 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
         ({ amount: submittedAmount }: ConsumedAmount) => {
             if (line && submittedAmount <= Math.abs(line.amount) && !disabled) {
                 onMove(line, submittedAmount);
-                setAmount('amount', 0);
             }
         },
-        [line, disabled, onMove, setAmount]
+        [line, disabled, onMove]
     );
 
     const data: ComboboxItem[] = useMemo(

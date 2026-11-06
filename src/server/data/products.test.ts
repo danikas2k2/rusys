@@ -488,6 +488,32 @@ describe('products', () => {
             { variant: 'd', amount: -1, recycled: true },
         ];
 
+        it('records a multi-year batch as one reversible update', async () => {
+            const group = 'Daržovės';
+            const name = 'Morkos';
+            const before = (await $all('products')).find((product) => product.group === group && product.name === name);
+            await withinTransaction(async (session) => {
+                await expect(
+                    setAmounts({ group, name, year: 22, amounts: [{ variant: 'd', amount: -1 }] }, user, session)
+                ).resolves.toBe(true);
+                await expect(
+                    setAmounts({ group, name, year: 23, amounts: [{ variant: 'd', amount: 1 }] }, user, session, true)
+                ).resolves.toBe(true);
+
+                return true;
+            });
+            const changed = (await $all('products')).find(
+                (product) => product.group === group && product.name === name
+            );
+
+            expect(changed?.updates?.at(-1)?.years.map((entry) => entry.year)).toStrictEqual([22, 23]);
+
+            await withinTransaction((session) => undoProduct({ group, name, year: 22 }, session));
+            const undone = (await $all('products')).find((product) => product.group === group && product.name === name);
+
+            expect(undone?.years).toStrictEqual(before?.years);
+        });
+
         it('updates products for existing group, name, and year', async () => {
             await expect(
                 withinTransaction((session) =>
@@ -872,6 +898,67 @@ describe('products', () => {
     });
 
     describe('moveConsumedToRecycled', () => {
+        it('moves only the selected session amount and restores it on undo', async () => {
+            const sourceTime = Date.now() - 30 * 24 * 60 * 60 * 1000;
+            await (await db()).collection('products').insertOne({
+                group: 'Test',
+                name: 'Transfer',
+                updates: [
+                    {
+                        time: sourceTime,
+                        user: 'a@example.com',
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                    },
+                ],
+            });
+            const request = {
+                group: 'Test',
+                name: 'Transfer',
+                year: 22,
+                variant: 'd',
+                amount: 1,
+                sourceSessionId: `a@example.com:${sourceTime}`,
+            };
+
+            await expect(
+                withinTransaction((session) => moveConsumedToRecycled(request, 'b@example.com', session))
+            ).resolves.toBe(true);
+
+            const history = await withinTransaction((session) => getProductUpdates(request, session));
+
+            expect(history.find((entry) => entry.time === sourceTime)?.amounts).toContainEqual({
+                variant: 'd',
+                amount: -1,
+                recycled: false,
+            });
+            expect(history[0].amounts).toContainEqual({ variant: 'd', amount: -1, recycled: true });
+            await expect(
+                withinTransaction((session) =>
+                    moveConsumedToRecycled({ ...request, amount: 2 }, 'b@example.com', session)
+                )
+            ).resolves.toBe(false);
+            await expect(withinTransaction((session) => undoProduct(request, session))).resolves.toBe(true);
+
+            const restored = await withinTransaction((session) => getProductUpdates(request, session));
+
+            expect(restored[0].amounts).toContainEqual({ variant: 'd', amount: -2, recycled: false });
+
+            await withinTransaction((session) => redoProduct(request, session));
+
+            await expect(
+                withinTransaction((session) => moveConsumedToRecycled(request, 'b@example.com', session))
+            ).resolves.toBe(true);
+
+            const exhausted = await withinTransaction((session) => getProductUpdates(request, session));
+
+            expect(exhausted.find((entry) => entry.time === sourceTime)).toBeUndefined();
+            expect(exhausted.flatMap((entry) => entry.amounts ?? []).filter((line) => line.recycled)).toContainEqual({
+                variant: 'd',
+                amount: -2,
+                recycled: true,
+            });
+        });
+
         it('returns false and makes no changes for a non-existent product', async () => {
             await expect(
                 withinTransaction((session) =>
@@ -889,7 +976,15 @@ describe('products', () => {
             await expect(
                 withinTransaction((session) =>
                     moveConsumedToRecycled(
-                        { group: 'Daržovės', name: 'Morkos', year: 22, variant: 'd', amount: 2, flags: {} },
+                        {
+                            group: 'Daržovės',
+                            name: 'Morkos',
+                            year: 22,
+                            variant: 'd',
+                            amount: 2,
+                            sourceSessionId: `:${Date.parse('2023-02-03T12:00:00.000Z')}`,
+                            flags: {},
+                        },
                         user,
                         session
                     )
@@ -902,6 +997,7 @@ describe('products', () => {
                     {
                         time,
                         user,
+                        recycleSource: { time: Date.parse('2023-02-03T12:00:00.000Z') },
                         years: [
                             {
                                 year: 22,
@@ -917,6 +1013,33 @@ describe('products', () => {
         });
 
         it('carries suspicious/home/expiresAt flags through onto both lines', async () => {
+            const sourceTime = Date.parse('2020-01-01T00:00:00.000Z');
+            await (await db()).collection('products').updateOne(
+                { group: 'Daržovės', name: 'Morkos' },
+                {
+                    $push: {
+                        updates: {
+                            time: sourceTime,
+                            years: [
+                                {
+                                    year: 22,
+                                    amounts: [
+                                        {
+                                            variant: 'd',
+                                            amount: -1,
+                                            recycled: false,
+                                            suspicious: true,
+                                            home: true,
+                                            expiresAt: 100,
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                }
+            );
+
             await expect(
                 withinTransaction((session) =>
                     moveConsumedToRecycled(
@@ -926,6 +1049,7 @@ describe('products', () => {
                             year: 22,
                             variant: 'd',
                             amount: 1,
+                            sourceSessionId: `:${sourceTime}`,
                             flags: { suspicious: true, home: true, expiresAt: 100 },
                         },
                         undefined,
@@ -948,7 +1072,15 @@ describe('products', () => {
             await expect(
                 withinTransaction((session) =>
                     moveConsumedToRecycled(
-                        { group: 'Daržovės', name: 'Morkos', year: 22, variant: 'd', amount: 1, flags: {} },
+                        {
+                            group: 'Daržovės',
+                            name: 'Morkos',
+                            year: 22,
+                            variant: 'd',
+                            amount: 1,
+                            sourceSessionId: `:${Date.parse('2023-02-03T12:00:00.000Z')}`,
+                            flags: {},
+                        },
                         undefined,
                         session
                     )

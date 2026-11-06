@@ -170,7 +170,7 @@ describe('<MoveConsumedForm>', () => {
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('2');
     });
 
-    it('calls onMove with the selected line and amount, then resets the input', async () => {
+    it('calls onMove with the selected line and amount, retaining the input while saving', async () => {
         const lines: VariantAmount[] = [{ variant: 'd', amount: -3, recycled: false }];
 
         render(
@@ -183,7 +183,7 @@ describe('<MoveConsumedForm>', () => {
         await user.click(screen.getByRole('button', { name: 'Move to discarded' }));
 
         expect(onMove).toHaveBeenCalledWith(lines[0], 2);
-        expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('0');
+        expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('2');
     });
 
     it('submits the valid amount with Enter', async () => {

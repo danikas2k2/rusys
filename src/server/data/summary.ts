@@ -3,7 +3,7 @@ import type { ClientSession, WithId } from 'mongodb';
 import { addTypedVariantAmount } from '~/common/utils/amounts';
 import type { Group, History, Product, ProductYearIdentity, Summary, Variant, VariantAmount } from '~/schema';
 import { getGroups } from '~/server/data/groups';
-import { buildHistoryPipeline } from '~/server/data/history';
+import { buildHistoryPipeline, projectRecycleEntries } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
@@ -26,6 +26,7 @@ export const getSummary = async (years: number[], session: ClientSession): Promi
         .aggregate<Summary>(
             [
                 { $unwind: '$updates' },
+                ...projectRecycleEntries('updates'),
                 {
                     $match: {
                         $expr: {
@@ -42,9 +43,14 @@ export const getSummary = async (years: number[], session: ClientSession): Promi
                 {
                     $match: {
                         'updates.years.amounts.recycled': { $exists: true },
+                        $or: [
+                            { 'updates._recyclePart': { $exists: false } },
+                            { $expr: { $eq: ['$updates.years.amounts.recycled', '$updates._recyclePart'] } },
+                        ],
                         $expr: {
                             $or: [
                                 { $lt: ['$updates.years.amounts.amount', 0] },
+                                { $eq: ['$updates._recyclePart', false] },
                                 { $gte: [{ $toDate: '$updates.time' }, POSITIVE_CONSUMPTION_CUTOFF] },
                             ],
                         },
@@ -396,11 +402,14 @@ export async function getSummaryHistory(
                         {
                             $or: [
                                 { $lt: ['$$a.amount', 0] },
+                                { $eq: [`$${field}._recyclePart`, false] },
                                 { $gte: [{ $toDate: `$${field}.time` }, POSITIVE_CONSUMPTION_CUTOFF] },
                             ],
                         },
                     ],
-                }
+                },
+                undefined,
+                field === 'updates'
             ),
             { session }
         )

@@ -1,7 +1,7 @@
 import { ActionIcon, Group, Menu, SegmentedControl, Stack } from '@mantine/core';
 import React, { startTransition, useCallback, useMemo } from 'react';
 
-import { HistoryTabIcon, RecycledIcon } from '@icons';
+import { HistoryTabIcon, PencilIcon, RecycledIcon } from '@icons';
 
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
@@ -19,6 +19,7 @@ import './ProductYearBar.css';
 
 export interface ProductYearBarProps {
     disabled?: boolean;
+    dirtyYears?: readonly number[];
     onHistoryYearChange?: () => void;
 }
 
@@ -46,7 +47,7 @@ export function isPreferred(year: number, years: readonly RemovingYearAmounts[])
 // the year context - which year is selected, which are archived/current, which are marked for
 // removal - stays visible and controllable no matter which tab is open. Reads/writes the same
 // active content the two tabs already key off of, rather than owning its own state.
-export function ProductYearBar({ disabled = false, onHistoryYearChange }: ProductYearBarProps) {
+export function ProductYearBar({ disabled = false, dirtyYears = [], onHistoryYearChange }: ProductYearBarProps) {
     const _ = useLabels();
     const [active, setActive] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
@@ -71,9 +72,9 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
     // thisYear and the currently active year are always included, even if neither has an entry
     // yet, so switching to a brand new year (or back to one just left) is possible.
     const yearOptions = useMemo(() => {
-        const set = new Set([...(activeProduct?.years?.map((y) => y.year) ?? []), thisYear, year]);
+        const set = new Set([...(activeProduct?.years?.map((y) => y.year) ?? []), ...dirtyYears, thisYear, year]);
         return Array.from(set).toSorted((a, b) => b - a);
-    }, [activeProduct, thisYear, year]);
+    }, [activeProduct, dirtyYears, thisYear, year]);
 
     // The product list includes compact update/undo metadata specifically so archived history
     // years can be discovered without loading each year's history. Keep them in a menu rather
@@ -134,32 +135,39 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
             {isAnnual && (
                 <Group gap="xs" wrap="nowrap" align="center">
                     <SegmentedControl
-                        key={year}
                         size="sm"
                         withItemsBorders={false}
                         style={{ flex: 1 }}
-                        data={yearOptions.map((y) => {
-                            const old = y <= thisYear - OLD_YEARS_THRESHOLD;
-                            const preferred = isPreferred(y, activeProduct?.years ?? []);
-                            const removing = !!activeProduct?.years?.find((yy) => yy.year === y)?.removing;
-                            return {
-                                value: String(y),
-                                label: (
-                                    <span
-                                        data-year-option
-                                        data-current={y === year || undefined}
-                                        data-old={old || undefined}
-                                        data-preferred={preferred || undefined}
-                                        data-removing={removing || undefined}
-                                    >
-                                        {y}
-                                    </span>
-                                ),
-                            };
-                        })}
+                        data={yearOptions
+                            .filter((y) => !disabled || y !== 0 || year === 0)
+                            .map((y) => {
+                                const old = y <= thisYear - OLD_YEARS_THRESHOLD;
+                                const preferred = isPreferred(y, activeProduct?.years ?? []);
+                                const removing = !!activeProduct?.years?.find((yy) => yy.year === y)?.removing;
+                                return {
+                                    value: String(y),
+                                    label: (
+                                        <span
+                                            data-year-option
+                                            data-current={y === year || undefined}
+                                            data-old={old || undefined}
+                                            data-preferred={preferred || undefined}
+                                            data-removing={removing || undefined}
+                                            aria-label={
+                                                dirtyYears.includes(y) ? `${y}, ${_('Unsaved changes')}` : undefined
+                                            }
+                                        >
+                                            {y}
+                                            {dirtyYears.includes(y) && (
+                                                <PencilIcon size={12} aria-hidden="true" data-dirty-year-icon />
+                                            )}
+                                        </span>
+                                    ),
+                                };
+                            })}
                         value={String(year)}
                         onChange={(v) => handleYearChange(Number(v))}
-                        disabled={disabled}
+                        disabled={disabled && year === 0}
                     />
                     {!!year && (
                         <IconButtonTooltip>
