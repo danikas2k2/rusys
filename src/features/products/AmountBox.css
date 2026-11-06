@@ -1,3 +1,11 @@
+/* Named page snapshots otherwise paint above the portal during dialog transitions. */
+:root:has(.ui-Modal-root[data-dialog="product"])
+    .ui-AppShell-main
+    [data-scrollarea-viewport]:has(.CategoryRailLayout-content),
+:root:has(.ui-Modal-root[data-dialog="product"]) [data-products-header] {
+    view-transition-name: none;
+}
+
 .ui-Modal-root[data-dialog="product"] {
     .ui-Modal-content {
         display: flex;

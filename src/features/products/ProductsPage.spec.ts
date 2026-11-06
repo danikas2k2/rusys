@@ -4,6 +4,37 @@ import { openProduct, productTile } from '@tests/helpers/ui';
 import type { Product } from '~/schema';
 
 test.describe('products', () => {
+    test('keeps page snapshots behind the product dialog while changing years', async ({ page, db }) => {
+        const currentYear = new Date().getFullYear() % 100;
+        const previousYear = currentYear - 1;
+        await db.collection<Product>('products').updateOne(
+            { name: 'Avietės' },
+            {
+                $set: {
+                    years: [
+                        { year: currentYear, amounts: [{ variant: 'Stiklainis', amount: 3 }] },
+                        { year: previousYear, amounts: [{ variant: 'Stiklainis', amount: 2 }] },
+                    ],
+                },
+            }
+        );
+        await page.goto('/');
+        const viewport = page.locator('.ui-AppShell-main [data-scrollarea-viewport]');
+        const header = page.locator('[data-products-header]');
+        const dialog = await openProduct(page, 'Avietės');
+        await expect(viewport).toHaveCSS('view-transition-name', 'none');
+        await expect(header).toHaveCSS('view-transition-name', 'none');
+        const previousOption = dialog.locator('[data-year-option]').filter({ hasText: String(previousYear) });
+        await previousOption.click();
+        await expect(previousOption).toHaveAttribute('data-current', 'true');
+        await expect(viewport).toHaveCSS('view-transition-name', 'none');
+        await dialog.getByRole('button', { name: 'Uždaryti' }).click();
+        if (await page.evaluate(() => CSS.supports('view-transition-group', 'contain'))) {
+            await expect(viewport).toHaveCSS('view-transition-name', 'category-page-scrollport');
+            await expect(header).toHaveCSS('view-transition-name', 'products-sticky-header');
+        }
+    });
+
     test('clips the category transition to the scrolled product viewport', async ({ page, db }) => {
         await page.setViewportSize({ width: 390, height: 700 });
         await page.emulateMedia({ reducedMotion: 'no-preference' });
