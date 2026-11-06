@@ -73,7 +73,7 @@ describe('monitoring dashboards and alert contracts', () => {
         expect(mongo?.expr).toContain('absent(mongodb_up');
         expect(backup?.expr).toContain('absent(rusys_backup_last_success_timestamp_seconds');
         expect(backup?.expr).toContain('absent(rusys_backup_last_run_success');
-        expect(backup?.expr).toContain('93600');
+        expect(backup?.expr).toContain('7200');
     });
 
     it('bounds infrastructure alerts to finite container limits and real NAS volumes', () => {

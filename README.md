@@ -11,6 +11,7 @@ organized by topic, with Mermaid diagrams placed alongside the concepts they exp
 - [Development and deployment](docs/DEVELOPMENT-AND-DEPLOYMENT.md) — local setup, commands, CI, and production releases.
 - [Synthetic Monitoring](docs/monitoring/SYNTHETIC-MONITORING.md) — external uptime checks, alerts, dashboard, and
   Grafana credentials.
+- [Backups](docs/BACKUP.md) — configuration, scheduling, retention, and recovery.
 - [Monitoring overview](docs/monitoring/MONITORING.md) — telemetry signals, integration boundaries, and roadmap.
 - [Frontend observability](docs/monitoring/FRONTEND-OBSERVABILITY.md) — optional Grafana Faro diagnostics, privacy, and
   verification.

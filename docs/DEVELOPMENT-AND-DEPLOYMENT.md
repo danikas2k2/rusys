@@ -218,15 +218,14 @@ copy that path. Production deployments are serialized.
 Create a GitHub Actions environment named `production` in the repository settings. Restrict its deployment branches to
 `main`. Add these environment settings:
 
-| Name                     | Type     | Value                                                           |
-| ------------------------ | -------- | --------------------------------------------------------------- |
-| `DEPLOY_SSH_PRIVATE_KEY` | Secret   | Private SSH key for the deployment user                         |
-| `DEPLOY_SSH_KNOWN_HOSTS` | Secret   | Verified SSH host key entry for the server                      |
-| `DEPLOY_USER`            | Variable | SSH user                                                        |
-| `DEPLOY_HOST`            | Variable | SSH host                                                        |
-| `DEPLOY_PORT`            | Variable | SSH port; optional, defaults to `22`                            |
-| `DEPLOY_PATH`            | Variable | Existing application directory on the server                    |
-| `DOCKER_PATH`            | Variable | Docker executable on the server; optional, defaults to `docker` |
+| Name                     | Type     | Value                                        |
+| ------------------------ | -------- | -------------------------------------------- |
+| `DEPLOY_SSH_PRIVATE_KEY` | Secret   | Private SSH key for the deployment user      |
+| `DEPLOY_SSH_KNOWN_HOSTS` | Secret   | Verified SSH host key entry for the server   |
+| `DEPLOY_USER`            | Variable | SSH user                                     |
+| `DEPLOY_HOST`            | Variable | SSH host                                     |
+| `DEPLOY_PORT`            | Variable | SSH port; optional, defaults to `22`         |
+| `DEPLOY_PATH`            | Variable | Existing application directory on the server |
 
 The SSH user needs access to the application directory and Docker on the server. The server keeps its own `.env` for
 Compose; do not upload it or add it to Git. Verify the host key out of band before saving `DEPLOY_SSH_KNOWN_HOSTS`;

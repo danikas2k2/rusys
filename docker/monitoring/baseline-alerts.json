@@ -815,8 +815,8 @@
       "severity": "warning"
     },
     "annotations": {
-      "summary": "Backup failed, last success older than 26 hours, or backup telemetry missing for 15 minutes.",
-      "description": "Inspect the backup scheduler, latest exit status and storage destination. Missing telemetry requires wiring the documented backup metrics; never assume a backup succeeded.",
+      "summary": "Backup failed, last success older than 2 hours, or backup telemetry missing for 15 minutes.",
+      "description": "Inspect the backup scheduler, latest exit status and storage destination; never assume a backup succeeded.",
       "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
       "__dashboardUid__": "rusys-overview",
       "__panelId__": "11"
@@ -843,7 +843,7 @@
             "type": "prometheus",
             "uid": "${prometheus}"
           },
-          "expr": "((time() - rusys_backup_last_success_timestamp_seconds{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"} > 93600) * 0 + 1) or ((rusys_backup_last_run_success{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"} == 0) + 1) or absent(rusys_backup_last_success_timestamp_seconds{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}) or absent(rusys_backup_last_run_success{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"})",
+          "expr": "((time() - rusys_backup_last_success_timestamp_seconds{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"} > 7200) * 0 + 1) or ((rusys_backup_last_run_success{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"} == 0) + 1) or absent(rusys_backup_last_success_timestamp_seconds{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"}) or absent(rusys_backup_last_run_success{project=\"rusys\",environment=\"production\",host=\"synology-ds923\"})",
           "instant": true,
           "range": false,
           "queryType": "instant",

@@ -6,6 +6,7 @@
 !scripts/
 !scripts/postcss/
 !scripts/postcss/**
+!scripts/backup/
 !docker/
 !docker/Dockerfile
 !package.json

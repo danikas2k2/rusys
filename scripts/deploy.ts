@@ -7,7 +7,6 @@ interface DeployConfig {
     serverHost?: string;
     serverPort?: string;
     remotePath?: string;
-    dockerPath?: string;
 }
 
 function getConfig(config?: DeployConfig): Required<DeployConfig> {
@@ -16,14 +15,13 @@ function getConfig(config?: DeployConfig): Required<DeployConfig> {
         serverHost = process.env.DEPLOY_HOST,
         serverPort = process.env.DEPLOY_PORT ?? '22',
         remotePath = process.env.DEPLOY_PATH,
-        dockerPath = process.env.DOCKER_PATH ?? 'docker',
     } = config || {};
 
     if (!serverUser || !serverHost || !remotePath) {
         throw new Error('DEPLOY_USER, DEPLOY_HOST and DEPLOY_PATH must be set.');
     }
 
-    return { serverUser, serverHost, serverPort, remotePath, dockerPath };
+    return { serverUser, serverHost, serverPort, remotePath };
 }
 
 function shellQuote(value: string): string {
@@ -31,12 +29,11 @@ function shellQuote(value: string): string {
 }
 
 function createConnection(config: Required<DeployConfig>) {
-    const { serverUser, serverHost, serverPort, remotePath, dockerPath } = config;
+    const { serverUser, serverHost, serverPort, remotePath } = config;
     const address = `${serverUser}@${serverHost}`;
     const root = path.resolve(process.cwd());
     const remoteHeader = `set -eu
 cd ${shellQuote(remotePath)}
-docker=${shellQuote(dockerPath)}
 `;
 
     return {
@@ -77,6 +74,9 @@ const requiredBuildSources = [
     'public',
     'docker',
     'docker/Dockerfile',
+    'docker/backup/Dockerfile',
+    'scripts/backup/run.sh',
+    'scripts/backup/scheduler.sh',
     'docker/compose.yaml',
     'docker/nginx.conf.template',
     'docker/monitoring/config.alloy',
@@ -135,7 +135,7 @@ function getDeployExcludes(): string[] {
 function isRunning(connection: Connection, name: string): boolean {
     return (
         connection.remote(
-            `if test "$("$docker" inspect --format '{{.State.Running}}' ${shellQuote(name)} 2>/dev/null || true)" = true; then printf true; fi\n`
+            `if test "$(docker inspect --format '{{.State.Running}}' ${shellQuote(name)} 2>/dev/null || true)" = true; then printf true; fi\n`
         ) === 'true'
     );
 }
@@ -143,7 +143,7 @@ function isRunning(connection: Connection, name: string): boolean {
 function isHealthy(connection: Connection, name: string): boolean {
     return (
         connection.remote(
-            `if test "$("$docker" inspect --format '{{.State.Health.Status}}' ${shellQuote(name)} 2>/dev/null || true)" = healthy; then printf true; fi\n`
+            `if test "$(docker inspect --format '{{.State.Health.Status}}' ${shellQuote(name)} 2>/dev/null || true)" = healthy; then printf true; fi\n`
         ) === 'true'
     );
 }
@@ -152,7 +152,7 @@ function waitHealthy(connection: Connection, name: string) {
     console.log(`⏳ Waiting for ${name} to become healthy...`);
     connection.remote(`attempt=0
 while test "$attempt" -lt 60; do
-    if test "$("$docker" inspect --format '{{.State.Health.Status}}' ${shellQuote(name)} 2>/dev/null || true)" = healthy; then exit 0; fi
+    if test "$(docker inspect --format '{{.State.Health.Status}}' ${shellQuote(name)} 2>/dev/null || true)" = healthy; then exit 0; fi
     attempt=$((attempt + 1))
     sleep 2
 done
@@ -165,7 +165,7 @@ exit 1
 function waitGateway(connection: Connection) {
     connection.remote(`attempt=0
 while test "$attempt" -lt 15; do
-    if "$docker" exec rusys-gateway wget -q -O /dev/null http://127.0.0.1/ >/dev/null 2>&1; then exit 0; fi
+    if docker exec rusys-gateway wget -q -O /dev/null http://127.0.0.1/ >/dev/null 2>&1; then exit 0; fi
     attempt=$((attempt + 1))
     sleep 2
 done
@@ -176,7 +176,7 @@ exit 1
 
 function requireMongoAuthorization(connection: Connection) {
     // A username/password URI alone does not enforce access control on MongoDB.
-    connection.remote(`if ! "$docker" exec rusys-db mongosh --quiet --eval 'try { db.getSiblingDB("admin").runCommand({serverStatus: 1}); quit(1); } catch (error) { quit(error.code === 13 ? 0 : 1); }' >/dev/null 2>&1; then
+    connection.remote(`if ! docker exec rusys-db mongosh --quiet --eval 'try { db.getSiblingDB("admin").runCommand({serverStatus: 1}); quit(1); } catch (error) { quit(error.code === 13 ? 0 : 1); }' >/dev/null 2>&1; then
     echo 'MongoDB must reject unauthenticated serverStatus before monitoring can be deployed. Complete the approved authorization rollout first.' >&2
     exit 1
 fi
@@ -186,7 +186,7 @@ fi
 function requireMongoMonitoringSecret(connection: Connection) {
     // Resolve only the required NAS secret using Compose's own dotenv parser.
     // The quiet check neither starts a container nor prints the resolved URI.
-    connection.remote(`"$docker" compose --env-file .env -f - config --quiet <<'MONGODB_MONITORING_PREFLIGHT'
+    connection.remote(`docker compose --env-file .env -f - config --quiet <<'MONGODB_MONITORING_PREFLIGHT'
 services:
   monitoring-preflight:
     image: grafana/alloy:v1.20.1
@@ -211,7 +211,7 @@ fi
 }
 
 function gatewayWorkerPids(connection: Connection): string[] {
-    const output = connection.remote(`"$docker" exec rusys-gateway sh -c 'for process in /proc/[0-9]*; do
+    const output = connection.remote(`docker exec rusys-gateway sh -c 'for process in /proc/[0-9]*; do
     test -r "$process/cmdline" || continue
     command=$(tr "\\000" " " < "$process/cmdline" 2>/dev/null) || continue
     case "$command" in
@@ -230,7 +230,7 @@ function waitForGatewayWorkers(connection: Connection, pids: string[]) {
     console.log('⏳ Waiting for the previous Nginx workers to finish...');
     connection.remote(`attempt=0
 while test "$attempt" -lt 180; do
-    remaining=$("$docker" exec rusys-gateway sh -c 'for pid in ${pids.join(' ')}; do
+    remaining=$(docker exec rusys-gateway sh -c 'for pid in ${pids.join(' ')}; do
         if test -d "/proc/$pid"; then printf "%s " "$pid"; fi
     done')
     if test -z "$remaining"; then exit 0; fi
@@ -254,12 +254,12 @@ mv .deploy/nginx/default.conf.next .deploy/nginx/default.conf
 `);
 
     try {
-        connection.remote('"$docker" exec rusys-gateway nginx -t\n"$docker" exec rusys-gateway nginx -s reload\n');
+        connection.remote('docker exec rusys-gateway nginx -t\ndocker exec rusys-gateway nginx -s reload\n');
         waitGateway(connection);
     } catch (error) {
         connection.remote('mv .deploy/nginx/default.conf.previous .deploy/nginx/default.conf\n');
         try {
-            connection.remote('"$docker" exec rusys-gateway nginx -t\n"$docker" exec rusys-gateway nginx -s reload\n');
+            connection.remote('docker exec rusys-gateway nginx -t\ndocker exec rusys-gateway nginx -s reload\n');
         } catch {
             // Preserve the original switching failure.
         }
@@ -288,7 +288,7 @@ export function deploy(config?: DeployConfig) {
                 const candidate: Slot = previous === 'blue' ? 'green' : 'blue';
                 requireMongoAuthorization(connection);
                 requireMongoMonitoringSecret(connection);
-                connection.remote('mkdir -p src public scripts/postcss docker/monitoring\n');
+                connection.remote('mkdir -p src public scripts/postcss scripts/backup docker/monitoring\n');
 
                 console.log('📤 Uploading source files for the Docker build...');
                 connection.upload('src/', ['src/'], ['--delete', '--delete-excluded', ...deployExcludes]);
@@ -297,6 +297,11 @@ export function deploy(config?: DeployConfig) {
                     'scripts/postcss/',
                     ['scripts/postcss/'],
                     ['--delete', '--delete-excluded', ...deployExcludes]
+                );
+                connection.upload(
+                    'scripts/backup/',
+                    ['scripts/backup/run.sh', 'scripts/backup/scheduler.sh'],
+                    deployExcludes
                 );
                 connection.upload(
                     'docker/',
@@ -308,6 +313,7 @@ export function deploy(config?: DeployConfig) {
                         '--include=/compose.yaml',
                         '--include=/nginx.conf.template',
                         '--include=/monitoring/***',
+                        '--include=/backup/***',
                         '--exclude=*',
                     ]
                 );
@@ -321,26 +327,24 @@ export function deploy(config?: DeployConfig) {
                     '.dockerignore',
                 ]);
 
-                connection.remote('"$docker" compose --env-file .env -f docker/compose.yaml config --quiet\n');
+                connection.remote('docker compose --env-file .env -f docker/compose.yaml config --quiet\n');
                 connection.remote(
-                    '"$docker" compose --env-file .env -f docker/compose.yaml run --rm --no-deps monitoring validate /etc/alloy/config.alloy\n'
+                    'docker compose --env-file .env -f docker/compose.yaml run --rm --no-deps monitoring validate /etc/alloy/config.alloy\n'
                 );
                 connection.remote(
-                    '"$docker" compose --env-file .env -f docker/compose.yaml run --rm --no-deps traces-validate\n'
+                    'docker compose --env-file .env -f docker/compose.yaml run --rm --no-deps traces-validate\n'
                 );
                 connection.remote(
-                    '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate traces\n'
+                    'docker compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate traces\n'
                 );
                 if (!isRunning(connection, 'rusys-traces')) {
                     throw new Error('The traces collector is not running. Check its Alloy configuration.');
                 }
-                connection.remote(
-                    '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps rusys-db\n'
-                );
+                connection.remote('docker compose --env-file .env -f docker/compose.yaml up -d --no-deps rusys-db\n');
                 waitHealthy(connection, 'rusys-db');
                 requireMongoAuthorization(connection);
                 connection.remote(
-                    '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate monitoring\n'
+                    'docker compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate monitoring\n'
                 );
                 if (!isRunning(connection, 'rusys-monitoring')) {
                     // noinspection ExceptionCaughtLocallyJS
@@ -348,12 +352,12 @@ export function deploy(config?: DeployConfig) {
                 }
                 console.log(`🔨 Building rusys-app-${candidate} on the server...`);
                 connection.remote(
-                    `"$docker" compose --env-file .env -f docker/compose.yaml build rusys-app-${candidate}\n`,
+                    `docker compose --env-file .env -f docker/compose.yaml build rusys-app-${candidate}\n`,
                     true
                 );
                 console.log(`🚀 Starting rusys-app-${candidate}...`);
                 connection.remote(
-                    `"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --no-build --force-recreate rusys-app-${candidate}\n`
+                    `docker compose --env-file .env -f docker/compose.yaml up -d --no-deps --no-build --force-recreate rusys-app-${candidate}\n`
                 );
                 waitHealthy(connection, `rusys-app-${candidate}`);
                 const previousWorkers = gatewayWorkerPids(connection);
@@ -363,7 +367,7 @@ export function deploy(config?: DeployConfig) {
     echo 'The active application slot changed before the previous container could be stopped.' >&2
     exit 1
 fi
-"$docker" compose --env-file .env -f docker/compose.yaml stop rusys-app-${previous}
+docker compose --env-file .env -f docker/compose.yaml stop rusys-app-${previous}
 `);
                 console.log(`Active application slot: ${candidate}`);
                 console.log('✅ Deployment completed successfully!');

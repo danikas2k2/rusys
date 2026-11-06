@@ -7,6 +7,10 @@ prometheus.exporter.unix "nas" {
   rootfs_path = "/rootfs"
   procfs_path = "/host/proc"
   sysfs_path  = "/sys"
+
+  textfile {
+    directory = "/rootfs/volume1/docker/rusys-app/backup-metrics"
+  }
 }
 
 prometheus.scrape "docker" {

@@ -9,6 +9,7 @@ consistently; choose infrastructure integrations that match the target platform.
 | Infrastructure metrics | Resource usage and infrastructure health                   | [Deployment integrations](../DEVELOPMENT-AND-DEPLOYMENT.md#monitoring-integrations) |
 | Structured logs        | Bounded operational events and request diagnostics         | [Logging](DOCKER-LOGGING.md)                                                        |
 | Database metrics       | Connections, operation rates, and database health          | [MongoDB metrics](MONGODB-METRICS.md)                                               |
+| Backup status          | Scheduled backup success, freshness, and alerts            | [Backup monitoring](BACKUP.md)                                                      |
 | Backend traces         | Request timing and nested application operations           | [Backend tracing](BACKEND-TRACING.md)                                               |
 | Dashboards and alerts  | Cross-signal diagnosis and actionable notifications        | [Dashboards and alerts](DASHBOARDS-AND-ALERTS.md)                                   |
 | Retention              | Required history and when to activate daily aggregates     | [Retention decision](RETENTION.md)                                                  |
