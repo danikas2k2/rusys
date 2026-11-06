@@ -2,13 +2,49 @@ import { renderHook } from '@testing-library/react';
 import { MockData } from '@tests/MockData';
 
 import { useSetAmounts } from '~/features/products/hooks/useSetAmounts';
-import { setAmountsAction } from '~/server/actions/products';
+import { setAmountsAction, setAmountsBatchAction } from '~/server/actions/products';
 
+const { refresh } = vi.hoisted(() => ({ refresh: vi.fn() }));
 vi.mock(import('~/server/actions/products'));
-vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
+vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProducts: () => refresh }));
 
 describe('useSetAmounts', () => {
     afterEach(() => vi.clearAllMocks());
+
+    it('submits multiple years together and refreshes after success', async () => {
+        const { result } = renderHook(() => useSetAmounts(), { wrapper: MockData });
+        const requests = [
+            { group: 'Uogienės', name: 'Avietės', year: 23, amounts: [{ variant: 'p', amount: -1 }] },
+            { group: 'Uogienės', name: 'Avietės', year: 24, amounts: [{ variant: 'p', amount: -2, recycled: true }] },
+        ];
+
+        await result.current(requests);
+
+        expect(setAmountsBatchAction).toHaveBeenCalledWith(requests);
+        expect(setAmountsAction).not.toHaveBeenCalled();
+        expect(refresh).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it('ignores an empty batch', async () => {
+        const { result } = renderHook(() => useSetAmounts(), { wrapper: MockData });
+        await result.current([]);
+
+        expect(setAmountsBatchAction).not.toHaveBeenCalled();
+        expect(refresh).not.toHaveBeenCalled();
+    });
+
+    it('propagates a failed batch without refreshing', async () => {
+        const error = new Error('Save failed');
+        vi.mocked(setAmountsBatchAction).mockRejectedValueOnce(error);
+        const { result } = renderHook(() => useSetAmounts(), { wrapper: MockData });
+        const requests = [
+            { group: 'Uogienės', name: 'Avietės', year: 23, amounts: [{ variant: 'p', amount: -1 }] },
+            { group: 'Uogienės', name: 'Avietės', year: 24, amounts: [{ variant: 'p', amount: -1 }] },
+        ];
+
+        await expect(result.current(requests)).rejects.toThrow('Save failed');
+        expect(refresh).not.toHaveBeenCalled();
+    });
 
     it('calls update action', async () => {
         const { result } = renderHook(() => useSetAmounts(), { wrapper: MockData });

@@ -164,6 +164,7 @@ export type TransferAmounts = z.infer<typeof transferAmountsSchema>;
 export const moveConsumedToRecycledSchema = productYearIdentitySchema.safeExtend({
     variant: validVariantName,
     amount: positiveAmount,
+    sourceSessionId: z.string().min(1),
     flags: moveFlagsSchema.optional(),
 });
 export type MoveConsumedToRecycled = z.infer<typeof moveConsumedToRecycledSchema>;

@@ -39,7 +39,7 @@ describe('<AmountHistoryRow>', () => {
     function renderRow(h: History, dimmed = false) {
         return render(
             <MockApp>
-                <Table>
+                <Table tabIndex={-1}>
                     <Table.Tbody>
                         <AmountHistoryRow h={h} dimmed={dimmed} onMoved={onMoved} />
                     </Table.Tbody>
@@ -103,7 +103,7 @@ describe('<AmountHistoryRow>', () => {
             ],
         });
 
-        await user.click(screen.getAllByRole('row')[0]);
+        await user.click(screen.getByRole('button', { name: 'Move to discarded' }));
 
         expect(screen.getByLabelText('History line count')).toHaveTextContent('1');
     });
@@ -117,7 +117,7 @@ describe('<AmountHistoryRow>', () => {
             amounts: [{ variant: 'd', amount: -3, recycled: false }],
         });
 
-        const row = screen.getAllByRole('row')[0];
+        const row = screen.getByRole('button', { name: 'Move to discarded' });
         await user.click(row);
 
         expect(screen.getByText('move')).toBeInTheDocument();
@@ -125,6 +125,32 @@ describe('<AmountHistoryRow>', () => {
         await user.click(row);
 
         expect(screen.queryByText('move')).not.toBeInTheDocument();
+    });
+
+    it('opens and closes the form with the keyboard and reports a failed move', async () => {
+        renderRow({
+            group: 'G',
+            name: 'N',
+            time: 1000,
+            year: 22,
+            amounts: [{ variant: 'd', amount: -2, recycled: false }],
+        });
+        const button = screen.getByRole('button', { name: 'Move to discarded' });
+        button.focus();
+        await user.keyboard('{Enter}');
+
+        expect(button).toHaveAttribute('aria-expanded', 'true');
+
+        moveConsumedToRecycled.mockRejectedValueOnce(new Error('stale'));
+        await user.click(screen.getByText('move'));
+
+        await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Something went wrong');
+        expect(screen.getByText('move')).toBeInTheDocument();
+
+        button.focus();
+        await user.keyboard(' ');
+
+        expect(button).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('calls moveConsumedToRecycled with the entry identity and collapses on success', async () => {
@@ -137,10 +163,11 @@ describe('<AmountHistoryRow>', () => {
             amounts: [{ variant: 'd', amount: -3, recycled: false, home: true }],
         });
 
-        await user.click(screen.getAllByRole('row')[0]);
+        await user.click(screen.getByRole('button', { name: 'Move to discarded' }));
         await user.click(screen.getByText('move'));
 
         expect(moveConsumedToRecycled).toHaveBeenCalledWith({
+            sourceSessionId: 'author@example.com:1000',
             group: 'Daržovės',
             name: 'Morkos',
             year: 22,
@@ -149,10 +176,12 @@ describe('<AmountHistoryRow>', () => {
             flags: {
                 suspicious: undefined,
                 home: true,
+                expiresAt: undefined,
             },
         });
         expect(onMoved).toHaveBeenCalledWith();
         expect(screen.queryByText('move')).not.toBeInTheDocument();
+        expect(screen.getByRole('table')).toHaveFocus();
     });
 
     it('passes the line expiresAt through to moveConsumedToRecycled', async () => {
@@ -165,10 +194,11 @@ describe('<AmountHistoryRow>', () => {
             amounts: [{ variant: 'd', amount: -3, recycled: false, expiresAt: 1_700_000_000_000 }],
         });
 
-        await user.click(screen.getAllByRole('row')[0]);
+        await user.click(screen.getByRole('button', { name: 'Move to discarded' }));
         await user.click(screen.getByText('move'));
 
         expect(moveConsumedToRecycled).toHaveBeenCalledWith({
+            sourceSessionId: 'author@example.com:1000',
             group: 'Daržovės',
             name: 'Morkos',
             year: 22,
@@ -192,10 +222,11 @@ describe('<AmountHistoryRow>', () => {
             amounts: [{ variant: 'd', amount: -3, recycled: false }],
         });
 
-        await user.click(screen.getAllByRole('row')[0]);
+        await user.click(screen.getByRole('button', { name: 'Move to discarded' }));
         await user.click(screen.getByText('move'));
 
         expect(moveConsumedToRecycled).toHaveBeenCalledWith({
+            sourceSessionId: 'original-author@example.com:1000',
             group: 'Daržovės',
             name: 'Morkos',
             year: 22,
@@ -204,6 +235,7 @@ describe('<AmountHistoryRow>', () => {
             flags: {
                 suspicious: undefined,
                 home: undefined,
+                expiresAt: undefined,
             },
         });
     });
@@ -216,10 +248,11 @@ describe('<AmountHistoryRow>', () => {
             amounts: [{ variant: 'd', amount: -3, recycled: false }],
         });
 
-        await user.click(screen.getAllByRole('row')[0]);
+        await user.click(screen.getByRole('button', { name: 'Move to discarded' }));
         await user.click(screen.getByText('move'));
 
         expect(moveConsumedToRecycled).toHaveBeenCalledWith({
+            sourceSessionId: ':1000',
             group: 'Daržovės',
             name: 'Morkos',
             year: 0,
@@ -228,6 +261,7 @@ describe('<AmountHistoryRow>', () => {
             flags: {
                 suspicious: undefined,
                 home: undefined,
+                expiresAt: undefined,
             },
         });
     });

@@ -50,6 +50,7 @@ const archiveUpdate = z.strictObject({
     time: archiveTime,
     user: z.string().optional(),
     comment: z.string().optional(),
+    recycleSource: z.strictObject({ time: archiveInteger, user: z.string().optional() }).optional(),
     years: z.array(archiveHistoryYear).nullable(),
 });
 

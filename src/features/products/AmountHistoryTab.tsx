@@ -54,7 +54,7 @@ function HistoryTable({
     loader?: () => Promise<void>;
 }) {
     return (
-        <Table data-table="history">
+        <Table data-table="history" tabIndex={-1}>
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>

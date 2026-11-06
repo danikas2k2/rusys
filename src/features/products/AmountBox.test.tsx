@@ -27,6 +27,25 @@ describe('<AmountBox>', () => {
 
     afterEach(() => vi.clearAllMocks());
 
+    it('announces saving and restores focus after submission ends', async () => {
+        let setPending: ((pending: boolean) => void) | undefined;
+        vi.mocked(AmountVariantsTab).mockImplementation(({ onSubmittingUpdate }) => {
+            setPending = onSubmittingUpdate;
+            return <button onClick={() => onSubmittingUpdate?.(true)}>Save</button>;
+        });
+        render(
+            <MockTheme>
+                <AmountBox opened />
+            </MockTheme>
+        );
+        const button = screen.getByRole('button', { name: 'Save' });
+        await user.click(button);
+        expect(screen.getByRole('status')).toHaveFocus();
+        expect(screen.getByRole('status')).toHaveTextContent('Update');
+        act(() => setPending?.(false));
+        expect(button).toHaveFocus();
+    });
+
     it('does not render when opened=false', () => {
         render(
             <MockTheme>

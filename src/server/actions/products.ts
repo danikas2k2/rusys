@@ -150,6 +150,26 @@ export async function setAmountsAction(request: SetAmounts): Promise<void> {
     return withinTransaction((session) => setAmounts(parsed, user, session)).then(assertSuccess);
 }
 
+export async function setAmountsBatchAction(requests: SetAmounts[]): Promise<void> {
+    const user = await requireStockAuthor();
+    const parsed = setAmountsSchema.array().min(1).parse(requests);
+    if (parsed.some((request) => request.group !== parsed[0].group || request.name !== parsed[0].name)) {
+        throw new Error('Invalid product batch');
+    }
+    if (
+        (parsed.length > 1 && parsed.some((request) => request.year === 0)) ||
+        new Set(parsed.map((request) => request.year)).size !== parsed.length
+    ) {
+        throw new Error('Invalid product years');
+    }
+    await withinTransaction(async (session) => {
+        for (const [index, request] of parsed.entries()) {
+            assertSuccess(await setAmounts(request, user, session, index > 0));
+        }
+        return true;
+    });
+}
+
 export async function transferAmountsAction(request: TransferAmounts): Promise<void> {
     const user = await requireStockAuthor();
     const parsed = transferAmountsSchema.parse(request);

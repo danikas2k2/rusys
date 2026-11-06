@@ -131,6 +131,9 @@
   "Discard unsaved changes?": {
     "lt-LT": "Atmesti neišsaugotus pakeitimus?"
   },
+  "Unsaved changes": {
+    "lt-LT": "Neišsaugoti pakeitimai"
+  },
   "Drag": {
     "lt-LT": "Vilkite"
   },

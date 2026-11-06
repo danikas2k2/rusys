@@ -25,6 +25,7 @@ export const updateSchema = z.object({
     time: z.number(),
     user: z.string().optional(),
     comment: z.string().optional(),
+    recycleSource: z.object({ time: z.number(), user: z.string().optional() }).optional(),
     years: z.array(yearAmountsSchema).readonly(),
 });
 export type Update = z.infer<typeof updateSchema>;
