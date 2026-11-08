@@ -3,13 +3,19 @@ import { expect, test } from 'vitest';
 
 import { page } from 'vitest/browser';
 
+async function settleProductsPage() {
+    // The browser pointer survives between visual tests and can hover a product in the next render.
+    await productTile('Avietės').unhover();
+    await settleVisual();
+}
+
 test('products page', async () => {
     await renderVisualApp('/');
     await expect.element(productTile('Avietės')).toBeVisible();
     expect(matchMedia('(prefers-reduced-motion: reduce)').matches).toBe(true);
     expect(getComputedStyle(productTile('Avietės').element()).transitionDuration).toBe('0s');
     expect(getComputedStyle(css('input').element()).caretColor).toBe('rgba(0, 0, 0, 0)');
-    await settleVisual();
+    await settleProductsPage();
     await expect(page).toMatchScreenshot('products-page');
 });
 
@@ -73,7 +79,7 @@ test('products page with missing items', async () => {
             );
         })
         .toBe(true);
-    await settleVisual();
+    await settleProductsPage();
     await expect(page).toMatchScreenshot('products-page-missing');
 });
 
@@ -96,6 +102,6 @@ test('products page with images', async () => {
             })
             .toBe(true);
     }
-    await settleVisual();
+    await settleProductsPage();
     await expect(page).toMatchScreenshot('products-page-images');
 });
