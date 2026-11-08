@@ -65,8 +65,16 @@ export function AmountBox({
     }, [submitting]);
     const [activeTab, setActiveTab] = useState<string | null>('quantities');
     const [photoPreviewOpen, setPhotoPreviewOpen] = useState(false);
+    const [transitionVisible, setTransitionVisible] = useState(opened);
 
-    const handleExitTransitionEnd = useCallback(() => onAfterClose?.(), [onAfterClose]);
+    if (opened && !transitionVisible) {
+        setTransitionVisible(true);
+    }
+
+    const handleExitTransitionEnd = useCallback(() => {
+        setTransitionVisible(false);
+        onAfterClose?.();
+    }, [onAfterClose]);
     const changeTab = useCallback(
         (value: string | null) => {
             if (value !== activeTab && (value === 'quantities' || value === 'history')) {
@@ -100,6 +108,7 @@ export function AmountBox({
                 </Group>
             }
             data-dialog="product"
+            data-opened={opened || transitionVisible || undefined}
         >
             {() => (
                 <>
