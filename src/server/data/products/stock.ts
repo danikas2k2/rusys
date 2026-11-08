@@ -24,7 +24,7 @@ export const cleanupRecycled = ({ recycled, suspicious, home, expiresAt, ...v }:
     ...(recycled != null ? { recycled } : {}),
     ...(suspicious ? { suspicious } : {}),
     ...(home ? { home } : {}),
-    ...(expiresAt ? { expiresAt } : {}),
+    ...(expiresAt != null ? { expiresAt } : {}),
 });
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;

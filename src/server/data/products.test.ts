@@ -898,6 +898,66 @@ describe('products', () => {
     });
 
     describe('moveConsumedToRecycled', () => {
+        it('merges legacy false flags with missing flags while preserving a zero expiry', async () => {
+            const sourceTime = Date.now() - 30 * 24 * 60 * 60 * 1000;
+            await (await db()).collection('products').insertOne({
+                group: 'Test',
+                name: 'Legacy flags',
+                updates: [
+                    {
+                        time: sourceTime,
+                        user: 'a@example.com',
+                        years: [
+                            {
+                                year: 22,
+                                amounts: [
+                                    { variant: 'd', amount: -1, recycled: false },
+                                    { variant: 'd', amount: -1, recycled: false, suspicious: false, home: false },
+                                    { variant: 'd', amount: -1, recycled: false, expiresAt: 0 },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            });
+            const request = {
+                group: 'Test',
+                name: 'Legacy flags',
+                year: 22,
+                variant: 'd',
+                amount: 2,
+                sourceSessionId: `a@example.com:${sourceTime}`,
+            };
+            const initial = await withinTransaction((session) => getProductUpdates(request, session));
+
+            expect(initial[0].amounts).toContainEqual({ variant: 'd', amount: -2, recycled: false });
+            expect(initial[0].amounts).toContainEqual({ variant: 'd', amount: -1, recycled: false, expiresAt: 0 });
+            await expect(
+                withinTransaction((session) => moveConsumedToRecycled(request, 'b@example.com', session))
+            ).resolves.toBe(true);
+
+            const partial = await withinTransaction((session) => getProductUpdates(request, session));
+
+            expect(partial.find((entry) => entry.time === sourceTime)?.amounts).toStrictEqual([
+                { variant: 'd', amount: -1, recycled: false, expiresAt: 0 },
+            ]);
+            await expect(
+                withinTransaction((session) =>
+                    moveConsumedToRecycled({ ...request, amount: 1, flags: { expiresAt: 0 } }, 'b@example.com', session)
+                )
+            ).resolves.toBe(true);
+
+            const complete = await withinTransaction((session) => getProductUpdates(request, session));
+
+            expect(complete.find((entry) => entry.time === sourceTime)).toBeUndefined();
+            expect(complete.flatMap((entry) => entry.amounts ?? [])).toContainEqual({
+                variant: 'd',
+                amount: -1,
+                recycled: true,
+                expiresAt: 0,
+            });
+        });
+
         it('moves only the selected session amount and restores it on undo', async () => {
             const sourceTime = Date.now() - 30 * 24 * 60 * 60 * 1000;
             await (await db()).collection('products').insertOne({

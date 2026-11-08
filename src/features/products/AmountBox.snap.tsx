@@ -31,8 +31,28 @@ test('product amounts, editable variant and history', async () => {
     const history = css('[data-table="history"]', dialog);
     await expect.element(history).toMatchTextContent('Suvalgyta su arbata');
     await expect.element(history).toMatchTextContent('Stiklainis');
+    await expect.element(css('[data-history-date]', history)).toBeVisible();
+    await expect.element(css('[data-history-date]', history)).toMatchTextContent('Rugsėjo');
     await settleVisual();
     await expect(dialog).toMatchScreenshot('amounts-history');
+    await dialog.getByRole('button', { name: /Perkelti į išmesta/ }).click();
+    await expect.element(dialog.getByRole('textbox', { name: 'Kiekis' })).toBeVisible();
+    await expect.element(dialog.getByRole('button', { name: 'Atšaukti' })).toBeVisible();
+    await expect.element(dialog.getByRole('button', { name: 'Išmesti' })).toBeVisible();
+    await expect.element(css('[data-history-amount-line][data-expanded]', dialog)).toBeVisible();
+    const dateRow = history.element().querySelector('[data-history-date]')?.closest('tr');
+    if (!dateRow) {
+        throw new Error('History date row not found');
+    }
+    expect(getComputedStyle(dateRow).borderBottomWidth).toBe('0px');
+    await dialog.getByRole('button', { name: 'Mažinti' }).click();
+    await expect.element(dialog.getByRole('button', { name: /Perkelti į išmesta/ })).toMatchTextContent('0');
+    await settleVisual();
+    await expect(dialog).toMatchScreenshot('amounts-history-recycle');
+    await dialog.getByRole('button', { name: 'Atšaukti' }).click();
+    await expect.element(dialog.getByRole('textbox', { name: 'Kiekis' })).not.toBeInTheDocument();
+    await expect.element(dialog.getByRole('button', { name: /Perkelti į išmesta/ })).toHaveFocus();
+    await dialog.getByRole('tab', { name: 'Kiekiai' }).click();
 });
 
 test('year selector and year totals', async () => {
@@ -53,4 +73,25 @@ test('year selector and year totals', async () => {
         .toContain('3');
     await settleVisual();
     await expect(dialog).toMatchScreenshot('annual-current-year');
+});
+
+test('expands a later history amount across both columns', async () => {
+    await renderVisualApp('/?history-multiple', 'history');
+    const dialog = await openProduct('Avietės');
+    await dialog.getByRole('tab', { name: 'Istorija' }).click();
+    await expect.element(page.getByText('Suvalgyta su arbata')).toBeVisible();
+    const history = css('[data-table="history"]', dialog);
+    await expect.element(history.getByRole('button', { name: /Didelis indelis/ })).toBeVisible();
+    const first = history.getByRole('button', { name: /Stiklainis/ }).element();
+    const second = history.getByRole('button', { name: /Didelis indelis/ });
+    const date = history.element().querySelector('[data-history-date]');
+    expect(first.closest('tr')).toBe(date?.closest('tr'));
+    await second.click();
+    await expect.element(dialog.getByRole('textbox', { name: 'Kiekis' })).toBeVisible();
+    expect(second.element().closest('td')?.getAttribute('colspan')).toBe('2');
+    expect(second.element().closest('tr')).not.toBe(date?.closest('tr'));
+    const rows = Array.from(history.element().querySelectorAll('tr[data-history-entry]'));
+    expect(getComputedStyle(rows[0]).borderBottomWidth).toBe('0px');
+    await settleVisual();
+    await expect(dialog).toMatchScreenshot('amounts-history-multiple');
 });

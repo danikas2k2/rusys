@@ -1,9 +1,12 @@
 import { renderHook } from '@testing-library/react';
 import { MockData } from '@tests/MockData';
+import { mockQuery } from '@tests/MockQuery';
 
+import { useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
 import { useMoveConsumedToRecycled } from '~/features/products/hooks/useMoveConsumedToRecycled';
 import { trackFaroEvent } from '~/lib/observability/faro';
-import { moveConsumedToRecycledAction } from '~/server/actions/products';
+import { getProductHistory, moveConsumedToRecycledAction } from '~/server/actions/products';
+import { CATALOG_KEYS } from '~/store/catalog';
 
 vi.mock(import('~/server/actions/products'));
 vi.mock(import('~/lib/observability/faro'));
@@ -12,6 +15,35 @@ vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProdu
 
 describe('useMoveConsumedToRecycled', () => {
     afterEach(() => vi.clearAllMocks());
+
+    it('prevents an old history request overwriting history loaded after a successful transfer', async () => {
+        let resolveOld!: (value: { updates: []; undates: [] }) => void;
+        const fresh = { updates: [{ group: 'G', name: 'N', time: 1, amounts: [] }], undates: [] };
+        vi.mocked(getProductHistory)
+            .mockReturnValueOnce(
+                new Promise((resolve) => {
+                    resolveOld = resolve;
+                })
+            )
+            .mockResolvedValueOnce(fresh);
+        const { client, wrapper } = mockQuery({ products: [{ group: 'G', name: 'N', years: [] }] });
+        const { result } = renderHook(
+            () => ({
+                load: useGetProductHistory({ group: 'G', name: 'N', year: 22 }),
+                move: useMoveConsumedToRecycled(),
+            }),
+            { wrapper }
+        );
+        const old = result.current.load();
+        await result.current.move({ group: 'G', name: 'N', year: 22, variant: 'd', amount: 1 });
+        await result.current.load();
+        resolveOld({ updates: [], undates: [] });
+        await old;
+
+        expect(client.getQueryData(CATALOG_KEYS.products)).toStrictEqual([
+            { group: 'G', name: 'N', years: [], history: { 22: fresh } },
+        ]);
+    });
 
     it('calls move to recycled action', async () => {
         const { result } = renderHook(() => useMoveConsumedToRecycled(), { wrapper: MockData });
@@ -94,7 +126,7 @@ describe('useMoveConsumedToRecycled', () => {
                 variant: 'private variant',
                 amount: 2,
             })
-        ).rejects.toThrow('cache refresh failed');
+        ).rejects.toThrow('Recycled successfully, but refresh failed');
         expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
             ['data_action', { entity: 'stock', action: 'recycle', result: 'started' }],
             ['data_action', { entity: 'stock', action: 'recycle', result: 'success' }],

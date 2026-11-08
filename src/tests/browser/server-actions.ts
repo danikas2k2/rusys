@@ -17,12 +17,13 @@ export const setProductRemovingAction = noop;
 export const setProductImageAction = noop;
 export const setVariantImageAction = noop;
 export const setAmountsAction = noop;
+export const setAmountsBatchAction = noop;
 export const transferAmountsAction = noop;
 export const moveConsumedToRecycledAction = noop;
 export const undoProductAction = noop;
 export const redoProductAction = noop;
 export const getProductHistory = async ({ group, name, year }: ProductYearIdentity) =>
-    getVisualHistory(group, name, year);
+    getVisualHistory(group, name, year, new URLSearchParams(window.location.search).has('history-multiple'));
 export const getVariantsAction = async () => ({ variants: [], groups: [] });
 export const updateVariantAction = noop;
 export const renameVariantAction = noop;

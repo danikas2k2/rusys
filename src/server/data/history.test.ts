@@ -102,25 +102,25 @@ describe('buildHistoryPipeline', () => {
         expect(groupStages).toHaveLength(2);
     });
 
-    it('first $group stage _id includes suspiciousKey using $ifNull on $amounts.suspicious', () => {
+    it('normalizes missing and false suspicious flags into one group', () => {
         const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
         const groupStages = pipeline.filter((stage) => '$group' in stage) as { $group: Record<string, unknown> }[];
         const firstGroup = groupStages[0]!.$group as Record<string, unknown>;
         const id = firstGroup._id as Record<string, unknown>;
 
         expect(id).toMatchObject({
-            suspiciousKey: { $ifNull: ['$amounts.suspicious', null] },
+            suspiciousKey: { $cond: [{ $eq: ['$amounts.suspicious', true] }, true, null] },
         });
     });
 
-    it('first $group stage _id includes homeKey using $ifNull on $amounts.home', () => {
+    it('normalizes missing and false home flags into one group', () => {
         const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
         const groupStages = pipeline.filter((stage) => '$group' in stage) as { $group: Record<string, unknown> }[];
         const firstGroup = groupStages[0]!.$group as Record<string, unknown>;
         const id = firstGroup._id as Record<string, unknown>;
 
         expect(id).toMatchObject({
-            homeKey: { $ifNull: ['$amounts.home', null] },
+            homeKey: { $cond: [{ $eq: ['$amounts.home', true] }, true, null] },
         });
     });
 
