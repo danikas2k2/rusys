@@ -16,6 +16,7 @@ function firstSummaryTile(name: string) {
 test('summary page', async () => {
     await renderVisualApp('/summary', 'history');
     await expect.element(firstSummaryTile('Avietės')).toBeVisible();
+    await firstSummaryTile('Avietės').unhover();
     await settleVisual();
     await expect(css('.ui-AppShell-root')).toMatchScreenshot('summary-page');
 });
@@ -23,6 +24,7 @@ test('summary page', async () => {
 test('summary page with images', async () => {
     await renderVisualApp('/summary', 'history-images');
     await expect.element(firstSummaryTile('Avietės')).toBeVisible();
+    await firstSummaryTile('Avietės').unhover();
     const menuIcon = css('.toolbar-menu-burger-icon');
     await expect.element(menuIcon).toBeVisible();
     await expect
@@ -43,6 +45,7 @@ test('summary page with images', async () => {
 test('summary page with consumed and recycled', async () => {
     await renderVisualApp('/summary', 'consumed-recycled');
     await expect.element(firstSummaryTile('Avietės')).toBeVisible();
+    await firstSummaryTile('Avietės').unhover();
     await settleVisual();
     await expect(page).toMatchScreenshot('summary-page-consumed-and-recycled');
 });

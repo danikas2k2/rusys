@@ -3,14 +3,14 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync 
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { afterEach, describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 describe('container backup', () => {
     const dirs: string[] = [];
 
     afterEach(() => dirs.splice(0).forEach((dir) => rmSync(dir, { recursive: true, force: true })));
 
-    test('runs the weekly backup and reports failures without losing the last success', () => {
+    it('runs the weekly backup and reports failures without losing the last success', () => {
         const dir = mkdtempSync(path.join(tmpdir(), 'backup-container-'));
         dirs.push(dir);
         for (const name of ['bin', 'images']) {
@@ -43,11 +43,11 @@ describe('container backup', () => {
 
         expect(readFileSync(`${dir}/log`, 'utf8')).toContain('backup --force --tag rusys');
         expect(readFileSync(`${dir}/log`, 'utf8')).toContain('forget --tag rusys --keep-within 3m --prune');
-        expect(() => run({ FAIL: '1' })).toThrow();
+        expect(() => run({ FAIL: '1' })).toThrow('Command failed: sh scripts/backup/run.sh');
         expect(readFileSync(`${dir}/metrics/backup.prom`, 'utf8')).toContain('rusys_backup_last_run_success 0');
         expect(readFileSync(`${dir}/metrics/backup.prom`, 'utf8')).toContain(
             'rusys_backup_last_success_timestamp_seconds 1234'
         );
-        expect(() => readFileSync(`${dir}/work/mongodb.archive`)).toThrow();
+        expect(() => readFileSync(`${dir}/work/mongodb.archive`)).toThrow('ENOENT: no such file or directory');
     });
 });

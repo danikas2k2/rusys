@@ -353,11 +353,20 @@
   "Quantities": {
     "lt-LT": "Kiekiai"
   },
+  "Recycle": {
+    "lt-LT": "Išmesti"
+  },
   "Recycled": {
     "lt-LT": "Išmesta"
   },
+  "Recycled, but refresh failed. Reload the page.": {
+    "lt-LT": "Išmesta, bet atnaujinti nepavyko. Įkelkite puslapį iš naujo."
+  },
   "Redo": {
     "lt-LT": "Pakartoti"
+  },
+  "Remaining after recycling": {
+    "lt-LT": "Liks išmetus"
   },
   "Remove": {
     "lt-LT": "Šalinti"

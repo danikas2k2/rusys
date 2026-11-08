@@ -40,9 +40,12 @@ describe('<AmountBox>', () => {
         );
         const button = screen.getByRole('button', { name: 'Save' });
         await user.click(button);
+
         expect(screen.getByRole('status')).toHaveFocus();
         expect(screen.getByRole('status')).toHaveTextContent('Update');
+
         act(() => setPending?.(false));
+
         expect(button).toHaveFocus();
     });
 

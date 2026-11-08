@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { MockThemeActive } from '@tests/MockThemeActive';
+import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
@@ -10,6 +10,7 @@ import { useProducts } from '~/store/products';
 
 vi.mock(import('~/features/products/hooks/useGetProductHistory'), (): any => ({
     useGetProductHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
+    invalidatePendingProductHistory: vi.fn(),
 }));
 
 vi.mock(import('~/features/products/hooks/useMoveConsumedToRecycled'), (): any => ({
@@ -25,7 +26,10 @@ vi.mock(import('~/components/common/EmailAvatar'), (): any => ({
 }));
 
 vi.mock(import('~/components/amounts/AmountsCell'), (): any => ({
-    AmountsCell: vi.fn(({ amounts }: any) => <span aria-label="Amount count">{amounts.length}</span>),
+    AmountsCell: vi.fn(({ amounts, renderRow }: any) => {
+        const content = <span aria-label="Amount count">{amounts.length}</span>;
+        return renderRow && amounts.length ? renderRow(content, 0, false, true) : content;
+    }),
 }));
 
 describe('<AmountHistoryTab>', () => {
@@ -39,9 +43,9 @@ describe('<AmountHistoryTab>', () => {
 
     function renderTab(active = activeData) {
         return render(
-            <MockThemeActive active={{ action: 'values', data: active }}>
+            <MockApp active={{ action: 'values', data: active }}>
                 <AmountHistoryTab />
-            </MockThemeActive>
+            </MockApp>
         );
     }
 
@@ -58,9 +62,9 @@ describe('<AmountHistoryTab>', () => {
 
     it('shows an empty history table when no product is active', () => {
         render(
-            <MockThemeActive active={undefined}>
+            <MockApp active={undefined}>
                 <AmountHistoryTab />
-            </MockThemeActive>
+            </MockApp>
         );
 
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -95,9 +99,9 @@ describe('<AmountHistoryTab>', () => {
             },
         ]);
         rerender(
-            <MockThemeActive active={{ action: 'values', data: activeData }}>
+            <MockApp active={{ action: 'values', data: activeData }}>
                 <AmountHistoryTab />
-            </MockThemeActive>
+            </MockApp>
         );
 
         expect(loader).toHaveBeenCalledTimes(2);
@@ -144,9 +148,9 @@ describe('<AmountHistoryTab>', () => {
         expect(screen.getByText('history 2026')).toBeInTheDocument();
 
         rerender(
-            <MockThemeActive active={{ action: 'values', data: { ...activeData, year: 2025 } }}>
+            <MockApp active={{ action: 'values', data: { ...activeData, year: 2025 } }}>
                 <AmountHistoryTab />
-            </MockThemeActive>
+            </MockApp>
         );
 
         expect(screen.getByText('history 2025')).toBeInTheDocument();

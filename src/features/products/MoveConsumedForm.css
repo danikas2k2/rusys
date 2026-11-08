@@ -1,5 +1,28 @@
 .ui-Flex-root.move-consumed-form {
+    .ui-NumberInput-root {
+        width: 120px;
+    }
+
     .ui-NumberInput-input {
         text-align: center;
+    }
+}
+
+[data-move-dialog] .ui-Flex-root.move-consumed-form {
+    > svg {
+        color: var(--mantine-color-negative-filled);
+    }
+
+    .ui-NumberInput-input {
+        color: var(--mantine-color-negative-filled);
+        border-color: var(--mantine-color-negative-filled);
+    }
+
+    .ui-NumberInput-section {
+        width: auto;
+
+        .ui-ActionIcon-root {
+            color: var(--mantine-color-negative-filled);
+        }
     }
 }

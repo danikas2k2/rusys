@@ -12,5 +12,36 @@
 
     .ui-Table-td {
         padding-block: 0.75rem;
+        vertical-align: top;
+    }
+
+    .ui-Table-tr[data-history-continues] {
+        border-bottom: 0;
+    }
+
+    [data-history-amount-line][data-expanded] {
+        padding: var(--mantine-spacing-xs);
+        border-radius: var(--mantine-radius-md);
+        background-color: var(--mantine-color-soft);
+    }
+
+    [data-history-edit] {
+        padding-top: var(--mantine-spacing-xs);
+    }
+
+    [data-history-consumed] {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        text-align: start;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--mantine-primary-color-filled);
+            outline-offset: 2px;
+        }
     }
 }
