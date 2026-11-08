@@ -21,6 +21,11 @@ test.describe('products', () => {
         await page.goto('/');
         const viewport = page.locator('.ui-AppShell-main [data-scrollarea-viewport]');
         const header = page.locator('[data-products-header]');
+        const supportsClipping = await page.evaluate(() => CSS.supports('view-transition-group', 'contain'));
+        if (supportsClipping) {
+            await expect(viewport).toHaveCSS('view-transition-name', 'category-page-scrollport');
+            await expect(header).toHaveCSS('view-transition-name', 'products-sticky-header');
+        }
         const dialog = await openProduct(page, 'Avietės');
         await expect(viewport).toHaveCSS('view-transition-name', 'none');
         await expect(header).toHaveCSS('view-transition-name', 'none');
@@ -29,7 +34,7 @@ test.describe('products', () => {
         await expect(previousOption).toHaveAttribute('data-current', 'true');
         await expect(viewport).toHaveCSS('view-transition-name', 'none');
         await dialog.getByRole('button', { name: 'Uždaryti' }).click();
-        if (await page.evaluate(() => CSS.supports('view-transition-group', 'contain'))) {
+        if (supportsClipping) {
             await expect(viewport).toHaveCSS('view-transition-name', 'category-page-scrollport');
             await expect(header).toHaveCSS('view-transition-name', 'products-sticky-header');
         }

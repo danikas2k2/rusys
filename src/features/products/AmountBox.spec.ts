@@ -105,9 +105,9 @@ test.describe('product amounts', () => {
         await amount.getByRole('button', { name: 'Naujinti' }).click();
         amount = await openProduct(page, 'Avietės');
         await amount.getByRole('tab', { name: 'Istorija' }).click();
-        await amount.locator('[data-table="history"] tbody tr').first().click();
-        await amount.getByRole('textbox', { name: 'amount' }).fill('1');
-        await amount.getByRole('button', { name: /Perkelti/ }).click();
+        await amount.getByRole('button', { name: /Perkelti į išmesta:.*Stiklainis/ }).click();
+        await amount.getByRole('textbox', { name: 'Kiekis' }).fill('-1');
+        await amount.getByRole('button', { name: 'Išmesti' }).click();
         await expect
             .poll(async () => (await db.collection<Product>('products').findOne({ name: 'Avietės' }))?.updates?.length)
             .toBe(2);
