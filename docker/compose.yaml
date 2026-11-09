@@ -181,6 +181,7 @@ networks:
     ipam:
       config:
         - subnet: ${OTLP_PRIVATE_SUBNET:-172.30.79.0/24}
+          ip_range: ${OTLP_PRIVATE_DYNAMIC_RANGE:-172.30.79.128/25}
   traces-egress:
     driver: bridge
   rusys-net:

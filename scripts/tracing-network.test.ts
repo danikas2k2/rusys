@@ -20,6 +20,9 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('private OTLP path', () =>
         composeEnvironment.GC_OTLP_ENDPOINT = 'https://example.invalid/otlp';
         composeEnvironment.DOCKER_ROOT_DIR = '/tmp';
         composeEnvironment.DB_KEYFILE = '/tmp/rusys-tracing-test-keyfile';
+        composeEnvironment.OTLP_PRIVATE_SUBNET = '172.30.79.0/24';
+        composeEnvironment.OTLP_PRIVATE_DYNAMIC_RANGE = '172.30.79.128/25';
+        composeEnvironment.OTLP_PRIVATE_IP = '172.30.79.2';
         const compose = (...args: string[]) =>
             execFileSync(
                 'docker',
@@ -38,8 +41,40 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('private OTLP path', () =>
                 `fetch('http://${endpoint}:4318/v1/traces', {method:'POST',headers:{'content-type':'application/json'},body:'{"resourceSpans":[]}',signal:AbortSignal.timeout(2000)}).then(r=>process.exit(${success} && r.ok ? 0 : 1)).catch(()=>process.exit(${success} ? 1 : 0))`
             );
         try {
-            docker('network', 'create', '--internal', '--subnet', '172.30.98.0/24', network);
+            docker(
+                'network',
+                'create',
+                '--internal',
+                '--subnet',
+                '172.30.98.0/24',
+                '--ip-range',
+                '172.30.98.128/25',
+                network
+            );
             docker('network', 'create', egress);
+            // A slot that starts first must not consume the collector's static address.
+            docker(
+                'create',
+                '--name',
+                `${prefix}-slot`,
+                '--network',
+                network,
+                'node:26-alpine',
+                'node',
+                '-e',
+                'setInterval(() => {}, 1000)'
+            );
+            docker('start', `${prefix}-slot`);
+
+            expect(
+                docker(
+                    'inspect',
+                    '--format',
+                    `{{(index .NetworkSettings.Networks "${network}").IPAddress}}`,
+                    `${prefix}-slot`
+                )
+            ).not.toBe(privateIp);
+
             docker(
                 'create',
                 '--name',
@@ -76,6 +111,7 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('private OTLP path', () =>
             expect({
                 validationNetwork: resolved.services['traces-validate'].network_mode,
                 privateNetwork: resolved.networks['traces-private'].internal,
+                privateIpam: resolved.networks['traces-private'].ipam.config,
                 collectorPorts: resolved.services.traces.ports,
                 collectorCpuQuota: resolved.services.traces.cpus,
                 collectorMemoryLimit: Number(resolved.services.traces.mem_limit),
@@ -88,6 +124,7 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('private OTLP path', () =>
             }).toStrictEqual({
                 validationNetwork: 'none',
                 privateNetwork: true,
+                privateIpam: [{ subnet: '172.30.79.0/24', ip_range: '172.30.79.128/25' }],
                 collectorPorts: undefined,
                 collectorCpuQuota: undefined,
                 collectorMemoryLimit: 256 * 1024 * 1024,
@@ -127,6 +164,7 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('private OTLP path', () =>
             expect(docker('network', 'inspect', '--format', '{{.Internal}}', network)).toBe('true');
         } finally {
             spawnSync('docker', ['rm', '-f', collector], { encoding: 'utf8' });
+            spawnSync('docker', ['rm', '-f', `${prefix}-slot`], { encoding: 'utf8' });
             spawnSync('docker', ['network', 'rm', network, egress], { encoding: 'utf8' });
         }
     }, 90_000);

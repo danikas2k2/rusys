@@ -68,8 +68,29 @@ application requests. Explicit process shutdown or a crash may lose the last bat
 
 The [Compose configuration](../../docker/compose.yaml) provides a dedicated `traces` service with an internal network
 shared only by the application slots and collector. The receiver binds to its configured private interface, publishes no
-host ports, and uses a separate network for outbound traffic. Configure `OTLP_PRIVATE_SUBNET` and `OTLP_PRIVATE_IP`
-together when adapting network allocation. The application destination and listener must agree.
+host ports, and uses a separate network for outbound traffic. Docker allocates dynamic addresses from
+`OTLP_PRIVATE_DYNAMIC_RANGE` (default `172.30.79.128/25`), leaving the collector's static address outside that range.
+When adapting network allocation, configure `OTLP_PRIVATE_SUBNET`, `OTLP_PRIVATE_DYNAMIC_RANGE`, and `OTLP_PRIVATE_IP`
+together: the dynamic range and collector IP must be within the subnet and the collector IP must be outside the dynamic
+range. The application destination and listener must agree.
+
+Existing Docker networks retain their original IP allocation settings. To apply the dynamic range to an existing
+installation, schedule a maintenance window and update the deployed Compose file first. Before disconnecting containers
+or removing the network, check the server's `.env`: if `OTLP_PRIVATE_SUBNET` is customized, explicitly set
+`OTLP_PRIVATE_DYNAMIC_RANGE` to a range within that subnet that does not contain `OTLP_PRIVATE_IP`. The default dynamic
+range only works with the default subnet. Check the resolved configuration with
+`docker compose --env-file .env -f docker/compose.yaml config` without sharing its potentially sensitive output. Inspect
+the members and IPAM settings of `rusys-app_traces-private` with `docker network inspect rusys-app_traces-private`; stop
+if any unexpected containers are attached. From the deployment directory, disconnect each running application slot from
+that network with `docker network disconnect rusys-app_traces-private rusys-app-blue` (and similarly for green when
+present). If the collector exists, stop it with `docker stop rusys-traces` and remove it with `docker rm rusys-traces`.
+Remove the now-empty network with `docker network rm rusys-app_traces-private`. Run
+`docker compose --env-file .env -f docker/compose.yaml up -d --no-deps traces` to create the replacement network and
+collector, then reconnect each previously disconnected slot with
+`docker network connect rusys-app_traces-private rusys-app-blue` (and similarly for green). Verify the network's IPAM
+range and membership, collector health and application availability before resuming deployment. Applications remain on
+`rusys-net` during this operation, but trace export is interrupted; if any step fails, reconnect disconnected slots and
+investigate before proceeding. Do not remove a network with unexpected members.
 
 The collector has a 256 MiB container memory limit, an Alloy memory limiter, and bounded export queues. Choose
 additional resource constraints supported by the target runtime. The `traces-validate` service has no network access and
