@@ -228,6 +228,7 @@ describe('deploy previous slot cleanup', () => {
         await deployment();
 
         const uploads = vi.mocked(execFileSync).mock.calls.filter(([file]) => file === 'rsync');
+
         expect(uploads.some(([, args]) => Array.isArray(args) && args.includes('--include=/backup/***'))).toBe(true);
         expect(
             uploads.some(

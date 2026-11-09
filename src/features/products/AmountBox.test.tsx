@@ -2,11 +2,15 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
+import { MantineProvider } from '@mantine/core';
+import { NextIntlClientProvider } from 'next-intl';
 import React, { useEffect } from 'react';
 
 import { AmountBox } from '~/features/products/AmountBox';
 import { AmountVariantsTab } from '~/features/products/AmountVariantsTab';
 import { ProductYearBar } from '~/features/products/ProductYearBar';
+import { messagesForLocale } from '~/lib/messages';
+import { getTheme } from '~/styles/theme';
 
 vi.mock(import('~/features/products/AmountHistoryTab'), () => ({
     AmountHistoryTab: vi.fn().mockReturnValue(null),
@@ -26,6 +30,28 @@ describe('<AmountBox>', () => {
     type AmountVariantsTabProps = React.ComponentProps<typeof AmountVariantsTab>;
 
     afterEach(() => vi.clearAllMocks());
+
+    it('announces saving and restores focus after submission ends', async () => {
+        let setPending: ((pending: boolean) => void) | undefined;
+        vi.mocked(AmountVariantsTab).mockImplementation(({ onSubmittingUpdate }) => {
+            setPending = onSubmittingUpdate;
+            return <button onClick={() => onSubmittingUpdate?.(true)}>Save</button>;
+        });
+        render(
+            <MockTheme>
+                <AmountBox opened />
+            </MockTheme>
+        );
+        const button = screen.getByRole('button', { name: 'Save' });
+        await user.click(button);
+
+        expect(screen.getByRole('status')).toHaveFocus();
+        expect(screen.getByRole('status')).toHaveTextContent('Update');
+
+        act(() => setPending?.(false));
+
+        expect(button).toHaveFocus();
+    });
 
     it('does not render when opened=false', () => {
         render(
@@ -283,5 +309,48 @@ describe('<AmountBox>', () => {
         await waitFor(() => {
             expect(onAfterClose).toHaveBeenCalledWith();
         });
+    });
+
+    it('keeps snapshots suppressed when reopening interrupts the exit transition', async () => {
+        const onAfterClose = vi.fn();
+        const wrapper = (opened: boolean) => (
+            <MantineProvider theme={getTheme()}>
+                <NextIntlClientProvider locale="en-US" messages={messagesForLocale('en-US')}>
+                    <AmountBox opened={opened} onAfterClose={onAfterClose} />
+                </NextIntlClientProvider>
+            </MantineProvider>
+        );
+        const { rerender } = render(wrapper(true));
+        const root = () => document.querySelector('[data-dialog="product"]');
+
+        expect(root()).toHaveAttribute('data-opened', 'true');
+
+        rerender(wrapper(false));
+
+        expect(root()).toHaveAttribute('data-opened', 'true');
+
+        await new Promise((resolve) => setTimeout(resolve, 60));
+        rerender(wrapper(true));
+        await new Promise((resolve) => setTimeout(resolve, 400));
+
+        expect(root()).toHaveAttribute('data-opened', 'true');
+        expect(onAfterClose).not.toHaveBeenCalled();
+
+        rerender(wrapper(false));
+        await waitFor(() => expect(onAfterClose).toHaveBeenCalledExactlyOnceWith(), { timeout: 2000 });
+
+        expect(root()).not.toHaveAttribute('data-opened');
+
+        rerender(wrapper(true));
+
+        expect(root()).toHaveAttribute('data-opened', 'true');
+
+        rerender(wrapper(false));
+
+        expect(root()).toHaveAttribute('data-opened', 'true');
+
+        await waitFor(() => expect(onAfterClose).toHaveBeenCalledTimes(2), { timeout: 2000 });
+
+        expect(root()).not.toHaveAttribute('data-opened');
     });
 });

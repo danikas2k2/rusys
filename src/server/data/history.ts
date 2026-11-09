@@ -13,17 +13,50 @@ const sessionGap = {
     ],
 };
 
+export function projectRecycleEntries(field: 'updates' | 'undates'): Document[] {
+    return [
+        {
+            $set: {
+                _historyEntries: {
+                    $cond: [
+                        { $ne: [{ $ifNull: [`$${field}.recycleSource`, null] }, null] },
+                        [
+                            { $mergeObjects: [`$${field}`, { _recyclePart: true }] },
+                            {
+                                $mergeObjects: [
+                                    `$${field}`,
+                                    {
+                                        time: `$${field}.recycleSource.time`,
+                                        user: `$${field}.recycleSource.user`,
+                                        comment: null,
+                                        _recyclePart: false,
+                                    },
+                                ],
+                            },
+                        ],
+                        [`$${field}`],
+                    ],
+                },
+            },
+        },
+        { $unwind: '$_historyEntries' },
+        { $set: { [field]: '$_historyEntries' } },
+    ];
+}
+
 export function buildHistoryPipeline(
     group: string,
     name: string,
     field: 'updates' | 'undates',
     yearFilter: Document,
     amountFilter: Document = { $ne: [{ $ifNull: ['$$a.amount', 0] }, 0] },
-    yearEntryFilter?: Document
+    yearEntryFilter?: Document,
+    projectRecycleSource = false
 ): Document[] {
     return [
         { $match: { [field]: { $exists: true, $ne: [] }, group, name } },
         { $unwind: `$${field}` },
+        ...(projectRecycleSource ? projectRecycleEntries(field) : []),
         { $match: yearFilter },
         {
             $set: {
@@ -46,6 +79,22 @@ export function buildHistoryPipeline(
                                                     cond: {
                                                         $and: [
                                                             { $ne: [{ $ifNull: ['$$a.variant', ''] }, ''] },
+                                                            {
+                                                                $or: [
+                                                                    {
+                                                                        $eq: [
+                                                                            {
+                                                                                $ifNull: [
+                                                                                    `$${field}._recyclePart`,
+                                                                                    null,
+                                                                                ],
+                                                                            },
+                                                                            null,
+                                                                        ],
+                                                                    },
+                                                                    { $eq: ['$$a.recycled', `$${field}._recyclePart`] },
+                                                                ],
+                                                            },
                                                             amountFilter,
                                                         ],
                                                     },
@@ -135,8 +184,8 @@ export function buildHistoryPipeline(
                     year: '$year',
                     variant: '$amounts.variant',
                     recycledKey: { $ifNull: ['$amounts.recycled', null] },
-                    suspiciousKey: { $ifNull: ['$amounts.suspicious', null] },
-                    homeKey: { $ifNull: ['$amounts.home', null] },
+                    suspiciousKey: { $cond: [{ $eq: ['$amounts.suspicious', true] }, true, null] },
+                    homeKey: { $cond: [{ $eq: ['$amounts.home', true] }, true, null] },
                     expiresAtKey: { $ifNull: ['$amounts.expiresAt', null] },
                 },
                 group: { $first: '$group' },

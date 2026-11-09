@@ -97,7 +97,7 @@ export function getVisualAppData(
     };
 }
 
-export function getVisualHistory(group: string, name: string, year: number): ProductHistory {
+export function getVisualHistory(group: string, name: string, year: number, multiple = false): ProductHistory {
     if (group !== 'Uogienės' || name !== 'Avietės' || year !== currentYear) {
         return { updates: [], undates: [] };
     }
@@ -113,7 +113,10 @@ export function getVisualHistory(group: string, name: string, year: number): Pro
                 name,
                 user: undefined,
                 comment: update.comment,
-                amounts: update.years[0]?.amounts ?? [],
+                amounts: [
+                    ...(update.years[0]?.amounts ?? []),
+                    ...(multiple ? [{ variant: 'Didelis indelis', amount: -2, recycled: false }] : []),
+                ],
                 time: update.time,
                 sessionId: `:${update.time}`,
                 year,

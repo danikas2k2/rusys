@@ -1,16 +1,21 @@
 import { Divider, Flex, Loader, Table } from '@mantine/core';
-import React, { useDeferredValue, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useDeferredValue, useEffect, useRef, useState } from 'react';
 
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { AmountHistoryRow } from '~/features/products/AmountHistoryRow';
-import { useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
-import type { History, ProductAmounts } from '~/schema';
+import { invalidatePendingProductHistory, useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
+import type { History, Product, ProductAmounts } from '~/schema';
+import { CATALOG_KEYS } from '~/store/catalog';
 import { useProducts } from '~/store/products';
 
 import './AmountHistoryTab.css';
 
 export function AmountHistoryTab() {
+    const client = useQueryClient();
+    const [refreshFailed, setRefreshFailed] = useState(false);
+    const errorRef = useRef<HTMLDivElement>(null);
     const [active] = useActiveContent<ProductAmounts>();
     const activeData = useDeferredValue(active?.data);
     const group = activeData?.group ?? '';
@@ -21,6 +26,19 @@ export function AmountHistoryTab() {
     const products = useProducts();
     const product = products.find((item) => item.group === group && item.name === name);
     const history = product?.history?.[year];
+    const handleRefreshFailure = () => {
+        setRefreshFailed(true);
+        invalidatePendingProductHistory(client, { group, name, year });
+        client.setQueryData<readonly Product[]>(CATALOG_KEYS.products, (items) =>
+            items?.map((item) => {
+                if (item.group !== group || item.name !== name || !item.history) {
+                    return item;
+                }
+                const { [year]: _removed, ...remainingHistory } = item.history;
+                return { ...item, history: remainingHistory };
+            })
+        );
+    };
 
     // Each product-year owns its cache. Returning to an already visited year displays it right
     // away, while this still refreshes it in the background after every product/year change or
@@ -29,8 +47,22 @@ export function AmountHistoryTab() {
         void loader();
     }, [loader, product?.updates, product?.undates]);
 
+    useEffect(() => {
+        if (refreshFailed) {
+            errorRef.current?.focus();
+        }
+    }, [refreshFailed]);
+
     if (!group || !name) {
         return <HistoryTable updates={[]} undates={[]} />;
+    }
+
+    if (refreshFailed) {
+        return (
+            <div role="alert" tabIndex={-1} ref={errorRef}>
+                <Label>Recycled, but refresh failed. Reload the page.</Label>
+            </div>
+        );
     }
 
     if (!history) {
@@ -41,20 +73,32 @@ export function AmountHistoryTab() {
         );
     }
 
-    return <HistoryTable updates={history.updates} undates={history.undates} loader={loader} />;
+    return (
+        <HistoryTable
+            updates={history.updates}
+            undates={history.undates}
+            loader={loader}
+            onRefreshFailure={handleRefreshFailure}
+        />
+    );
 }
 
 function HistoryTable({
     updates,
     undates,
     loader,
+    onRefreshFailure,
 }: {
     updates: readonly History[];
     undates: readonly History[];
     loader?: () => Promise<void>;
+    onRefreshFailure?: () => void;
 }) {
+    const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
+    const [savingEntry, setSavingEntry] = useState<string | null>(null);
+
     return (
-        <Table data-table="history">
+        <Table data-table="history" tabIndex={-1}>
             <Table.Thead>
                 <Table.Tr>
                     <Table.Th>
@@ -77,7 +121,16 @@ function HistoryTable({
                     </Table.Tr>
                 )}
                 {updates.map((h) => (
-                    <AmountHistoryRow key={`${h.time}:${h.year}`} h={h} onMoved={loader} />
+                    <AmountHistoryRow
+                        key={`${h.time}:${h.year}`}
+                        h={h}
+                        onMoved={loader}
+                        expandedEntry={expandedEntry}
+                        setExpandedEntry={setExpandedEntry}
+                        savingEntry={savingEntry}
+                        setSavingEntry={setSavingEntry}
+                        onRefreshFailure={onRefreshFailure}
+                    />
                 ))}
             </Table.Tbody>
         </Table>

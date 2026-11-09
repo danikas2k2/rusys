@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -17,6 +18,110 @@ vi.mock(import('~/store/variants/useGroupVariantComparator'), () => ({
 }));
 
 describe('<AmountsCell>', () => {
+    it('keeps an editor on the same flagged line when history entries reorder', async () => {
+        const plain: VariantAmount = { variant: 'Alpha', amount: -3, recycled: false };
+        const explicit: VariantAmount = { variant: 'Alpha', amount: -2, recycled: false, suspicious: false };
+        function Example({ amounts }: { amounts: VariantAmount[] }) {
+            const [selected, setSelected] = React.useState<string | null>(null);
+            return (
+                <AmountsCell
+                    amounts={amounts}
+                    onSelect={(_line, _trigger, key) => setSelected(key)}
+                    isExpanded={(_line, key) => selected === key}
+                    renderDetails={(_line, key) => selected === key && <input aria-label="Draft" />}
+                    actionLabel="Move"
+                />
+            );
+        }
+        const { rerender } = render(
+            <MockTheme>
+                <Example amounts={[plain, explicit]} />
+            </MockTheme>
+        );
+        await user.click(screen.getByRole('button', { name: /−2/ }));
+        await user.type(screen.getByRole('textbox', { name: 'Draft' }), '2');
+        rerender(
+            <MockTheme>
+                <Example amounts={[explicit, plain]} />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('button', { name: /−2/ })).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByRole('button', { name: /−3/ })).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.getByRole('textbox', { name: 'Draft' })).toHaveValue('2');
+    });
+
+    it('expands only the selected occurrence when identical variant identities appear twice', async () => {
+        function Example() {
+            const [selected, setSelected] = React.useState<string | null>(null);
+            return (
+                <AmountsCell
+                    amounts={[
+                        { variant: 'Alpha', amount: -3, recycled: false },
+                        { variant: 'Alpha', amount: -2, recycled: false },
+                    ]}
+                    onSelect={(_line, _trigger, key) => setSelected(key)}
+                    isExpanded={(_line, key) => selected === key}
+                    renderDetails={(_line, key) => selected === key && <span>Editor</span>}
+                    actionLabel="Move"
+                />
+            );
+        }
+        render(
+            <MockTheme>
+                <Example />
+            </MockTheme>
+        );
+        const buttons = screen.getAllByRole('button');
+        await user.click(buttons[1]);
+
+        expect(buttons[0]).toHaveAttribute('aria-expanded', 'false');
+        expect(buttons[1]).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getAllByText('Editor')).toHaveLength(1);
+    });
+
+    it('keeps the expanded editor mounted when the quantity refreshes', async () => {
+        const line = { variant: 'Alpha', amount: -3, recycled: false };
+        const renderCell = (amount: number) => (
+            <MockTheme>
+                <AmountsCell
+                    amounts={[{ ...line, amount }]}
+                    onSelect={vi.fn()}
+                    isExpanded={() => true}
+                    renderDetails={() => <input aria-label="Draft" />}
+                />
+            </MockTheme>
+        );
+        const { rerender } = render(renderCell(-3));
+        await user.type(screen.getByRole('textbox', { name: 'Draft' }), '2');
+        rerender(renderCell(-2));
+
+        expect(screen.getByRole('textbox', { name: 'Draft' })).toHaveValue('2');
+        expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('makes only consumed negative quantities selectable from any part of the line', async () => {
+        const onSelect = vi.fn();
+        const consumed: VariantAmount = { variant: 'Alpha', amount: -3, recycled: false };
+        render(
+            <MockTheme>
+                <AmountsCell
+                    amounts={[consumed, { variant: 'Beta', amount: -1, recycled: true }]}
+                    onSelect={onSelect}
+                    actionLabel="Move"
+                />
+            </MockTheme>
+        );
+        const button = screen.getByRole('button', { name: /Move.*Alpha.*−3/ });
+        await user.click(screen.getByText('Alpha'));
+        await user.click(screen.getByText('−3'));
+        await user.click(screen.getByLabelText('Consumed'));
+
+        expect(onSelect).toHaveBeenCalledTimes(3);
+        expect(onSelect).toHaveBeenCalledWith(consumed, button, expect.any(String));
+        expect(screen.getAllByRole('button')).toStrictEqual([button]);
+    });
+
     it('renders an em dash when amounts array is empty', () => {
         render(
             <MockTheme>

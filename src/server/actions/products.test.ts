@@ -12,6 +12,7 @@ import {
     redoProductAction,
     renameProductAction,
     setAmountsAction,
+    setAmountsBatchAction,
     setProductExpiryToleranceAction,
     setProductImageAction,
     setProductMissingAction,
@@ -68,6 +69,28 @@ describe('product actions', () => {
 
     afterEach(() => {
         vi.clearAllMocks();
+    });
+
+    it('writes all years in one transaction and merges their history', async () => {
+        vi.mocked(setAmounts).mockResolvedValue(true);
+        const first = { group: 'A', name: 'P', year: 23, amounts: [{ variant: 'v', amount: -1, recycled: false }] };
+        const second = { ...first, year: 24, amounts: [{ variant: 'v', amount: -2, recycled: true }] };
+        await setAmountsBatchAction([first, second]);
+
+        expect(setAmounts).toHaveBeenNthCalledWith(1, first, 'session@example.com', transactionSession, false);
+        expect(setAmounts).toHaveBeenNthCalledWith(2, second, 'session@example.com', transactionSession, true);
+    });
+
+    it.each([
+        [0, 23],
+        [23, 23],
+    ])('rejects invalid year batches %s and %s', async (year1, year2) => {
+        const request = { group: 'A', name: 'P', year: year1, amounts: [{ variant: 'v', amount: -1 }] };
+
+        await expect(setAmountsBatchAction([request, { ...request, year: year2 }])).rejects.toThrow(
+            'Invalid product years'
+        );
+        expect(setAmounts).not.toHaveBeenCalled();
     });
 
     it('waits for each catalog read before starting the next with the same transaction session', async () => {
@@ -189,10 +212,17 @@ describe('product actions', () => {
     it('accepts a fractional consumed amount', async () => {
         vi.mocked(moveConsumedToRecycled).mockResolvedValueOnce(true);
 
-        await moveConsumedToRecycledAction({ group: 'A', name: 'P', year: 2026, variant: 'v', amount: 0.5 });
+        await moveConsumedToRecycledAction({
+            group: 'A',
+            name: 'P',
+            year: 2026,
+            variant: 'v',
+            sourceSessionId: ':1',
+            amount: 0.5,
+        });
 
         expect(moveConsumedToRecycled).toHaveBeenCalledExactlyOnceWith(
-            { group: 'A', name: 'P', year: 2026, variant: 'v', amount: 0.5 },
+            { group: 'A', name: 'P', year: 2026, variant: 'v', sourceSessionId: ':1', amount: 0.5 },
             'session@example.com',
             transactionSession
         );
@@ -409,7 +439,15 @@ describe('product actions', () => {
             amounts,
             comment: 'move',
         });
-        await moveConsumedToRecycledAction({ group: 'A', name: 'P', year: 2026, variant: 'v', amount: 2, flags: {} });
+        await moveConsumedToRecycledAction({
+            group: 'A',
+            name: 'P',
+            year: 2026,
+            variant: 'v',
+            sourceSessionId: ':1',
+            amount: 2,
+            flags: {},
+        });
 
         expect(transferAmounts).toHaveBeenCalledExactlyOnceWith(
             { group: 'A', name: 'P', year: 2026, targetGroup: 'B', targetName: 'Q', amounts, comment: 'move' },
@@ -417,7 +455,7 @@ describe('product actions', () => {
             transactionSession
         );
         expect(moveConsumedToRecycled).toHaveBeenCalledExactlyOnceWith(
-            { group: 'A', name: 'P', year: 2026, variant: 'v', amount: 2, flags: {} },
+            { group: 'A', name: 'P', year: 2026, variant: 'v', sourceSessionId: ':1', amount: 2, flags: {} },
             'session@example.com',
             transactionSession
         );
@@ -444,7 +482,15 @@ describe('product actions', () => {
         ],
         [
             'recycle',
-            () => moveConsumedToRecycledAction({ group: 'A', name: 'P', year: 2026, variant: 'v', amount: 2 }),
+            () =>
+                moveConsumedToRecycledAction({
+                    group: 'A',
+                    name: 'P',
+                    year: 2026,
+                    variant: 'v',
+                    sourceSessionId: ':1',
+                    amount: 2,
+                }),
             moveConsumedToRecycled,
         ],
     ] as const)('rejects %s without an authenticated email', async (_label, call, write) => {
@@ -582,9 +628,21 @@ describe('product actions', () => {
         ],
         [
             'recycle consumed',
-            () => moveConsumedToRecycledAction({ group: 'A', name: 'P', year: 2026, variant: 'v', amount: 2 }),
+            () =>
+                moveConsumedToRecycledAction({
+                    group: 'A',
+                    name: 'P',
+                    year: 2026,
+                    variant: 'v',
+                    sourceSessionId: ':1',
+                    amount: 2,
+                }),
             moveConsumedToRecycled,
-            [{ group: 'A', name: 'P', year: 2026, variant: 'v', amount: 2 }, 'session@example.com', transactionSession],
+            [
+                { group: 'A', name: 'P', year: 2026, variant: 'v', sourceSessionId: ':1', amount: 2 },
+                'session@example.com',
+                transactionSession,
+            ],
         ],
         [
             'undo',

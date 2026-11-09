@@ -24,7 +24,7 @@ export const cleanupRecycled = ({ recycled, suspicious, home, expiresAt, ...v }:
     ...(recycled != null ? { recycled } : {}),
     ...(suspicious ? { suspicious } : {}),
     ...(home ? { home } : {}),
-    ...(expiresAt ? { expiresAt } : {}),
+    ...(expiresAt != null ? { expiresAt } : {}),
 });
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;
@@ -32,7 +32,8 @@ export const hasAmount = (a: VariantAmount) => a.amount > 0;
 export async function setAmounts(
     { group, name, year, amounts: changes, comment }: SetAmounts,
     user: string | undefined,
-    session: ClientSession
+    session: ClientSession,
+    mergePrevious = false
 ): Promise<boolean> {
     if (!group || !name || !changes?.length) {
         return false;
@@ -75,7 +76,15 @@ export async function setAmounts(
         ...(comment ? { comment } : {}),
         years: [{ year, amounts: historyAmounts }],
     };
-    const newUpdates = [...(product?.updates ?? []), newEntry];
+    const previousUpdates = product?.updates ?? [];
+    const previousEntry = previousUpdates.at(-1);
+    const newUpdates =
+        mergePrevious && previousEntry
+            ? [
+                  ...previousUpdates.slice(0, -1),
+                  { ...previousEntry, years: [...previousEntry.years, ...newEntry.years] },
+              ]
+            : [...previousUpdates, newEntry];
     // clear undates on new update
     operations.push({ updateOne: { filter, update: { $set: { updates: newUpdates }, $unset: { undates: 1 } } } });
 
@@ -182,7 +191,7 @@ export async function transferAmounts(
 }
 
 export async function moveConsumedToRecycled(
-    { group, name, year, variant, amount, flags = {} }: MoveConsumedToRecycled,
+    { group, name, year, variant, amount, flags = {}, sourceSessionId }: MoveConsumedToRecycled,
     user: string | undefined,
     session: ClientSession
 ): Promise<boolean> {
@@ -191,11 +200,26 @@ export async function moveConsumedToRecycled(
     }
 
     const col = (await db()).collection<Product>('products');
+    const source = (await getProductUpdates({ group, name, year }, session)).find(
+        (entry) => entry.sessionId === sourceSessionId
+    );
+    const available = source?.amounts?.find(
+        (line) =>
+            line.variant === variant &&
+            line.recycled === false &&
+            !!line.home === !!flags.home &&
+            !!line.suspicious === !!flags.suspicious &&
+            line.expiresAt === flags.expiresAt
+    );
+    if (!source || !available || available.amount > -amount) {
+        return false;
+    }
     // Leaves old history untouched and records the correction as its own update entry (net
     // effect on current stock is zero) so it plays nicely with undo/redo like any other update.
     const newEntry: Update = {
         time: Date.now(),
         user,
+        recycleSource: { time: source.time, ...(source.user ? { user: source.user } : {}) },
         years: [
             {
                 year,
@@ -423,9 +447,15 @@ async function getProductHistory(
     return (await db())
         .collection('products')
         .aggregate<WithId<History>>(
-            buildHistoryPipeline(group, name, field, { [`${field}.years`]: { $elemMatch: { year } } }, undefined, {
-                $eq: ['$$y.year', year],
-            }),
+            buildHistoryPipeline(
+                group,
+                name,
+                field,
+                { [`${field}.years`]: { $elemMatch: { year } } },
+                undefined,
+                { $eq: ['$$y.year', year] },
+                field === 'updates'
+            ),
             { session }
         )
         .toArray();

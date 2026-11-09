@@ -43,6 +43,7 @@ export {
     IconLogout as LogoutIcon,
     IconArrowRight as MoveIcon,
     IconAlertOctagon as PageErrorIcon,
+    IconPencil as PencilIcon,
     IconList as ProductsNavIcon,
     IconStack2 as QuantitiesTabIcon,
     IconRecycle as RecycledIcon,

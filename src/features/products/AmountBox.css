@@ -1,8 +1,8 @@
 /* Named page snapshots otherwise paint above the portal during dialog transitions. */
-:root:has(.ui-Modal-root[data-dialog="product"])
+:root:has(.ui-Modal-root[data-dialog="product"][data-opened])
     .ui-AppShell-main
     [data-scrollarea-viewport]:has(.CategoryRailLayout-content),
-:root:has(.ui-Modal-root[data-dialog="product"]) [data-products-header] {
+:root:has(.ui-Modal-root[data-dialog="product"][data-opened]) [data-products-header] {
     view-transition-name: none;
 }
 

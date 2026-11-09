@@ -48,6 +48,70 @@ describe('<ProductYearBar>', () => {
 
     afterEach(() => vi.clearAllMocks());
 
+    it('marks only years with unsaved changes and clears the markers', () => {
+        vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+        vi.mocked(useProducts).mockReturnValue([
+            {
+                group,
+                name: baseActive.name,
+                years: [
+                    { year: 2023, amounts: [] },
+                    { year: 2024, amounts: [] },
+                ],
+            },
+        ]);
+        const { rerender } = render(
+            <MockThemeActive active={{ action: 'values', data: baseActive }}>
+                <ProductYearBar dirtyYears={[2022, 2023, 2024]} />
+            </MockThemeActive>
+        );
+
+        expect(screen.getByRole('radio', { name: '2023, Unsaved changes' })).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: '2024, Unsaved changes' })).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: '2022, Unsaved changes' })).toBeInTheDocument();
+        expect(screen.getByText('2023').querySelector('[data-dirty-year-icon]')).toBeInTheDocument();
+        expect(screen.getByText('2023').querySelector('[data-dirty-year-icon]')).toHaveClass('tabler-icon-pencil');
+
+        rerender(
+            <MockThemeActive active={{ action: 'values', data: baseActive }}>
+                <ProductYearBar dirtyYears={[]} />
+            </MockThemeActive>
+        );
+
+        expect(screen.getByRole('radio', { name: '2023' })).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: '2024' })).toBeInTheDocument();
+        expect(screen.getByText('2023').querySelector('[data-dirty-year-icon]')).not.toBeInTheDocument();
+        expect(screen.queryByRole('radio', { name: '2022, Unsaved changes' })).not.toBeInTheDocument();
+    });
+
+    it('retains keyboard focus when selecting a different year', async () => {
+        vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+        vi.mocked(useProducts).mockReturnValue([
+            {
+                group,
+                name: baseActive.name,
+                years: [
+                    { year: 2023, amounts: baseActive.amounts! },
+                    { year: 2024, amounts: baseActive.amounts! },
+                ],
+            },
+        ]);
+        function Wrapper() {
+            const [active, setActive] = React.useState({ action: 'values', data: baseActive });
+            return (
+                <MockThemeActive active={active} setActive={setActive}>
+                    <ProductYearBar />
+                </MockThemeActive>
+            );
+        }
+        render(<Wrapper />);
+        const radio = screen.getByRole('radio', { name: '2023' });
+        radio.focus();
+        await user.keyboard('{ArrowLeft}');
+
+        expect(screen.getByRole('radio', { name: '2024' })).toHaveFocus();
+    });
+
     function renderBar(
         active: ProductAmounts = baseActive,
         setActive?: (v?: any) => void,
@@ -170,7 +234,7 @@ describe('<ProductYearBar>', () => {
             expect(screen.getByText('2019')).toHaveAttribute('data-current');
         });
 
-        it('disables the switcher when disabled prop is set', () => {
+        it('keeps the switcher enabled when other year actions are disabled', () => {
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
                 { group, name: baseActive.name, years: [{ year: 2023, amounts: baseActive.amounts! }] },
@@ -182,7 +246,7 @@ describe('<ProductYearBar>', () => {
                 </MockThemeActive>
             );
 
-            expect(screen.getByRole('radio', { name: '2023' })).toBeDisabled();
+            expect(screen.getByRole('radio', { name: '2023' })).toBeEnabled();
         });
 
         it('marks a year old once it crosses the old-years threshold', () => {

@@ -39,10 +39,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Avoid unrelated refactoring and dependencies.
 
 ## Testing
-- Add regression tests for changed behavior.
+- Add regression tests for changed behavior and update existing tests alongside code changes.
 - Include negative and boundary cases where applicable.
 - Never delete or weaken tests merely to make them pass.
-- Run available typecheck, lint and relevant tests.
+- Run available typecheck, lint, relevant tests and coverage checks; fix failures introduced by the changes.
+- Maintain or improve test coverage; do not reduce coverage to accommodate code changes.
 - Report any checks that could not be executed.
 
 ## Protected Changes

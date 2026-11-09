@@ -35,6 +35,64 @@ describe('updates', () => {
         vi.clearAllMocks();
     });
 
+    it('attributes a reclassification to the source and recycled accounting years', async () => {
+        const sourceTime = Date.parse('2024-10-01T12:00:00Z');
+        await (await db()).collection('products').insertOne({
+            group: 'Daržovės',
+            name: 'Cross year',
+            updates: [
+                {
+                    time: sourceTime,
+                    user: 'a',
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                },
+                {
+                    time: Date.parse('2026-10-01T12:00:00Z'),
+                    user: 'b',
+                    recycleSource: { time: sourceTime, user: 'a' },
+                    years: [
+                        {
+                            year: 22,
+                            amounts: [
+                                { variant: 'd', amount: 1, recycled: false },
+                                { variant: 'd', amount: -1, recycled: true },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+        const summary = await withinTransaction((session) => getSummary([24, 25, 26], session));
+        const years = summary.find((item) => item.name === 'Cross year')?.years;
+
+        expect(years?.find((item) => item.year === 24)?.amounts).toContainEqual({
+            variant: 'd',
+            amount: 1,
+            recycled: false,
+        });
+        expect(years?.find((item) => item.year === 26)?.amounts).toContainEqual({
+            variant: 'd',
+            amount: 1,
+            recycled: true,
+        });
+
+        const source = await withinTransaction((session) =>
+            getSummaryUpdates({ group: 'Daržovės', name: 'Cross year', year: 24 }, session)
+        );
+        const destination = await withinTransaction((session) =>
+            getSummaryUpdates({ group: 'Daržovės', name: 'Cross year', year: 26 }, session)
+        );
+
+        expect(source.flatMap((entry) => entry.amounts ?? [])).toContainEqual({
+            variant: 'd',
+            amount: -1,
+            recycled: false,
+        });
+        expect(destination.flatMap((entry) => entry.amounts ?? [])).toStrictEqual([
+            { variant: 'd', amount: -1, recycled: true },
+        ]);
+    });
+
     it('rolls up incomplete legacy summaries without losing their product row', () => {
         const result = rollUpSummaries(
             [

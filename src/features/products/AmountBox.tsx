@@ -1,5 +1,5 @@
 import { ActionIcon, Group, Stack, Tabs, type ModalProps } from '@mantine/core';
-import React, { startTransition, useCallback, useState, ViewTransition } from 'react';
+import React, { startTransition, useCallback, useLayoutEffect, useRef, useState, ViewTransition } from 'react';
 
 import { EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 
@@ -45,10 +45,36 @@ export function AmountBox({
     useDialogTracking('amount', opened);
     const _ = useLabels();
     const [hasChanges, setHasChanges] = useState(false);
+    const [dirtyYears, setDirtyYears] = useState<number[]>([]);
+    const [submitting, setSubmitting] = useState(false);
+    const statusRef = useRef<HTMLDivElement>(null);
+    const previousFocus = useRef<HTMLElement | null>(null);
+    const handleSubmitting = useCallback((pending: boolean) => {
+        if (pending) {
+            previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        }
+        setSubmitting(pending);
+    }, []);
+    useLayoutEffect(() => {
+        if (submitting) {
+            statusRef.current?.focus();
+        } else if (previousFocus.current?.isConnected) {
+            previousFocus.current.focus();
+            previousFocus.current = null;
+        }
+    }, [submitting]);
     const [activeTab, setActiveTab] = useState<string | null>('quantities');
     const [photoPreviewOpen, setPhotoPreviewOpen] = useState(false);
+    const [transitionVisible, setTransitionVisible] = useState(opened);
 
-    const handleExitTransitionEnd = useCallback(() => onAfterClose?.(), [onAfterClose]);
+    if (opened && !transitionVisible) {
+        setTransitionVisible(true);
+    }
+
+    const handleExitTransitionEnd = useCallback(() => {
+        setTransitionVisible(false);
+        onAfterClose?.();
+    }, [onAfterClose]);
     const changeTab = useCallback(
         (value: string | null) => {
             if (value !== activeTab && (value === 'quantities' || value === 'history')) {
@@ -65,11 +91,15 @@ export function AmountBox({
             opened={opened}
             withCloseButton
             isDirty={() => hasChanges}
-            onClose={() => onClose?.()}
-            closeOnEscape={closeOnEscape && !photoPreviewOpen}
-            closeOnClickOutside={closeOnClickOutside}
+            onClose={() => {
+                if (!submitting) {
+                    onClose?.();
+                }
+            }}
+            closeOnEscape={closeOnEscape && !photoPreviewOpen && !submitting}
+            closeOnClickOutside={closeOnClickOutside && !submitting}
             trapFocus={trapFocus}
-            closeButtonProps={{ 'aria-label': _('Close') }}
+            closeButtonProps={{ 'aria-label': _('Close'), disabled: submitting }}
             onExitTransitionEnd={handleExitTransitionEnd}
             title={
                 <Group wrap="nowrap" gap="sm">
@@ -78,69 +108,88 @@ export function AmountBox({
                 </Group>
             }
             data-dialog="product"
+            data-opened={opened || transitionVisible || undefined}
         >
             {() => (
-                <Stack className="amount-box-content" gap="sm">
-                    <Group wrap="nowrap" gap="xs" align="flex-start">
-                        {onEdit && (
-                            <IconButtonTooltip>
-                                <ActionIcon
-                                    variant="subtle"
-                                    color="gray"
-                                    onClick={() => onEdit()}
-                                    aria-label={_('Edit')}
-                                >
-                                    <EditIcon size={18} />
-                                </ActionIcon>
-                            </IconButtonTooltip>
+                <>
+                    <div role="status" aria-live="polite" tabIndex={-1} ref={statusRef}>
+                        {submitting && (
+                            <>
+                                <Label>Update</Label>…
+                            </>
                         )}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <ProductYearBar disabled={hasChanges} onHistoryYearChange={() => changeTab('history')} />
-                        </div>
-                    </Group>
-                    <Tabs
-                        className="amount-box-tabs"
-                        variant="outline"
-                        radius="sm"
-                        value={activeTab}
-                        onChange={changeTab}
-                    >
-                        <Tabs.List>
-                            <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>
-                                <Label>Quantities</Label>
-                            </Tabs.Tab>
-                            <Tabs.Tab fz="md" value="history" leftSection={<HistoryTabIcon size={18} />}>
-                                <Label>History</Label>
-                            </Tabs.Tab>
-                        </Tabs.List>
-
-                        <Tabs.Panel
-                            className="amount-box-tab-panel amount-box-quantities-panel"
-                            value="quantities"
-                            pt="sm"
+                    </div>
+                    <Stack className="amount-box-content" gap="sm" inert={submitting}>
+                        <Group wrap="nowrap" gap="xs" align="flex-start">
+                            {onEdit && (
+                                <IconButtonTooltip>
+                                    <ActionIcon
+                                        variant="subtle"
+                                        color="gray"
+                                        onClick={() => onEdit()}
+                                        aria-label={_('Edit')}
+                                    >
+                                        <EditIcon size={18} />
+                                    </ActionIcon>
+                                </IconButtonTooltip>
+                            )}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <ProductYearBar
+                                    disabled={hasChanges}
+                                    dirtyYears={dirtyYears}
+                                    onHistoryYearChange={() => changeTab('history')}
+                                />
+                            </div>
+                        </Group>
+                        <Tabs
+                            className="amount-box-tabs"
+                            variant="outline"
+                            radius="sm"
+                            value={activeTab}
+                            onChange={changeTab}
                         >
-                            <ViewTransition
-                                enter="amount-tab-enter"
-                                exit="amount-tab-exit"
-                                update="product-year-update"
-                                default="none"
-                            >
-                                <AmountVariantsTab onChangesUpdate={setHasChanges} onClose={onClose} />
-                            </ViewTransition>
-                        </Tabs.Panel>
+                            <Tabs.List>
+                                <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>
+                                    <Label>Quantities</Label>
+                                </Tabs.Tab>
+                                <Tabs.Tab fz="md" value="history" leftSection={<HistoryTabIcon size={18} />}>
+                                    <Label>History</Label>
+                                </Tabs.Tab>
+                            </Tabs.List>
 
-                        <Tabs.Panel className="amount-box-tab-panel" value="history" pt="sm">
-                            <ViewTransition
-                                enter="amount-tab-enter"
-                                exit="amount-tab-exit"
-                                update="product-year-update"
-                                default="none"
+                            <Tabs.Panel
+                                className="amount-box-tab-panel amount-box-quantities-panel"
+                                value="quantities"
+                                pt="sm"
                             >
-                                <AmountHistoryTab />
-                            </ViewTransition>
-                        </Tabs.Panel>
-                    </Tabs>
-                </Stack>
+                                <ViewTransition
+                                    enter="amount-tab-enter"
+                                    exit="amount-tab-exit"
+                                    update="product-year-update"
+                                    default="none"
+                                >
+                                    <AmountVariantsTab
+                                        onChangesUpdate={setHasChanges}
+                                        onDirtyYearsUpdate={setDirtyYears}
+                                        onSubmittingUpdate={handleSubmitting}
+                                        onClose={onClose}
+                                    />
+                                </ViewTransition>
+                            </Tabs.Panel>
+
+                            <Tabs.Panel className="amount-box-tab-panel" value="history" pt="sm">
+                                <ViewTransition
+                                    enter="amount-tab-enter"
+                                    exit="amount-tab-exit"
+                                    update="product-year-update"
+                                    default="none"
+                                >
+                                    <AmountHistoryTab />
+                                </ViewTransition>
+                            </Tabs.Panel>
+                        </Tabs>
+                    </Stack>
+                </>
             )}
         </ConfirmableModal>
     );

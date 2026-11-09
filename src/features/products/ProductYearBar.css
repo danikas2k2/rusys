@@ -2,6 +2,10 @@
     --sc-label-color: var(--mantine-color-text);
     --sc-color: var(--mantine-color-default-hover);
 
+    [data-dirty-year-icon] {
+        vertical-align: super;
+    }
+
     /* .ui-SegmentedControl-indicator { */
 
     /* } */
