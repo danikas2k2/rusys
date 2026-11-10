@@ -146,6 +146,7 @@ test.describe('mobile navigation', () => {
         });
 
         const shell = page.locator('.ui-AppShell-root');
+        await expect(shell).toHaveCSS('position', 'fixed');
         const shellBounds = await shell.boundingBox();
         const headerBounds = await page.locator('.ui-AppShell-header').boundingBox();
         const footerBounds = await page.locator('.ui-AppShell-footer').boundingBox();
