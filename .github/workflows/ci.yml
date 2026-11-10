@@ -77,7 +77,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Check whether lint failed
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: lint-failed-${{ github.run_attempt }}-e2e
           path: .ci-lint-status
@@ -109,7 +109,7 @@ jobs:
 
       - name: Upload Playwright traces
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-traces
           path: test-results/
@@ -123,7 +123,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Check whether lint failed
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: lint-failed-${{ github.run_attempt }}-lighthouse
           path: .ci-lint-status
@@ -156,12 +156,21 @@ jobs:
       - name: Run Lighthouse CI accessibility audits
         run: pnpm exec lhci autorun
 
-      - name: Upload Lighthouse reports
+      - name: Check for Lighthouse reports
         if: always()
-        uses: actions/upload-artifact@v4
+        id: lighthouse-reports
+        run: |
+          if [ -d .lighthouseci ] && [ -n "$(find .lighthouseci -type f -print -quit)" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload Lighthouse reports
+        if: always() && steps.lighthouse-reports.outputs.available == 'true'
+        uses: actions/upload-artifact@v7
         with:
           name: lighthouse-accessibility-reports
           path: .lighthouseci/
+          include-hidden-files: true
           retention-days: 7
 
   visual:
@@ -176,7 +185,7 @@ jobs:
         browser: [chromium, webkit]
     steps:
       - name: Check whether lint failed
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: lint-failed-${{ github.run_attempt }}-visual-${{ matrix.browser }}
           path: .ci-lint-status
@@ -208,7 +217,7 @@ jobs:
 
       - name: Upload Vitest visual diffs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vitest-visual-diffs-${{ matrix.browser }}
           path: test-results/
@@ -230,7 +239,7 @@ jobs:
         run: touch lint-failed
 
       - name: Publish lint failure marker
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lint-failed-${{ github.run_attempt }}-${{ matrix.target }}
           path: lint-failed

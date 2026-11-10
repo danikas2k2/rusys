@@ -183,7 +183,7 @@
         ]
     },
     "engines": {
-        "node": ">=24",
+        "node": ">=26",
         "npm": "please-use-pnpm",
         "pnpm": ">=10",
         "yarn": "please-use-pnpm"
