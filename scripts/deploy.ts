@@ -140,6 +140,22 @@ function isRunning(connection: Connection, name: string): boolean {
     );
 }
 
+function startCollector(connection: Connection, service: 'traces' | 'monitoring', config: string) {
+    const applied = `.deploy/${service}.alloy.applied`;
+    connection.remote(`mkdir -p .deploy
+if test -f ${shellQuote(applied)} && cmp -s ${shellQuote(config)} ${shellQuote(applied)}; then
+    docker compose --env-file .env -f docker/compose.yaml up -d --no-deps ${service}
+else
+    docker compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate ${service}
+fi
+`);
+}
+
+function recordCollectorConfig(connection: Connection, service: 'traces' | 'monitoring', config: string) {
+    connection.remote(`cp ${shellQuote(config)} ${shellQuote(`.deploy/${service}.alloy.applied`)}
+`);
+}
+
 function isHealthy(connection: Connection, name: string): boolean {
     return (
         connection.remote(
@@ -277,9 +293,17 @@ export function deploy(config?: DeployConfig) {
         async closeBundle() {
             console.log('🚀 Starting blue-green deployment...');
 
+            let locked = false;
             try {
                 prepareBuildSources(process.cwd());
                 const deployExcludes = getDeployExcludes();
+                connection.remote(`mkdir -p .deploy
+if ! mkdir .deploy/deploy.lock 2>/dev/null; then
+    echo 'A deployment lock exists. If no deployment is running, remove .deploy/deploy.lock before retrying.' >&2
+    exit 1
+fi
+`);
+                locked = true;
                 if (!isRunning(connection, 'rusys-gateway')) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new Error('The blue-green gateway is not running.');
@@ -334,22 +358,20 @@ export function deploy(config?: DeployConfig) {
                 connection.remote(
                     'docker compose --env-file .env -f docker/compose.yaml run --rm --no-deps traces-validate\n'
                 );
-                connection.remote(
-                    'docker compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate traces\n'
-                );
+                startCollector(connection, 'traces', 'docker/monitoring/traces.alloy');
                 if (!isRunning(connection, 'rusys-traces')) {
                     throw new Error('The traces collector is not running. Check its Alloy configuration.');
                 }
+                recordCollectorConfig(connection, 'traces', 'docker/monitoring/traces.alloy');
                 connection.remote('docker compose --env-file .env -f docker/compose.yaml up -d --no-deps rusys-db\n');
                 waitHealthy(connection, 'rusys-db');
                 requireMongoAuthorization(connection);
-                connection.remote(
-                    'docker compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate monitoring\n'
-                );
+                startCollector(connection, 'monitoring', 'docker/monitoring/config.alloy');
                 if (!isRunning(connection, 'rusys-monitoring')) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new Error('The monitoring container is not running. Check its Alloy configuration and logs.');
                 }
+                recordCollectorConfig(connection, 'monitoring', 'docker/monitoring/config.alloy');
                 console.log(`🔨 Building rusys-app-${candidate} on the server...`);
                 connection.remote(
                     `docker compose --env-file .env -f docker/compose.yaml build rusys-app-${candidate}\n`,
@@ -371,7 +393,16 @@ docker compose --env-file .env -f docker/compose.yaml stop rusys-app-${previous}
 `);
                 console.log(`Active application slot: ${candidate}`);
                 console.log('✅ Deployment completed successfully!');
+                connection.remote('rmdir .deploy/deploy.lock\n');
+                locked = false;
             } catch (error) {
+                if (locked) {
+                    try {
+                        connection.remote('rmdir .deploy/deploy.lock\n');
+                    } catch (cleanupError) {
+                        console.error('Failed to remove deployment lock:', cleanupError);
+                    }
+                }
                 console.error('❌ Deployment failed!', error);
                 process.exit(1);
             }

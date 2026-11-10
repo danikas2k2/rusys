@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import type * as childProcess from 'node:child_process';
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -223,6 +224,74 @@ describe('deploy previous slot cleanup', () => {
         expect(build).toBeGreaterThan(monitoring);
     });
 
+    it.each([
+        ['traces', 'traces.alloy'],
+        ['monitoring', 'config.alloy'],
+    ])('recreates %s only when its applied Alloy configuration differs', async (service, file) => {
+        const scripts = mockRemote();
+
+        await deployment();
+
+        const start = scripts.find((script) => script.includes(`--force-recreate ${service}`));
+
+        expect(start).toContain(`cmp -s 'docker/monitoring/${file}' '.deploy/${service}.alloy.applied'`);
+        expect(start).toContain(`up -d --no-deps ${service}`);
+
+        const running = scripts.findIndex(
+            (script) => script.includes(`.State.Running`) && script.includes(`rusys-${service}`)
+        );
+        const record = scripts.findIndex((script) =>
+            script.includes(`cp 'docker/monitoring/${file}' '.deploy/${service}.alloy.applied'`)
+        );
+
+        expect(record).toBeGreaterThan(running);
+    });
+
+    it.each([
+        ['traces', 'traces.alloy'],
+        ['monitoring', 'config.alloy'],
+    ])('runs the correct Compose command for %s configuration changes', async (service, file) => {
+        const scripts = mockRemote();
+        await deployment();
+        const start = scripts.find((script) => script.includes(`--force-recreate ${service}`));
+
+        expect(start).toBeDefined();
+
+        const root = mkdtempSync(path.join(tmpdir(), 'rusys-collector-test-'));
+        try {
+            mkdirSync(path.join(root, 'docker/monitoring'), { recursive: true });
+            mkdirSync(path.join(root, '.deploy'));
+            const docker = path.join(root, 'docker-command');
+            mkdirSync(docker);
+            const executable = path.join(docker, 'docker');
+            writeFileSync(executable, '#!/bin/sh\nprintf "%s\\n" "$*"\n');
+            chmodSync(executable, 0o755);
+            const config = path.join(root, 'docker/monitoring', file);
+            const marker = path.join(root, '.deploy', `${service}.alloy.applied`);
+            writeFileSync(config, 'current');
+            const real = await vi.importActual<typeof childProcess>('node:child_process');
+            const run = () =>
+                real.execFileSync('sh', ['-c', start!.slice(start!.indexOf('mkdir -p .deploy'))], {
+                    cwd: root,
+                    encoding: 'utf8',
+                    env: { ...process.env, PATH: `${docker}:${process.env.PATH}` },
+                });
+
+            expect(run()).toContain(`--force-recreate ${service}`);
+
+            writeFileSync(marker, 'current');
+
+            expect(run()).toContain(`up -d --no-deps ${service}`);
+            expect(run()).not.toContain('--force-recreate');
+
+            writeFileSync(config, 'changed');
+
+            expect(run()).toContain(`--force-recreate ${service}`);
+        } finally {
+            rmSync(root, { recursive: true, force: true });
+        }
+    });
+
     it('uploads the backup image inputs without deleting the backup Dockerfile', async () => {
         mockRemote();
         await deployment();
@@ -314,6 +383,7 @@ describe('deploy previous slot cleanup', () => {
                 message: 'The monitoring container is not running. Check its Alloy configuration and logs.',
             })
         );
+        expect(scripts.some((script) => script.includes("cp 'docker/monitoring/config.alloy'"))).toBe(false);
         expect(scripts.some((script) => script.includes('build rusys-app-green'))).toBe(false);
     });
 

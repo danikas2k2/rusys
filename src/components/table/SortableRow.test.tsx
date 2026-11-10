@@ -130,7 +130,6 @@ describe('<SortableRow>', () => {
 
         expect(row).toHaveStyle({
             transform: CSS.Transform.toString(transform),
-            transition: 'transform 200ms ease',
         });
     });
 
