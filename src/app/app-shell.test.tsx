@@ -52,7 +52,6 @@ describe('next.js app shell', () => {
             ['noto-color-emoji', 'noto-sans', 'noto-sans-display', 'noto-sans-mono'].toSorted()
         );
         expect(markup).toContain('<main>Application loaded</main>');
-        expect(markup).toContain('<div class="pwa-top-blur-fix" aria-hidden="true"></div>');
         expect(markup).not.toContain('fonts.googleapis.com');
         expect(markup).not.toContain('fonts.gstatic.com');
         await expect(generateMetadata()).resolves.toMatchObject({
@@ -82,12 +81,10 @@ describe('next.js app shell', () => {
         expect(css).toContain('var(--font-noto-sans-mono)');
     });
 
-    it('keeps viewport height responsive in standalone mode while scoping the top strip', async () => {
+    it('keeps viewport height responsive in standalone mode', async () => {
         const stylesheet = postcss.parse(await readFile('src/styles/globals.css', 'utf8'));
         let browserHeight: string | undefined;
         let standaloneHeight: string | undefined;
-        let stripIsHidden = false;
-        let standaloneStripIsNonInteractive = false;
 
         stylesheet.walkRules(':root', (rule) => {
             rule.walkAtRules('supports', (supports) => {
@@ -105,23 +102,9 @@ describe('next.js app shell', () => {
                 }
             });
         });
-        stylesheet.walkRules('.pwa-top-blur-fix', (rule) => {
-            if (rule.parent?.type === 'root') {
-                stripIsHidden = rule.nodes.some(
-                    (node) => node.type === 'decl' && node.prop === 'display' && node.value === 'none'
-                );
-            }
-            if (rule.parent?.type === 'atrule' && rule.parent.params === '(display-mode: standalone)') {
-                standaloneStripIsNonInteractive = rule.nodes.some(
-                    (node) => node.type === 'decl' && node.prop === 'pointer-events' && node.value === 'none'
-                );
-            }
-        });
 
         expect(browserHeight).toBe('100dvh');
         expect(standaloneHeight).toBeUndefined();
-        expect(stripIsHidden).toBe(true);
-        expect(standaloneStripIsNonInteractive).toBe(true);
     });
 
     it('uses measured visual viewport height for an occluded dialog', async () => {

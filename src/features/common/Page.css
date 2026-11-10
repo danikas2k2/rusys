@@ -14,11 +14,6 @@
         flex-shrink: 0;
     }
 
-    .ui-AppShell-header {
-        position: sticky;
-        inset-block-start: var(--safe-block-start);
-    }
-
     .ui-AppShell-header,
     .ui-AppShell-footer,
     .ui-AppShell-main {
@@ -48,6 +43,5 @@
         padding-inline: calc(var(--mantine-spacing-xs) + var(--safe-inline-start))
             calc(var(--mantine-spacing-xs) + var(--safe-inline-end));
         padding-block: calc(var(--mantine-spacing-xs) / 2) calc(var(--mantine-spacing-xs) / 2 + var(--safe-block-end));
-        margin-block-end: calc(-1 * var(--safe-block-end));
     }
 }
