@@ -38,23 +38,6 @@
     }
 }
 
-.pwa-top-blur-fix {
-    display: none;
-}
-
-@media (display-mode: standalone) {
-    .pwa-top-blur-fix {
-        display: block;
-        position: fixed;
-        inset: 0 0 auto;
-        z-index: 1;
-        height: 11px;
-        pointer-events: none;
-        background: var(--mantine-color-body);
-        background-clip: text;
-    }
-}
-
 ::view-transition {
     pointer-events: none;
 }
@@ -127,7 +110,7 @@ body {
     color: var(--mantine-color-text);
     background: var(--mantine-color-body);
     max-width: var(--area-width);
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 .icon-button-tooltip {

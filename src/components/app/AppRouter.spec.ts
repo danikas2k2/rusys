@@ -139,7 +139,6 @@ test.describe('mobile navigation', () => {
     test('page and menu fit within the viewport with iOS safe area insets', async ({ page }) => {
         await page.goto('/');
         await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-        await expect(page.locator('.pwa-top-blur-fix')).toBeHidden();
         await expect(page.locator('html')).toHaveCSS('--area-height', '100dvh');
         await page.addStyleTag({
             content:
@@ -147,6 +146,7 @@ test.describe('mobile navigation', () => {
         });
 
         const shell = page.locator('.ui-AppShell-root');
+        await expect(shell).toHaveCSS('position', 'fixed');
         const shellBounds = await shell.boundingBox();
         const headerBounds = await page.locator('.ui-AppShell-header').boundingBox();
         const footerBounds = await page.locator('.ui-AppShell-footer').boundingBox();
@@ -157,13 +157,19 @@ test.describe('mobile navigation', () => {
         expect(headerBounds).not.toBeNull();
         expect(footerBounds).not.toBeNull();
         expect(addBounds).not.toBeNull();
-        await expect(page.locator('.ui-AppShell-header')).toHaveCSS('position', 'sticky');
+        await expect(page.locator('.ui-AppShell-header')).toHaveCSS('position', 'static');
         expect(shellBounds!.x).toBeGreaterThanOrEqual(0);
         expect(shellBounds!.x + shellBounds!.width).toBeLessThanOrEqual(viewport.width);
         expect(headerBounds!.y).toBeGreaterThanOrEqual(59);
         expect(shellBounds!.y + shellBounds!.height).toBeCloseTo(viewport.height, 0);
         expect(footerBounds!.y + footerBounds!.height).toBeCloseTo(viewport.height, 0);
         expect(viewport.height - (addBounds!.y + addBounds!.height)).toBeCloseTo(42, 0);
+
+        await page.setViewportSize({ width: viewport.height, height: viewport.width });
+        const landscapeHeader = await page.locator('.ui-AppShell-header').boundingBox();
+        const landscapeFooter = await page.locator('.ui-AppShell-footer').boundingBox();
+        expect(landscapeHeader!.y).toBeGreaterThanOrEqual(59);
+        expect(landscapeFooter!.y + landscapeFooter!.height).toBeCloseTo(viewport.width, 0);
 
         await page.setViewportSize({ width: viewport.width, height: viewport.height + 120 });
         const resizedFooter = await page.locator('.ui-AppShell-footer').boundingBox();

@@ -63,7 +63,6 @@ export default async function RootLayout({ children }: PropsWithChildren): Promi
                 <PwaHead />
             </head>
             <body>
-                <div className="pwa-top-blur-fix" aria-hidden="true" />
                 <ServiceWorkerRegistration />
                 {children}
             </body>

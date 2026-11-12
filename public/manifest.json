@@ -6,7 +6,6 @@
   "dir": "ltr",
   "start_url": ".",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "theme_color": "#1e1e2e",
   "background_color": "#1e1e2e",
   "icons": [

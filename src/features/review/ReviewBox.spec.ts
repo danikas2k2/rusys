@@ -73,20 +73,38 @@ test.describe('review', () => {
         await expect.poll(() => scroll.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
         await expect(review.getByRole('heading', { name: 'Uogienės', level: 1 })).toBeVisible();
         const content = review.locator('.CategoryRailLayout-content');
+        await page.evaluate(() => {
+            const startViewTransition = document.startViewTransition.bind(document);
+            document.documentElement.dataset.reviewViewTransitions = '0';
+            document.startViewTransition = (...args) => {
+                document.documentElement.dataset.reviewViewTransitions = String(
+                    Number(document.documentElement.dataset.reviewViewTransitions) + 1
+                );
+                return startViewTransition(...args);
+            };
+        });
         await content.evaluate((element) => {
             const animate = element.animate.bind(element);
             element.animate = (keyframes, options) =>
                 animate(keyframes, { ...(options as KeyframeAnimationOptions), duration: 2000 });
         });
-        const closeButtonClip = { x: 320, y: 0, width: 70, height: 48 };
-        const closeButtonBefore = await page.screenshot({ clip: closeButtonClip });
+        await expect(scroll).toHaveCSS('overflow-y', 'auto');
+        const closeButton = review.getByRole('button', { name: 'Uždaryti' });
+        const closeButtonBefore = await closeButton.boundingBox();
 
         await review.getByRole('tab', { name: 'Daržovės' }).click();
         await expect(review.getByRole('row', { name: /Daržovės 0/ })).toBeVisible();
         await expect(review.getByRole('heading', { name: 'Daržovės', level: 1 })).toHaveCount(1);
         await expect.poll(() => content.evaluate((element) => element.getAnimations().length)).toBeGreaterThan(0);
-        await page.waitForTimeout(300);
-        expect(await page.screenshot({ clip: closeButtonClip })).toEqual(closeButtonBefore);
+        await expect(page.locator('html')).toHaveAttribute('data-review-view-transitions', '0');
+        expect(
+            await content.evaluate((element) => {
+                const scrollAncestor = element.closest('.ReviewBox-scroll');
+                return scrollAncestor !== null && getComputedStyle(scrollAncestor).overflowY === 'auto';
+            })
+        ).toBe(true);
+        await expect(closeButton).toBeVisible();
+        expect(await closeButton.boundingBox()).toEqual(closeButtonBefore);
     });
 
     test('review tooltip and untouched selection', async ({ page, db }) => {
