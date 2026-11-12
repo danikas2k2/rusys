@@ -49,7 +49,7 @@ export async function setAmounts(
     const amounts =
         (year ? product?.years?.find((y) => y.year === year)?.amounts : getCombinedAmounts(product?.years)) ?? [];
 
-    // auto-consume home balance when cellar consumption starts for that variant
+    // auto-consume home balance when pantry consumption starts for that variant
     const autoHomeConsumes: VariantAmount[] = [];
     for (const change of changes) {
         if (!change.home && change.recycled === false && change.amount < 0) {

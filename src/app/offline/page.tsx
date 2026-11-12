@@ -7,7 +7,7 @@ import { OfflineContent } from './OfflineContent';
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRequestLocale();
-    return { title: `${translate('No connection', locale)} · ${translate('Cellar', locale)}` };
+    return { title: `${translate('No connection', locale)} · ${translate('Pantry', locale)}` };
 }
 
 export default async function OfflinePage(): Promise<React.JSX.Element> {

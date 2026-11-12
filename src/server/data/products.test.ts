@@ -3017,7 +3017,7 @@ describe('products', () => {
         });
     });
 
-    describe('auto-consume home balance on first cellar consume', () => {
+    describe('auto-consume home balance on first pantry consume', () => {
         const homeProduct = {
             group: 'Šaldyti',
             name: 'Mėsa',
@@ -3036,7 +3036,7 @@ describe('products', () => {
             await (await db()).collection('products').insertOne({ ...homeProduct }, { forceServerObjectId: true });
         });
 
-        it('auto-consumes home balance when cellar consume arrives for variant with home amounts', async () => {
+        it('auto-consumes home balance when pantry consume arrives for variant with home amounts', async () => {
             await withinTransaction((session) =>
                 setAmounts(
                     {
@@ -3054,7 +3054,7 @@ describe('products', () => {
             const product = result.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
             const amounts = product.years?.find((y) => y.year === 22)?.amounts ?? [];
 
-            // cellar: 3 - 1 = 2, home: 5 - 5 (auto-consumed) = 0 → removed
+            // pantry: 3 - 1 = 2, home: 5 - 5 (auto-consumed) = 0 → removed
             expect(amounts.find((a) => a.variant === 'p' && !a.home)?.amount).toBe(2);
             expect(amounts.find((a) => a.variant === 'p' && a.home)).toBeUndefined();
         });
@@ -3091,7 +3091,7 @@ describe('products', () => {
             expect(amounts.find((a) => a.variant === 'p' && a.recycled === false && a.home)?.amount).toBe(-5);
         });
 
-        it('does NOT auto-consume when home consume arrives (only cellar triggers it)', async () => {
+        it('does NOT auto-consume when home consume arrives (only pantry triggers it)', async () => {
             await withinTransaction((session) =>
                 setAmounts(
                     {
@@ -3109,7 +3109,7 @@ describe('products', () => {
             const product = result.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
             const amounts = product.years?.find((y) => y.year === 22)?.amounts ?? [];
 
-            // home manually consumed by 1, cellar unchanged
+            // home manually consumed by 1, pantry unchanged
             expect(amounts.find((a) => a.variant === 'p' && !a.home)?.amount).toBe(3);
             expect(amounts.find((a) => a.variant === 'p' && a.home)?.amount).toBe(4);
         });
@@ -3162,7 +3162,7 @@ describe('products', () => {
             expect(amounts.filter((a) => a.home)).toHaveLength(0);
         });
 
-        it('undo restores both cellar and auto-consumed home amounts', async () => {
+        it('undo restores both pantry and auto-consumed home amounts', async () => {
             await withinTransaction((session) =>
                 setAmounts(
                     {

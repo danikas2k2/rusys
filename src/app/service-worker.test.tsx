@@ -109,6 +109,19 @@ describe('service worker', () => {
         expect(javascript).not.toContain('/assets/fonts/');
     });
 
+    it('embeds the build identifier in the worker script', async () => {
+        vi.stubEnv('NEXT_PUBLIC_APP_VERSION', 'build-one');
+        const first = await GET().text();
+        vi.stubEnv('NEXT_PUBLIC_APP_VERSION', 'build-two');
+        const second = await GET().text();
+
+        expect(first).toContain('"build-one"');
+        expect(second).toContain('"build-two"');
+        expect(first).not.toBe(second);
+
+        vi.unstubAllEnvs();
+    });
+
     it('uses cached public assets before the network', async () => {
         const fetch = vi.fn();
         const worker = workerHarness(fetch);

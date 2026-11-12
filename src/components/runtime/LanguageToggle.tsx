@@ -26,7 +26,7 @@ export function LanguageToggle(): React.JSX.Element {
         }`;
         setLocale(nextLocale);
         document.documentElement.lang = nextLocale.slice(0, 2);
-        document.title = translate('Cellar', nextLocale);
+        document.title = translate('Pantry', nextLocale);
         document
             .querySelector('meta[name="description"]')
             ?.setAttribute('content', translate('Product and inventory tracking', nextLocale));

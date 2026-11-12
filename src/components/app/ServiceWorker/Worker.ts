@@ -2,10 +2,10 @@
 
 // This function is serialized by the /sw.js route after Next.js compiles it.
 // Keep its runtime dependencies inside the function or in service-worker globals.
-export function installServiceWorker(): void {
+export function installServiceWorker(buildId = 'v2'): void {
     const worker = self as unknown as ServiceWorkerGlobalScope;
 
-    const CACHE = 'rusys-public-v2';
+    const CACHE = `rusys-public-${buildId}`;
     const PRIVATE_PREFIX = 'rusys-private-v1-';
     const SESSION_CACHE = 'rusys-session-v1';
     const SESSION_KEY = `${worker.location.origin}/__offline_user`;
@@ -109,20 +109,7 @@ export function installServiceWorker(): void {
     });
 
     worker.addEventListener('activate', (event) => {
-        event.waitUntil(
-            Promise.all([
-                caches
-                    .keys()
-                    .then((keys) =>
-                        Promise.all(
-                            keys
-                                .filter((key) => key.startsWith('rusys-public-') && key !== CACHE)
-                                .map((key) => caches.delete(key))
-                        )
-                    ),
-                worker.clients.claim(),
-            ])
-        );
+        event.waitUntil(worker.clients.claim());
     });
 
     worker.addEventListener('fetch', (event) => {
@@ -142,7 +129,21 @@ export function installServiceWorker(): void {
             url.pathname === '/manifest.json'
         ) {
             event.respondWith(
-                caches.match(request).then(
+                (async () => {
+                    const current = await (await caches.open(CACHE)).match(request);
+                    if (current || !url.pathname.startsWith('/_next/static/')) {
+                        return current;
+                    }
+                    for (const key of await caches.keys()) {
+                        if (key.startsWith('rusys-public-') && key !== CACHE) {
+                            const cached = await (await caches.open(key)).match(request);
+                            if (cached) {
+                                return cached;
+                            }
+                        }
+                    }
+                    return undefined;
+                })().then(
                     (cached) =>
                         cached ||
                         fetch(request).then((response) => {
@@ -194,7 +195,7 @@ export function installServiceWorker(): void {
                             }
                         }
                         return request.mode === 'navigate'
-                            ? (await caches.match(OFFLINE_URL)) || Response.error()
+                            ? (await (await caches.open(CACHE)).match(OFFLINE_URL)) || Response.error()
                             : Response.error();
                     }
                 })()

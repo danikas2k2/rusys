@@ -68,7 +68,7 @@ describe('next.js app shell', () => {
 
         expect(markup).toContain('<html lang="en"');
         await expect(generateMetadata()).resolves.toMatchObject({
-            title: 'Cellar',
+            title: 'Pantry',
             description: 'Product and inventory tracking',
         });
     });

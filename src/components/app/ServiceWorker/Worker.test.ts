@@ -102,7 +102,7 @@ describe('offline service worker', () => {
 
     afterEach(() => vi.unstubAllGlobals());
 
-    it('precaches public assets and removes old public caches on activation', async () => {
+    it('precaches public assets and retains old public caches on activation', async () => {
         store('rusys-public-old').set('/old', response('old'));
         store('unrelated').set('/keep', response('keep'));
         await dispatch('install');
@@ -113,7 +113,7 @@ describe('offline service worker', () => {
 
         await dispatch('activate');
 
-        expect(entries.has('rusys-public-old')).toBe(false);
+        expect(entries.has('rusys-public-old')).toBe(true);
         expect(entries.has('unrelated')).toBe(true);
         expect(claim).toHaveBeenCalledExactlyOnceWith();
     });
@@ -138,6 +138,28 @@ describe('offline service worker', () => {
         fetchMock.mockRejectedValueOnce(new Error('offline'));
 
         await expect((await dispatch('fetch', { request: missing }))?.text()).resolves.toBe('fresh');
+    });
+
+    it('does not serve an asset from an older public cache during an update', async () => {
+        const asset = new Request(`${origin}/assets/logo.svg`);
+        store('rusys-public-old').set(asset.url, response('old'));
+        fetchMock.mockImplementationOnce(async () => {
+            const result = response('new');
+            Object.defineProperty(result, 'type', { value: 'basic' });
+            return result;
+        });
+
+        await expect((await dispatch('fetch', { request: asset }))?.text()).resolves.toBe('new');
+    });
+
+    it('retains old build chunks for cached pages when offline', async () => {
+        const chunk = new Request(`${origin}/_next/static/chunks/old.js`);
+        store('rusys-public-old').set(chunk.url, response('old chunk'));
+        await dispatch('activate');
+        fetchMock.mockRejectedValueOnce(new Error('offline'));
+
+        await expect((await dispatch('fetch', { request: chunk }))?.text()).resolves.toBe('old chunk');
+        expect(fetchMock).not.toHaveBeenCalled();
     });
 
     it('leaves non-cacheable requests to the network', async () => {

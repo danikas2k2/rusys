@@ -70,7 +70,7 @@ describe('<LanguageToggle>', () => {
         expect(screen.getByText('Products')).toBeInTheDocument();
         expect(document.cookie).toContain(`${LOCALE_COOKIE}=en-US`);
         expect(document.documentElement.lang).toBe('en');
-        expect(document.title).toBe('Cellar');
+        expect(document.title).toBe('Pantry');
     });
 
     it('marks the saved preference secure on HTTPS', async () => {

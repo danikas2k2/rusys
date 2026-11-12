@@ -9,7 +9,7 @@ vi.mock(import('~/server/requestLocale'), () => ({ getRequestLocale: vi.fn() }))
 describe('offline page', () => {
     it.each([
         ['lt-LT', 'Nėra ryšio · Rūsys', 'Nėra interneto ryšio'],
-        ['en-US', 'No connection · Cellar', 'No internet connection'],
+        ['en-US', 'No connection · Pantry', 'No internet connection'],
     ] as const)('renders %s using the request language', async (locale, title, heading) => {
         vi.mocked(getRequestLocale).mockResolvedValue(locale);
 

@@ -38,7 +38,7 @@ test.describe('Lithuanian browser language', () => {
         await expect(menu.getByRole('switch', { name: 'Switch to Lithuanian' })).not.toBeChecked();
         await expect(menu.locator('svg[data-flag]').filter({ hasText: 'Switch to English' })).toBeVisible();
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-        await expect(page).toHaveTitle('Cellar');
+        await expect(page).toHaveTitle('Pantry');
         await expect(page.locator('meta[name="description"]')).toHaveAttribute(
             'content',
             'Product and inventory tracking'
@@ -52,13 +52,13 @@ test.describe('Lithuanian browser language', () => {
 
         await page.reload();
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-        await expect(page).toHaveTitle('Cellar');
+        await expect(page).toHaveTitle('Pantry');
         await page.getByRole('button', { name: 'Menu' }).click();
         await expect(page.getByRole('navigation').getByRole('link', { name: 'Products' })).toBeVisible();
 
         await page.goto('/offline');
         await expect(page.getByRole('heading', { name: 'No internet connection' })).toBeVisible();
-        await expect(page).toHaveTitle('No connection · Cellar');
+        await expect(page).toHaveTitle('No connection · Pantry');
     });
 });
 
@@ -68,7 +68,7 @@ test.describe('English browser language', () => {
     test('switches to Lithuanian and keeps it after a server reload', async ({ page, context }) => {
         await page.goto('/');
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-        await expect(page).toHaveTitle('Cellar');
+        await expect(page).toHaveTitle('Pantry');
         expect((await context.cookies()).find(({ name }) => name === 'rusys-locale')).toBeUndefined();
 
         await page.getByRole('button', { name: 'Menu' }).click();

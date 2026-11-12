@@ -43,7 +43,7 @@ const fonts = [notoSans.variable, notoSansDisplay.variable, notoSansMono.variabl
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRequestLocale();
     return {
-        title: translate('Cellar', locale),
+        title: translate('Pantry', locale),
         description: translate('Product and inventory tracking', locale),
         manifest: '/manifest.json',
     };
