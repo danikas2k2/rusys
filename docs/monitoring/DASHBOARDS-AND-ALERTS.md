@@ -120,16 +120,15 @@ refuses authenticated redirects. Defaults reuse contact point `Rusys uptime emai
 
 ```sh
 # Regenerate portable JSON from the builder; no remote access.
-pnpm exec tsx scripts/grafana-monitoring.ts render
-pnpm exec prettier --write docker/monitoring/dashboards docker/monitoring/baseline-alerts.json
+pnpm grafana:render
 
 # Read-only discovery, then explicit provisioning and read-back verification.
-pnpm exec dotenv -e .env.grafana.local -- pnpm exec tsx scripts/grafana-monitoring.ts plan
-pnpm exec dotenv -e .env.grafana.local -- pnpm exec tsx scripts/grafana-monitoring.ts apply
-pnpm exec dotenv -e .env.grafana.local -- pnpm exec tsx scripts/grafana-monitoring.ts verify
+pnpm grafana:plan
+pnpm grafana:apply
+pnpm grafana:verify
 
 # Sends a controlled test to every integration in the existing contact point.
-pnpm exec dotenv -e .env.grafana.local -- pnpm exec tsx scripts/grafana-monitoring.ts test-contact
+pnpm grafana:test-contact
 
 # Isolated configuration/client regressions: no Grafana credentials or production mutations.
 pnpm exec vitest run --project server scripts/grafana-monitoring.test.ts
