@@ -10,6 +10,16 @@ checks.
 The four dashboards link to each other and preserve the selected time range. Queries select production Rusys telemetry;
 cAdvisor additionally selects `name=~"rusys-.*"` because its `project` label also covers unrelated NAS containers.
 
+Dashboard and panel titles remain in English. The overview remains a separate dashboard. Other dashboards group panels
+into expandable source rows: Synology NAS, Docker, Alloy collection, NGINX, application logs, MongoDB, Tempo traces and
+Faro browser telemetry. Presentation is defined in [grafana-presentation.ts](../../scripts/grafana-presentation.ts);
+query expressions, dashboard UIDs, panel IDs and alert links remain unchanged. Technical instance, device and container
+identifiers remain visible for diagnosis.
+
+These rows organize dashboards, not the **Drilldown > Metrics** catalog. That catalog displays original Prometheus
+metric names (such as `cadvisor_build_info`). To browse by source there, use **Group by labels** with `job`, or filter
+by metric prefixes such as `node_`, `container_` and `mongodb_`. Dashboard display names do not rename stored metrics.
+
 | Dashboard                                                                  | Signals                                                                                                                                                                                                      |
 | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [Rusys Overview](../../docker/monitoring/dashboards/overview.json)         | Public check success, sampled uptime over 24h/7d, NAS CPU/RAM, observed running app slot, observed slot/release startup logs, API 5xx/p95, MongoDB health, backup age                                        |

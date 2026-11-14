@@ -90,6 +90,19 @@
       }
     },
     {
+      "id": 100,
+      "title": "NGINX · Traffic and API responses",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
       "id": 2,
       "title": "NGINX requests per second",
       "type": "timeseries",
@@ -100,7 +113,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 5,
         "w": 12,
         "h": 8
       },
@@ -146,7 +159,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 4,
+        "y": 5,
         "w": 12,
         "h": 8
       },
@@ -192,7 +205,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 12,
+        "y": 13,
         "w": 12,
         "h": 8
       },
@@ -238,7 +251,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 12,
+        "y": 13,
         "w": 12,
         "h": 8
       },
@@ -284,7 +297,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 20,
+        "y": 21,
         "w": 12,
         "h": 8
       },
@@ -330,7 +343,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 20,
+        "y": 21,
         "w": 12,
         "h": 8
       },
@@ -366,6 +379,19 @@
       ]
     },
     {
+      "id": 101,
+      "title": "Application · Server errors",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 29,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
       "id": 8,
       "title": "Application failure events",
       "type": "timeseries",
@@ -376,7 +402,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 28,
+        "y": 30,
         "w": 12,
         "h": 8
       },
@@ -412,6 +438,19 @@
       ]
     },
     {
+      "id": 102,
+      "title": "MongoDB · Database metrics",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 38,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
       "id": 9,
       "title": "MongoDB connections",
       "type": "timeseries",
@@ -421,8 +460,8 @@
         "uid": "${prometheus}"
       },
       "gridPos": {
-        "x": 12,
-        "y": 28,
+        "x": 0,
+        "y": 39,
         "w": 12,
         "h": 8
       },
@@ -469,8 +508,8 @@
         "uid": "${prometheus}"
       },
       "gridPos": {
-        "x": 0,
-        "y": 36,
+        "x": 12,
+        "y": 39,
         "w": 12,
         "h": 8
       },
@@ -517,8 +556,8 @@
         "uid": "${prometheus}"
       },
       "gridPos": {
-        "x": 12,
-        "y": 36,
+        "x": 0,
+        "y": 47,
         "w": 12,
         "h": 8
       },
@@ -556,6 +595,19 @@
       ]
     },
     {
+      "id": 103,
+      "title": "Tempo · Backend traces",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 55,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
       "id": 12,
       "title": "Recent backend traces (open a trace for nested operations)",
       "type": "table",
@@ -566,7 +618,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 44,
+        "y": 56,
         "w": 12,
         "h": 8
       },
@@ -615,7 +667,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 44,
+        "y": 56,
         "w": 12,
         "h": 8
       },

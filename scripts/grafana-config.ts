@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
 
+import { presentDashboard } from './grafana-presentation';
+
 export interface DataSources {
     prometheus: string;
     loki: string;
@@ -382,7 +384,7 @@ export function buildDashboards(sources: DataSources = defaults) {
             },
         },
     ];
-    const dashboards = [overview, infrastructure, application, frontend];
+    const dashboards = [overview, infrastructure, application, frontend].map(presentDashboard);
     return JSON.parse(
         JSON.stringify(dashboards)
             .replaceAll(defaults.prometheus, sources.prometheus)

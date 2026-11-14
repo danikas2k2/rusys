@@ -19,6 +19,26 @@ const contact = 'Rusys uptime email';
 const response = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
 describe('monitoring dashboards and alert contracts', () => {
+    it('groups source panels without changing alert links or the standalone overview', () => {
+        const dashboards = buildDashboards();
+
+        expect(dashboards[0].panels.some((panel) => panel.type === 'row')).toBe(false);
+        expect(dashboards[1].panels.filter((panel) => panel.type === 'row').map((panel) => panel.title)).toStrictEqual([
+            'NAS · Synology host metrics',
+            'Docker · Container metrics',
+            'Alloy · Metrics collection',
+        ]);
+
+        for (const dashboard of dashboards) {
+            const ids = dashboard.panels.map((panel) => panel.id);
+
+            expect(new Set(ids).size).toBe(ids.length);
+        }
+
+        expect(dashboards[2].panels.find((panel) => panel.id === 9)?.title).toBe('MongoDB connections');
+        expect(dashboards[2].panels.find((panel) => panel.id === 9)?.transformations).toBeUndefined();
+    });
+
     it('renders four linked dashboards and keeps the checked-in artifacts reproducible', () => {
         const dashboards = buildDashboards();
 
@@ -131,9 +151,7 @@ describe('monitoring dashboards and alert contracts', () => {
     });
 
     it('queries the current running slot at the current instant instead of retaining stopped slots from history', () => {
-        const currentSlot = buildDashboards()[0].panels.find(
-            (item) => item.title === 'Currently observed running application slot'
-        );
+        const currentSlot = buildDashboards()[0].panels.find((item) => item.id === 12);
         const target = (currentSlot?.targets as { instant: boolean; range: boolean; queryType: string }[])[0];
 
         expect(target.instant).toBe(true);
@@ -143,8 +161,8 @@ describe('monitoring dashboards and alert contracts', () => {
 
     it('labels failure categories and probe locations with text instead of relying on color', () => {
         const dashboards = buildDashboards();
-        const failures = dashboards[2].panels.find((item) => item.title === 'Application failure events');
-        const probes = dashboards[0].panels.find((item) => item.title === 'Public availability by check / probe');
+        const failures = dashboards[2].panels.find((item) => item.id === 8);
+        const probes = dashboards[0].panels.find((item) => item.id === 2);
 
         expect((failures?.targets as { legendFormat: string }[])[0].legendFormat).toBe('{{slot}} · {{event}}');
         expect((probes?.targets as { legendFormat: string }[])[0].legendFormat).toBe('{{job}} · {{probe}}');
