@@ -56,6 +56,7 @@ import {
     transferAmounts,
     undoProduct,
 } from '~/server/data/products';
+import { withStagedImage, type ImageActionResult } from '~/server/data/stagedImages';
 import { assertSuccess } from '~/server/data/utils';
 import { getVariants } from '~/server/data/variants';
 import { withinTransaction } from '~/server/db';
@@ -132,16 +133,26 @@ export async function setProductRemovingAction(request: SetProductRemoving): Pro
     return withinTransaction((session) => setRemoving(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductImageAction(request: SetProductImage): Promise<void> {
-    await requireSession();
+export async function setProductImageAction(request: SetProductImage): Promise<ImageActionResult> {
+    const profile = await requireSession();
     const parsed = setProductImageSchema.parse(request);
-    return withinTransaction((session) => setImage(parsed, session)).then(assertSuccess);
+    return withStagedImage(parsed, profile?.email ?? '', async (resolved) => {
+        if (resolved.image === undefined) {
+            return;
+        }
+        await withinTransaction((session) => setImage(resolved, session)).then(assertSuccess);
+    });
 }
 
-export async function setVariantImageAction(request: SetVariantImage): Promise<void> {
-    await requireSession();
+export async function setVariantImageAction(request: SetVariantImage): Promise<ImageActionResult> {
+    const profile = await requireSession();
     const parsed = setVariantImageSchema.parse(request);
-    return withinTransaction((session) => setVariantImage(parsed, session)).then(assertSuccess);
+    return withStagedImage(parsed, profile?.email ?? '', async (resolved) => {
+        if (resolved.image === undefined) {
+            return;
+        }
+        await withinTransaction((session) => setVariantImage(resolved, session)).then(assertSuccess);
+    });
 }
 
 export async function setAmountsAction(request: SetAmounts): Promise<void> {

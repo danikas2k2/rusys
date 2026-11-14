@@ -45,6 +45,15 @@ export default defineConfig({
             name: 'visual-fixture-images',
             configureServer(server) {
                 server.middlewares.use(async (request, response, next) => {
+                    if (
+                        request.method === 'POST' &&
+                        new URL(request.url ?? '/', 'http://localhost').pathname === '/api/images'
+                    ) {
+                        request.resume();
+                        response.setHeader('Content-Type', 'application/json');
+                        response.end(JSON.stringify({ token: `upload:${'a'.repeat(64)}` }));
+                        return;
+                    }
                     const file = new URL(request.url ?? '/', 'http://localhost').pathname.match(
                         /^\/images\/(uogienes|darzoves|avietes|braskes|morkos)\.png$/
                     )?.[0];

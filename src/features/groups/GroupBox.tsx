@@ -1,6 +1,6 @@
 import { ActionIcon, Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
 import { schemaResolver, useForm } from '@mantine/form';
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { AddIcon, AnnualIcon, CancelIcon, CategoriesNavIcon, DeleteIcon, ReviewIcon, UpdateIcon } from '@icons';
 
@@ -10,6 +10,7 @@ import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
 import { useDialogTracking, useFormTracking } from '~/components/common/useUsageTracking';
 import { ImageDropzone } from '~/components/images/ImageDropzone';
+import { useStagedImage } from '~/components/images/useStagedImage';
 import { useRenameGroup } from '~/features/groups/hooks/useRenameGroup';
 import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 import { useLabels } from '~/lib/hooks/useLabels';
@@ -50,6 +51,7 @@ export function GroupBox({
     const _ = useLabels();
     const groups = useGroups();
 
+    const [savedGroup, setSavedGroup] = useState(initialGroup);
     const form = useForm({
         initialValues: {
             group: initialGroup,
@@ -59,7 +61,7 @@ export function GroupBox({
         },
         validate: schemaResolver(
             updateGroupSchema.refine(
-                ({ group }: GroupIdentity) => group === initialGroup || groups.every((g) => !equals(group, g.group)),
+                ({ group }: GroupIdentity) => group === savedGroup || groups.every((g) => !equals(group, g.group)),
                 { path: ['group'], error: SchemaError.CategoryAlreadyExists }
             ),
             { sync: true }
@@ -74,12 +76,14 @@ export function GroupBox({
 
     const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [imageProgress, setImageProgress] = useState<number>();
+
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Reset the form when the modal opens; Mantine focuses the marked name input.
     useEffect(() => {
         if (opened) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset persisted identity when the modal opens.
+            setSavedGroup(initialGroup);
             formRef.current.setValues({
                 group: initialGroup,
                 annual: initialAnnual,
@@ -88,23 +92,16 @@ export function GroupBox({
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- submission state reset when modal opens
+
             setSubmitting(false);
             setLoading(false);
-            setImageProgress(undefined);
         }
     }, [opened, initialGroup, initialAnnual, initialReview, initialImage]);
 
-    const handleImageDrop = useCallback((dataUrl: string) => {
-        trackFaroEvent('form_field_changed', { form: 'group', field: 'image' });
-        formRef.current.setFieldValue('image', dataUrl);
-    }, []);
-
-    const handleImageRemove = useCallback(() => {
-        trackFaroEvent('form_field_changed', { form: 'group', field: 'image' });
-        formRef.current.setFieldValue('image', '');
-    }, []);
-
+    const stagedImage = useStagedImage(!!opened, (image) => {
+        formRef.current.setFieldValue('image', image);
+        formRef.current.clearFieldError('image');
+    });
     // Revalidate when group name changes to show duplicate errors in real-time
     const groupValue = form.values.group;
     useEffect(() => {
@@ -117,6 +114,9 @@ export function GroupBox({
     const renameGroup = useRenameGroup();
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
+        if (stagedImage.busy || submitting) {
+            return;
+        }
         trackFaroEvent('form_submitted', { form: 'group' });
 
         const validation = form.validate();
@@ -141,55 +141,27 @@ export function GroupBox({
 
         try {
             const values = { ...form.values, ...updateGroupSchema.parse(form.values) };
-            const groupRenamed = isEditing && values.group !== initialGroup;
-            const annualChanged = values.annual !== initialAnnual;
-            const reviewChanged = values.review !== initialReview;
-            const imageChanged = values.image !== initialImage;
-            const uploadingImage = imageChanged && values.image.startsWith('data:');
-            if (uploadingImage) {
-                setImageProgress(0);
-            }
-
-            if (groupRenamed) {
-                if (uploadingImage) {
-                    await renameGroup(
-                        {
-                            group: initialGroup,
-                            targetGroup: values.group,
-                            annual: values.annual,
-                            review: values.review,
-                            image: values.image,
-                        },
-                        setImageProgress
-                    );
-                } else {
-                    await renameGroup({
-                        group: initialGroup,
-                        targetGroup: values.group,
-                        annual: values.annual,
-                        review: values.review,
-                        image: values.image,
-                    });
-                }
-            } else if (!isEditing || annualChanged || reviewChanged || imageChanged) {
-                if (uploadingImage) {
-                    await updateGroup(values, setImageProgress);
-                } else {
-                    await updateGroup(values);
-                }
+            if (savedGroup && values.group !== savedGroup) {
+                await renameGroup({ ...values, group: savedGroup, targetGroup: values.group });
+            } else {
+                await updateGroup(values);
             }
             trackFaroEvent('form_result', { form: 'group', result: 'success' });
             onClose(values.group);
         } catch (error) {
             trackFaroEvent('form_result', { form: 'group', result: 'error' });
-            form.setFieldError('group', getErrorMessage(error));
+            if (getErrorMessage(error) === SchemaError.ImageUnavailable) {
+                setSavedGroup(form.values.group.trim());
+                form.setFieldError('image', getErrorMessage(error));
+            } else {
+                form.setFieldError('group', getErrorMessage(error));
+            }
             // istanbul ignore next - ref.current is always assigned in React Testing Library
             inputRef.current?.focus();
         } finally {
             clearTimeout(loadingTimeout);
             setSubmitting(false);
             setLoading(false);
-            setImageProgress(undefined);
         }
     };
 
@@ -272,12 +244,19 @@ export function GroupBox({
                             }}
                         />
                         <ImageDropzone
-                            image={form.values.image}
+                            key={opened ? 'open' : 'closed'}
+                            image={
+                                stagedImage.progress !== undefined || form.values.image.startsWith('upload:')
+                                    ? stagedImage.preview
+                                    : form.values.image
+                            }
                             label={_('Category image')}
-                            onDrop={handleImageDrop}
-                            onRemove={handleImageRemove}
+                            onDrop={stagedImage.drop}
+                            onRemove={stagedImage.remove}
                             disabled={loading}
-                            progress={imageProgress}
+                            progress={stagedImage.progress}
+                            onBusyChange={stagedImage.setReading}
+                            error={typeof form.errors.image === 'string' ? _(form.errors.image) : form.errors.image}
                         />
                         <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
                             {isEditing && onDelete && (
@@ -306,7 +285,7 @@ export function GroupBox({
                                 </Button>
                                 <Button
                                     type="submit"
-                                    disabled={submitting}
+                                    disabled={submitting || stagedImage.busy}
                                     loading={loading}
                                     leftSection={isEditing ? <UpdateIcon size={18} /> : <AddIcon size={18} />}
                                     {...(!isEditing ? { color: 'positive', 'data-color': 'positive' } : {})}

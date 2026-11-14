@@ -19,6 +19,7 @@ export enum SchemaError {
     GroupParamRequired = 'Group is required',
     GroupSettingsInvalid = 'Annual and review must be booleans; image must be a string',
     GroupsRequired = 'Groups is required',
+    ImageUnavailable = 'Uploaded image is no longer available. Your other changes were saved. Please upload the image again.',
     ImageRequired = 'Image is required',
     ImageTooLarge = 'File should not exceed',
     ImportFailed = 'Failed to import file',

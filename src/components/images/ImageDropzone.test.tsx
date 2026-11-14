@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
@@ -7,6 +7,7 @@ import React from 'react';
 
 import { MAX_IMAGE_FILE_MB } from '~/common/utils/files';
 import { ImageDropzone } from '~/components/images/ImageDropzone';
+import * as fileReader from '~/lib/utils/readFileAsDataUrl';
 
 vi.mock(import('@mantine/dropzone'), (): any => {
     const DropzoneComponent = ({
@@ -54,6 +55,53 @@ vi.mock(import('@mantine/dropzone'), (): any => {
 
 describe('<ImageDropzone>', () => {
     afterEach(() => vi.clearAllMocks());
+
+    it('discards a file read from a previous editor instance without clearing the new busy state', async () => {
+        let finishOld: (value: string) => void = () => undefined;
+        let finishNew: (value: string) => void = () => undefined;
+        const read = vi
+            .spyOn(fileReader, 'readFileAsDataUrl')
+            .mockImplementationOnce(
+                () =>
+                    new Promise<string>((resolve) => {
+                        finishOld = resolve;
+                    })
+            )
+            .mockImplementationOnce(
+                () =>
+                    new Promise<string>((resolve) => {
+                        finishNew = resolve;
+                    })
+            );
+        const onDrop = vi.fn();
+        const busy = vi.fn();
+        const editor = (key: string) => (
+            <MockApp>
+                <ImageDropzone key={key} label="Image" onDrop={onDrop} onRemove={vi.fn()} onBusyChange={busy} />
+            </MockApp>
+        );
+        try {
+            const { rerender } = render(editor('first'));
+            fireEvent.change(screen.getByPlaceholderText('Please choose an image'), {
+                target: { files: [new File(['old'], 'old.png')] },
+            });
+            rerender(editor('reopened'));
+            fireEvent.change(screen.getByPlaceholderText('Please choose an image'), {
+                target: { files: [new File(['new'], 'new.png')] },
+            });
+            await act(async () => finishOld('old-image'));
+
+            expect(onDrop).not.toHaveBeenCalled();
+            expect(busy.mock.calls).toStrictEqual([[true], [true]]);
+
+            await act(async () => finishNew('new-image'));
+
+            expect(onDrop).toHaveBeenCalledExactlyOnceWith('new-image');
+            expect(busy.mock.calls).toStrictEqual([[true], [true], [false]]);
+        } finally {
+            read.mockRestore();
+        }
+    });
 
     it('does not render a remove button when no image is set', () => {
         render(

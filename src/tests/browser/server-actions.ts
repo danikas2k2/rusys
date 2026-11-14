@@ -16,6 +16,7 @@ export const applyReviewAction = noop;
 export const setProductRemovingAction = noop;
 export const setProductImageAction = noop;
 export const setVariantImageAction = noop;
+export const dropImageAction = noop;
 export const setAmountsAction = noop;
 export const setAmountsBatchAction = noop;
 export const transferAmountsAction = noop;

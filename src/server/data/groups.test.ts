@@ -147,7 +147,7 @@ describe('groups', () => {
             ]);
         });
 
-        it('does nothing if group is not updated', async () => {
+        it('accepts repeated settings as an idempotent update', async () => {
             await withinTransaction((session) =>
                 updateGroupData({ group: 'Uogienės', annual: true, review: false }, session)
             );
@@ -156,7 +156,7 @@ describe('groups', () => {
                 withinTransaction((session) =>
                     updateGroupData({ group: 'Uogienės', annual: true, review: false }, session)
                 )
-            ).resolves.toBe(false);
+            ).resolves.toBe(true);
             await expect(withinTransaction((session) => getGroupsData(session))).resolves.toStrictEqual([
                 { ...groups[0], review: false },
                 groups[1],

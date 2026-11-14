@@ -10,6 +10,7 @@ test('selected category image', async () => {
     await uploadImage('input[type="file"]', 'uogienes.png', category);
     const dropzone = category.getByTestId('image-dropzone');
     await expect.element(dropzone).toBeVisible();
+    await expect.element(dropzone.getByRole('button', { name: 'Pašalinti paveikslėlį' })).toBeEnabled();
     await settleVisual();
     await expect(dropzone).toMatchScreenshot('category-image-selected');
 });
@@ -22,17 +23,18 @@ test('selected product image', async () => {
     await uploadImage('input[type="file"]', 'avietes.png', product);
     const dropzone = product.getByTestId('image-dropzone');
     await expect.element(dropzone).toBeVisible();
+    await expect.element(dropzone.getByRole('button', { name: 'Pašalinti paveikslėlį' })).toBeEnabled();
     await settleVisual();
     await expect(dropzone).toMatchScreenshot('product-image-selected');
 });
 
 test('category image upload progress', async () => {
-    holdUploadProgress('/api/v1/groups/');
+    holdUploadProgress('/api/images');
     await renderVisualApp('/categories');
     await page.getByRole('row', { name: /Uogienės/ }).click();
     const category = page.getByRole('dialog', { name: 'Taisyti kategoriją' });
     await uploadImage('input[type="file"]', 'uogienes.png', category);
-    await category.getByRole('button', { name: 'Naujinti' }).click();
+    await expect.element(category.getByRole('button', { name: 'Naujinti' })).toBeDisabled();
     await expect
         .element(category.getByRole('progressbar', { name: 'Upload progress' }))
         .toHaveAttribute('aria-valuenow', '42');

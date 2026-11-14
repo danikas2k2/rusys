@@ -4,6 +4,7 @@ import { MockData } from '@tests/MockData';
 import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 import { trackFaroEvent } from '~/lib/observability/faro';
 import { uploadWithProgress } from '~/lib/utils/uploadWithProgress';
+import { SchemaError } from '~/schema';
 import { updateGroupAction } from '~/server/actions/groups';
 
 vi.mock(import('~/server/actions/groups'));
@@ -30,18 +31,18 @@ describe('useUpdateGroup', () => {
         ]);
     });
 
-    it('propagates upload failures without refreshing or exposing upload data in telemetry', async () => {
+    it('propagates action failures without exposing image tokens in telemetry', async () => {
         const error = new Error('Sensitive image upload failure');
         const onProgress = vi.fn();
-        vi.mocked(uploadWithProgress).mockRejectedValueOnce(error);
+        vi.mocked(updateGroupAction).mockRejectedValueOnce(error);
         const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockData });
 
         await expect(
-            result.current({ group: 'Private group', image: 'data:image/png;base64,PRIVATE' }, onProgress)
+            result.current({ group: 'Private group', image: `upload:${'b'.repeat(64)}` }, onProgress)
         ).rejects.toBe(error);
 
-        expect(uploadWithProgress).toHaveBeenCalledTimes(1);
-        expect(updateGroupAction).not.toHaveBeenCalled();
+        expect(uploadWithProgress).not.toHaveBeenCalled();
+        expect(updateGroupAction).toHaveBeenCalledTimes(1);
         expect(refresh).not.toHaveBeenCalled();
         expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
             ['data_action', { entity: 'group', action: 'update', result: 'started' }],
@@ -79,22 +80,20 @@ describe('useUpdateGroup', () => {
         });
     });
 
-    it('uploads a data image with progress and refreshes the groups', async () => {
+    it('submits an image token through the action and refreshes the groups', async () => {
         const onProgress = vi.fn();
         const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockData });
 
         await result.current(
-            { group: 'New group', annual: true, review: false, image: 'data:image/png;base64,AAA' },
+            { group: 'New group', annual: true, review: false, image: `upload:${'a'.repeat(64)}` },
             onProgress
         );
 
-        expect(uploadWithProgress).toHaveBeenCalledExactlyOnceWith(
-            'PUT',
-            '/api/v1/groups/New%20group',
-            JSON.stringify({ annual: true, review: false, image: 'data:image/png;base64,AAA' }),
-            onProgress
+        expect(updateGroupAction).toHaveBeenCalledExactlyOnceWith(
+            expect.objectContaining({ image: `upload:${'a'.repeat(64)}` })
         );
-        expect(updateGroupAction).not.toHaveBeenCalled();
+        expect(vi.mocked(updateGroupAction).mock.calls[0][0].image).toBe(`upload:${'a'.repeat(64)}`);
+        expect(uploadWithProgress).not.toHaveBeenCalled();
         expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
@@ -115,5 +114,15 @@ describe('useUpdateGroup', () => {
         await result.current({ group: '' });
 
         expect(updateGroupAction).not.toHaveBeenCalled();
+    });
+
+    it('refreshes saved data and reports an unavailable image token', async () => {
+        vi.mocked(updateGroupAction).mockResolvedValueOnce({ imageUnavailable: true });
+        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockData });
+
+        await expect(result.current({ group: 'Fruit', image: 'upload:expired' })).rejects.toThrow(
+            SchemaError.ImageUnavailable
+        );
+        expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 });

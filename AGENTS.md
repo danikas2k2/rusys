@@ -8,37 +8,26 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-
 # Agent Engineering Rules
 
-## General and architecture
-- Follow task requirements; make minimal changes consistent with nearby patterns and applicable `docs/` decisions. Avoid invented APIs, unrelated refactoring, dependencies, and unnecessary abstractions.
-- Preserve existing uncommitted work, service boundaries, public contracts, database schemas, and tenant isolation unless explicitly authorized.
-- Validate untrusted input; authorize server-side operations; never leak secrets or bypass security controls.
-- Use strict TypeScript, avoid unjustified `any`, handle errors explicitly. Prefer shared classes or `data-*` selectors over inline styles.
+## Execute the task
+- When the user requests a code change, implement it. Do not stop after a plan or ask for a second confirmation for ordinary edits within the requested scope.
+- Make a small, direct change consistent with nearby patterns. Preserve unrelated work and existing behavior unless the task requires changing it.
+- Read only the files and documentation needed for this task. Respect project architecture, public APIs, data ownership, and server-side authorization. Do not introduce dependencies or broad refactors without need.
+- Use strict TypeScript and existing project conventions. Prefer shared CSS classes or `data-*` selectors over inline styles.
+- If something fails, diagnose it and attempt a focused repair rather than immediately stopping. Do not retry the same failed patch unchanged; re-read the file and use a smaller edit.
 
-## Validation — always applies, even without a Skill
-- Discover **actual** commands from the affected package and applicable nested instructions; do not assume scripts or working directory.
-- After executable code or behavior-affecting config changes, run **relevant targeted** lint, typecheck and affected tests. Do not run the entire monorepo by default; broaden to integration/e2e/build/dependents when impact warrants it. Docs-only edits may skip inapplicable checks with a reason.
-- Add/update meaningful regression tests for behavioral changes when feasible, including important negative and edge cases. Run coverage only if it is a required gate or materially relevant; never weaken tests, lint, typecheck, coverage rules or security settings to make checks pass.
-- On failure, diagnose, repair introduced issues and rerun impacted checks. Distinguish pre-existing failures only with evidence. If a required check is skipped, blocked or too expensive, state what remains unverified.
-- Inspect final staged, unstaged and untracked changes; after the **last edit**, rerun checks invalidated by that edit. Avoid rerunning passing expensive checks when relevant inputs are unchanged.
+## Verify the change
+- Discover commands from the affected package. For code changes, run relevant focused lint, typecheck, and tests when available. Do not run the whole monorepo by default.
+- For changed behavior, add or update meaningful regression tests where useful. Never weaken checks or tests to make a failure disappear.
+- If a check fails due to the change, fix it and rerun affected checks. If a check is unavailable, expensive, or blocked, report that limitation honestly; it is not a reason to abandon an otherwise safe implementation.
+- Review the final diff and any untracked files. Do not overwrite pre-existing user edits.
 
-## Risk-based review
-- Main agent normally edits directly. No subagents for trivial/low-risk work; delegate `coder` only for a substantial isolated workstream.
-- For high-risk work (auth/tenant boundaries, secrets, money, migrations, concurrency, breaking contracts, complex cross-package behavior), require independent `reviewer` review; add `auditor` only for security-sensitive changes and `assessor` only for accessibility-relevant UI changes. Standard-risk review is optional. Never spawn an agent just to say N/A.
-- If a required review cannot run, report PARTIAL rather than claiming independent verification. `$code-with-review` describes the optional detailed workflow.
+## Delegation and approvals
+- The main Codex agent normally edits code directly. Do not delegate or run independent reviews unless the user asks or it would clearly improve the result. A failed or unavailable optional subagent must not block implementation.
+- Treat the user's request as authorization for ordinary source, test, and configuration edits that are necessary to fulfill that request. Ask only before material out-of-scope changes or dangerous/irreversible actions (such as production deployment, destructive data operations, changing credentials, or publishing changes).
+- Do not commit, push, merge, or deploy unless requested.
 
-## Protected changes — obtain explicit user authorization *before* editing
-- CI workflows, security configuration, authentication/authorization architecture.
-- Production dependencies, public API contracts, database migrations.
-- Agent instructions, validation rules or quality gates.
-
-## Completion
-- **PASS:** all applicable required checks passed on the final state, required reviews completed, no unresolved blocking defects, approvals obtained.
-- **PARTIAL:** required check/review could not run or protected change awaits approval; clearly describe the gap.
-- **FAIL:** relevant check still fails or a blocking defect remains; distinguish evidenced baseline failures.
-- Report what changed, exact checks run/results, material skips and review findings; never claim an unrun test passed. Never commit, push or merge without authorization.
-
-## Repository-specific validation commands
-- Discover commands from package scripts. Add focused and broad variants here once verified; never invent them.
+## Finish
+- Continue until the requested change is implemented or a concrete technical/permission blocker is reached. Do not stop just because some files were modified or a first attempt failed.
+- Briefly report what changed; list the checks actually run, their results, and any remaining failures or blocked checks. Never claim an unrun check passed.

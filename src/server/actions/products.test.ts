@@ -71,6 +71,30 @@ describe('product actions', () => {
         vi.clearAllMocks();
     });
 
+    it.each([
+        { group: 'Other', name: 'Berry' },
+        { group: 'Fruit', name: 'Other' },
+    ])('rejects a batch mixing product identities (%j)', async (other) => {
+        const first = { group: 'Fruit', name: 'Berry', year: 24, amounts: [{ variant: 'Jar', amount: 1 }] };
+
+        await expect(setAmountsBatchAction([first, { ...first, ...other, year: 25 }])).rejects.toThrow(
+            'Invalid product batch'
+        );
+        expect(setAmounts).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        [0, 24],
+        [24, 24],
+    ])('rejects conflicting batch years %j', async (...years) => {
+        await expect(
+            setAmountsBatchAction(
+                years.map((year) => ({ group: 'Fruit', name: 'Berry', year, amounts: [{ variant: 'Jar', amount: 1 }] }))
+            )
+        ).rejects.toThrow('Invalid product years');
+        expect(setAmounts).not.toHaveBeenCalled();
+    });
+
     it('writes all years in one transaction and merges their history', async () => {
         vi.mocked(setAmounts).mockResolvedValue(true);
         const first = { group: 'A', name: 'P', year: 23, amounts: [{ variant: 'v', amount: -1, recycled: false }] };
@@ -664,5 +688,18 @@ describe('product actions', () => {
 
         expect(dataFunction).toHaveBeenCalledWith(...args);
         await expect(call()).rejects.toThrow('The requested change could not be applied');
+    });
+
+    it.each([
+        () => setProductImageAction({ group: 'Fruit', name: 'Berries', image: 'upload:expired' }),
+        () => setVariantImageAction({ group: 'Fruit', name: 'Berries', variant: 'Jar', image: 'upload:expired' }),
+    ])('returns an expired image result without removing existing product images', async (action) => {
+        vi.mocked(requireSession).mockResolvedValueOnce({ email: 'owner' } as Awaited<
+            ReturnType<typeof requireSession>
+        >);
+
+        await expect(action()).resolves.toStrictEqual({ imageUnavailable: true });
+        expect(setImage).not.toHaveBeenCalled();
+        expect(setVariantImage).not.toHaveBeenCalled();
     });
 });
