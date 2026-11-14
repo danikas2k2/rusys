@@ -84,7 +84,7 @@ describe('monitoring dashboards and alert contracts', () => {
         expect(memory?.expr).toContain('> 0');
         expect(memory?.expr).toContain('< 1e15');
         expect(disk?.expr).toContain('mountpoint=~"/|/volume[0-9]+"');
-        expect(disk?.expr).toContain('> bool 0.80');
+        expect(disk?.expr).toContain('> bool 0.90');
     });
 
     it('covers missing checks independently and gates failure windows on three samples', () => {

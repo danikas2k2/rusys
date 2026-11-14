@@ -370,7 +370,7 @@
       "severity": "warning"
     },
     "annotations": {
-      "summary": "Persistent filesystem usage above 80% for 15 minutes.",
+      "summary": "Persistent filesystem usage above 90% for 15 minutes.",
       "description": "Confirm the affected device/mount; inspect Docker storage, logs and backups. Do not delete database files.",
       "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
       "__dashboardUid__": "rusys-infrastructure",
@@ -398,7 +398,7 @@
             "type": "prometheus",
             "uid": "${prometheus}"
           },
-          "expr": "(1 - node_filesystem_avail_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"} / node_filesystem_size_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"}) > bool 0.80",
+          "expr": "(1 - node_filesystem_avail_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"} / node_filesystem_size_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"}) > bool 0.90",
           "instant": true,
           "range": false,
           "queryType": "instant",
