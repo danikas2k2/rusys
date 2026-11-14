@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockThemeData } from '@tests/MockThemeData';
@@ -14,7 +14,13 @@ import { useSetProductExpiryTolerance } from '~/features/products/hooks/useSetPr
 import { useSetProductImage } from '~/features/products/hooks/useSetProductImage';
 import { useSetProductParent } from '~/features/products/hooks/useSetProductParent';
 import { ProductBox } from '~/features/products/ProductBox';
+import { uploadWithProgress } from '~/lib/utils/uploadWithProgress';
+import { SchemaError } from '~/schema';
+import { dropImageAction } from '~/server/actions/images';
 import { expectNoA11yViolations } from '~/tests/accessibility';
+
+vi.mock(import('~/server/actions/images'));
+vi.mock(import('~/lib/utils/uploadWithProgress'));
 
 vi.mock(import('~/features/products/hooks/useAddProduct'));
 vi.mock(import('~/features/products/hooks/useDeleteProduct'));
@@ -93,6 +99,11 @@ async function getParentProductCombobox() {
 
 describe('<ProductBox>', () => {
     beforeEach(() => {
+        vi.mocked(dropImageAction).mockResolvedValue(undefined);
+        vi.mocked(uploadWithProgress).mockImplementation(async (_method, _url, _body, progress, response) => {
+            progress?.(100);
+            response?.(JSON.stringify({ token: `upload:${'a'.repeat(64)}` }));
+        });
         user = userEvent.setup({ delay: null });
         selectUser = userEvent.setup();
     });
@@ -277,6 +288,93 @@ describe('<ProductBox>', () => {
     });
 
     describe('image upload', () => {
+        it('keeps the destination parent when moving a product with an expired image', async () => {
+            const move = vi.fn().mockResolvedValue(undefined);
+            const setParent = vi.fn().mockResolvedValue(undefined);
+            const setImage = vi
+                .fn()
+                .mockRejectedValueOnce(new Error(SchemaError.ImageUnavailable))
+                .mockResolvedValue(undefined);
+            vi.mocked(useMoveProduct).mockReturnValue(move);
+            vi.mocked(useSetProductParent).mockReturnValue(setParent);
+            vi.mocked(useSetProductImage).mockReturnValue(setImage);
+            render(
+                <MockThemeData state={state}>
+                    <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
+                </MockThemeData>
+            );
+            await selectOption('Daržovės');
+            await selectParentOption('Morkos');
+            await user.upload(
+                screen.getByPlaceholderText('Please choose an image'),
+                new File(['image'], 'image.png', { type: 'image/png' })
+            );
+            await waitFor(() => expect(uploadWithProgress).toHaveBeenCalledTimes(1));
+            const submit = screen.getByRole('button', { name: 'Move' });
+            await waitFor(() => expect(submit).toBeEnabled());
+            await user.click(submit);
+
+            await expect(screen.findByRole('alert')).resolves.toHaveTextContent(SchemaError.ImageUnavailable);
+            expect(move).toHaveBeenCalledExactlyOnceWith({
+                group: 'Uogienės',
+                name: 'Avietės',
+                targetGroup: 'Daržovės',
+                targetName: 'Avietės',
+            });
+            expect(setParent).toHaveBeenCalledExactlyOnceWith({ group: 'Daržovės', name: 'Avietės', parent: 'Morkos' });
+
+            await user.upload(
+                screen.getByPlaceholderText('Please choose an image'),
+                new File(['image2'], 'image.png', { type: 'image/png' })
+            );
+            await waitFor(() => expect(uploadWithProgress).toHaveBeenCalledTimes(2));
+            await waitFor(() => expect(submit).toBeEnabled());
+            await user.click(submit);
+
+            expect([move.mock.calls.length, setParent.mock.calls.length]).toStrictEqual([1, 1]);
+            expect(onClose).toHaveBeenCalledWith('Daržovės', 'Avietės');
+        });
+
+        it('saves other fields before an expired image error and retries only the image', async () => {
+            const setExpiry = vi.fn().mockResolvedValue(undefined);
+            const setImage = vi
+                .fn()
+                .mockRejectedValueOnce(new Error(SchemaError.ImageUnavailable))
+                .mockResolvedValue(undefined);
+            vi.mocked(useSetProductExpiryTolerance).mockReturnValue(setExpiry);
+            vi.mocked(useSetProductImage).mockReturnValue(setImage);
+            render(
+                <MockThemeData state={state}>
+                    <ProductBox opened group="Uogienės" name="Avietės" expiryToleranceDays={0} onClose={onClose} />
+                </MockThemeData>
+            );
+            await getParentProductCombobox();
+            await user.clear(screen.getByRole('textbox', { name: 'Expiry tolerance' }));
+            await user.type(screen.getByRole('textbox', { name: 'Expiry tolerance' }), '2 sav.');
+            await user.upload(
+                screen.getByPlaceholderText('Please choose an image'),
+                new File(['image'], 'image.png', { type: 'image/png' })
+            );
+            await waitFor(() => expect(uploadWithProgress).toHaveBeenCalledTimes(1));
+            await waitFor(() => expect(screen.getByRole('button', { name: 'Update' })).toBeEnabled());
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            await expect(screen.findByRole('alert')).resolves.toHaveTextContent(SchemaError.ImageUnavailable);
+            expect(setExpiry).toHaveBeenCalledExactlyOnceWith({ group: 'Uogienės', name: 'Avietės', days: 14 });
+
+            await user.upload(
+                screen.getByPlaceholderText('Please choose an image'),
+                new File(['image2'], 'image.png', { type: 'image/png' })
+            );
+            await waitFor(() => expect(uploadWithProgress).toHaveBeenCalledTimes(2));
+            await waitFor(() => expect(screen.getByRole('button', { name: 'Update' })).toBeEnabled());
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(setExpiry).toHaveBeenCalledTimes(1);
+            expect(setImage).toHaveBeenCalledTimes(2);
+            expect(onClose).toHaveBeenCalledWith('Uogienės', 'Avietės');
+        });
+
         it('does not render a remove button when no image is set', () => {
             render(
                 <MockThemeData state={state}>
@@ -394,10 +492,11 @@ describe('<ProductBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(addProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Agrastai', parent: undefined });
-            expect(setProductImage).toHaveBeenCalledWith(
-                { group: 'Uogienės', name: 'Agrastai', image: expect.stringMatching(/^data:image\/png;base64,/) },
-                expect.any(Function)
-            );
+            expect(setProductImage).toHaveBeenCalledWith({
+                group: 'Uogienės',
+                name: 'Agrastai',
+                image: `upload:${'a'.repeat(64)}`,
+            });
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Agrastai');
         });
 
@@ -453,10 +552,11 @@ describe('<ProductBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
             expect(renameProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Avietės', targetName: 'Agrastai' });
-            expect(setProductImage).toHaveBeenCalledWith(
-                { group: 'Uogienės', name: 'Agrastai', image: expect.stringMatching(/^data:image\/png;base64,/) },
-                expect.any(Function)
-            );
+            expect(setProductImage).toHaveBeenCalledWith({
+                group: 'Uogienės',
+                name: 'Agrastai',
+                image: `upload:${'a'.repeat(64)}`,
+            });
         });
 
         it('does not call setProductImage when the image is unchanged', async () => {

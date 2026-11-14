@@ -43,7 +43,7 @@ export async function updateGroup({ group, ...update }: UpdateGroup, session: Cl
                   },
                   { session }
               )
-              .then(hasEffect)
+              .then((result) => !!result.matchedCount || hasEffect(result))
         : col
               .aggregate([{ $group: { _id: null, order: { $max: '$order' } } }], { session })
               .next()

@@ -9,6 +9,12 @@ import { GroupBox } from '~/features/groups/GroupBox';
 import { useRenameGroup } from '~/features/groups/hooks/useRenameGroup';
 import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 import { trackFaroEvent } from '~/lib/observability/faro';
+import { uploadWithProgress } from '~/lib/utils/uploadWithProgress';
+import { SchemaError } from '~/schema';
+import { dropImageAction } from '~/server/actions/images';
+
+vi.mock(import('~/server/actions/images'));
+vi.mock(import('~/lib/utils/uploadWithProgress'));
 
 vi.mock(import('~/lib/observability/faro'), () => ({ trackFaroEvent: vi.fn() }));
 vi.mock(import('~/components/common/Label'));
@@ -51,6 +57,14 @@ vi.mock(import('@mantine/dropzone'), (): any => {
 });
 
 describe('<GroupBox>', () => {
+    beforeEach(() => {
+        vi.mocked(dropImageAction).mockResolvedValue(undefined);
+        vi.mocked(uploadWithProgress).mockImplementation(async (_method, _url, _body, progress, response) => {
+            progress?.(100);
+            response?.(JSON.stringify({ token: `upload:${'a'.repeat(64)}` }));
+        });
+    });
+
     afterEach(() => vi.clearAllMocks());
 
     const state = {
@@ -178,6 +192,39 @@ describe('<GroupBox>', () => {
     });
 
     describe('image upload', () => {
+        it('retries a renamed category after an expired image without renaming it twice', async () => {
+            const rename = vi.fn().mockRejectedValueOnce(new Error(SchemaError.ImageUnavailable));
+            const update = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useRenameGroup).mockReturnValue(rename);
+            vi.mocked(useUpdateGroup).mockReturnValue(update);
+            render(
+                <MockApp state={state}>
+                    <GroupBox opened group="Uogienės" onClose={onClose} />
+                </MockApp>
+            );
+            await user.clear(screen.getByRole('textbox', { name: 'Category name' }));
+            await user.type(screen.getByRole('textbox', { name: 'Category name' }), 'Nauja');
+            await user.upload(
+                screen.getByPlaceholderText('Please choose an image'),
+                new File(['image'], 'image.png', { type: 'image/png' })
+            );
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            await expect(screen.findByRole('alert')).resolves.toHaveTextContent(SchemaError.ImageUnavailable);
+
+            await user.upload(
+                screen.getByPlaceholderText('Please choose an image'),
+                new File(['image2'], 'image.png', { type: 'image/png' })
+            );
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(rename).toHaveBeenCalledTimes(1);
+            expect(update).toHaveBeenCalledWith(
+                expect.objectContaining({ group: 'Nauja', image: `upload:${'a'.repeat(64)}` })
+            );
+            expect(onClose).toHaveBeenCalledWith('Nauja');
+        });
+
         it('does not render a remove button when no image is set', () => {
             render(
                 <MockApp state={state}>
@@ -267,15 +314,12 @@ describe('<GroupBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addGroup).toHaveBeenCalledWith(
-                {
-                    group: 'Buitinė chemija',
-                    annual: true,
-                    review: false,
-                    image: expect.stringMatching(/^data:image\/png;base64,/),
-                },
-                expect.any(Function)
-            );
+            expect(addGroup).toHaveBeenCalledWith({
+                group: 'Buitinė chemija',
+                annual: true,
+                review: false,
+                image: `upload:${'a'.repeat(64)}`,
+            });
         });
     });
 

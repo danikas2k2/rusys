@@ -6,7 +6,8 @@ export function uploadWithProgress(
     method: 'POST' | 'PUT' | 'PATCH',
     url: string,
     body: FormData | string,
-    onProgress?: UploadProgress
+    onProgress?: UploadProgress,
+    onResponse?: (body: string) => void
 ): Promise<void> {
     return new Promise((resolve, reject) => {
         const request = new XMLHttpRequest();
@@ -23,6 +24,12 @@ export function uploadWithProgress(
         request.onabort = () => reject(new Error(SchemaError.UploadCancelled));
         request.onload = () => {
             if (request.status >= 200 && request.status < 300) {
+                try {
+                    onResponse?.(request.responseText);
+                } catch {
+                    reject(new Error(SchemaError.UploadFailed));
+                    return;
+                }
                 resolve();
                 return;
             }

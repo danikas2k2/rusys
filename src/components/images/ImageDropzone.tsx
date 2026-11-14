@@ -1,6 +1,6 @@
 import { ActionIcon, Alert, Box, Group, rem, Stack, Text } from '@mantine/core';
 import { Dropzone, type FileRejection, type FileWithPath } from '@mantine/dropzone';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { ErrorAlertIcon, ImageAcceptIcon, ImageDropzoneIdleIcon, ImageRejectIcon, RemoveImageIcon } from '@icons';
 
@@ -17,12 +17,13 @@ import { SchemaError } from '~/schema';
 interface ImageDropzoneProps {
     image?: string;
     label: string;
-    onDrop: (dataUrl: string) => void | Promise<void>;
+    onDrop: (dataUrl: string) => void | Promise<unknown>;
     onRemove: () => void | Promise<void>;
     disabled?: boolean;
     compact?: boolean;
     error?: React.ReactNode;
     progress?: number;
+    onBusyChange?: (busy: boolean) => void;
 }
 
 export function ImageDropzone({
@@ -34,26 +35,42 @@ export function ImageDropzone({
     compact,
     error: externalError,
     progress,
+    onBusyChange,
 }: ImageDropzoneProps) {
     const _ = useLabels();
     const [error, setError] = useState<string>();
     const [saving, setSaving] = useState(false);
+    const mounted = useRef(false);
+    useLayoutEffect(() => {
+        mounted.current = true;
+        return () => {
+            mounted.current = false;
+        };
+    }, []);
 
     const handleDrop = useCallback(
         async (files: FileWithPath[]) => {
             if (files.length > 0) {
                 setError(undefined);
                 setSaving(true);
+                onBusyChange?.(true);
                 try {
-                    await onDrop(await readFileAsDataUrl(files[0]!));
+                    const dataUrl = await readFileAsDataUrl(files[0]!);
+                    if (!mounted.current) {
+                        return;
+                    }
+                    await onDrop(dataUrl);
                 } catch (e) {
                     setError(getErrorMessage(e));
                 } finally {
-                    setSaving(false);
+                    if (mounted.current) {
+                        setSaving(false);
+                        onBusyChange?.(false);
+                    }
                 }
             }
         },
-        [onDrop]
+        [onDrop, onBusyChange]
     );
 
     const handleReject = useCallback((fileRejections: FileRejection[]) => {

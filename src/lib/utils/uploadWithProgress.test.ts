@@ -63,6 +63,17 @@ describe('uploadWithProgress', () => {
         await expect(result).rejects.toThrow('Upload failed');
     });
 
+    it('delivers the upload response to the token parser', async () => {
+        const onResponse = vi.fn();
+        const result = uploadWithProgress('POST', '/api/images', '{}', undefined, onResponse);
+        MockRequest.current.status = 200;
+        MockRequest.current.responseText = '{"token":"upload:token"}';
+        MockRequest.current.onload();
+
+        await expect(result).resolves.toBeUndefined();
+        expect(onResponse).toHaveBeenCalledExactlyOnceWith('{"token":"upload:token"}');
+    });
+
     it('rejects when the upload is cancelled', async () => {
         const result = uploadWithProgress('POST', '/api/v1/imports', new FormData());
 

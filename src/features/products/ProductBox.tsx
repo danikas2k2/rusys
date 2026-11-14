@@ -19,6 +19,7 @@ import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
 import { useDialogTracking, useFormTracking } from '~/components/common/useUsageTracking';
 import { ImageDropzone } from '~/components/images/ImageDropzone';
+import { useStagedImage } from '~/components/images/useStagedImage';
 import { ProductDialogIcon } from '~/components/products/ProductDialogIcon';
 import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
 import { CategoryOption } from '~/features/filters/CategoryOption';
@@ -147,6 +148,8 @@ export function ProductBox({
     );
     const products = useProducts();
 
+    const [savedIdentity, setSavedIdentity] = useState({ group: initialGroup, name: initialName });
+    const savedSettings = useRef({ parent: initialParent, days: initialExpiryToleranceDays });
     const form = useForm<UpdateProduct>({
         initialValues: {
             group: initialGroup || filterGroup || '',
@@ -159,7 +162,7 @@ export function ProductBox({
             updateProductSchema
                 .refine(
                     ({ group, name }) =>
-                        (group === initialGroup && name === initialName) ||
+                        (group === savedIdentity.group && name === savedIdentity.name) ||
                         products.every((p) => !equals(p.group, group) || !equals(p.name, name)),
                     { path: ['name'], error: SchemaError.NameAlreadyExists }
                 )
@@ -185,7 +188,7 @@ export function ProductBox({
     // A new product is created before its image can be saved. Remember it when the image request
     // fails so the next submit retries the image instead of attempting to create a duplicate.
     const [createdProduct, setCreatedProduct] = useState<{ group: string; name: string }>();
-    const [imageProgress, setImageProgress] = useState<number>();
+
     const groupRef = useRef<HTMLInputElement>(null);
     const nameRef = useRef<HTMLInputElement>(null);
     const expiryToleranceRef = useRef<HTMLInputElement>(null);
@@ -193,6 +196,9 @@ export function ProductBox({
     // Reset the form when the modal opens; Mantine focuses the marked title input.
     useEffect(() => {
         if (opened) {
+            savedSettings.current = { parent: initialParent, days: initialExpiryToleranceDays };
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset persisted identity when the modal opens.
+            setSavedIdentity({ group: initialGroup, name: initialName });
             formRef.current.setValues({
                 group: initialGroup || filterGroup || '',
                 name: initialName,
@@ -202,27 +208,18 @@ export function ProductBox({
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- submission state reset when modal opens
+
             setSubmitting(false);
             setLoading(false);
             setCreatedProduct(undefined);
             setAdvancedFieldsOpen(false);
-            setImageProgress(undefined);
         }
     }, [opened, initialGroup, initialName, initialParent, initialImage, initialExpiryToleranceDays, filterGroup]);
 
-    const handleImageDrop = useCallback((dataUrl: string) => {
-        trackFaroEvent('form_field_changed', { form: 'product', field: 'image' });
-        formRef.current.setFieldValue('image', dataUrl);
+    const stagedImage = useStagedImage(opened, (image) => {
+        formRef.current.setFieldValue('image', image);
         formRef.current.clearFieldError('image');
-    }, []);
-
-    const handleImageRemove = useCallback(() => {
-        trackFaroEvent('form_field_changed', { form: 'product', field: 'image' });
-        formRef.current.setFieldValue('image', '');
-        formRef.current.clearFieldError('image');
-    }, []);
-
+    });
     // Revalidate when group or name changes to show duplicate errors in real-time
     const groupValue = form.values.group;
     const nameValue = form.values.name;
@@ -282,6 +279,9 @@ export function ProductBox({
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
+        if (stagedImage.busy || submitting) {
+            return;
+        }
         trackFaroEvent('form_submitted', { form: 'product' });
 
         const validation = form.validate();
@@ -315,57 +315,51 @@ export function ProductBox({
         let failedField: 'name' | 'image' = 'name';
         try {
             const values = updateProductSchema.parse(form.values);
-            const groupChanged = isEditing && values.group !== initialGroup;
-            const nameRenamed = isEditing && values.name !== initialName && !groupChanged;
+            const groupChanged = (isEditing || !!createdProduct) && values.group !== savedIdentity.group;
+            const nameRenamed = (isEditing || !!createdProduct) && values.name !== savedIdentity.name && !groupChanged;
             const imageChanged = values.image !== initialImage;
-            const parentChanged = values.parent !== initialParent;
             const expiryToleranceDays = parseExpiryTolerance(values.expiryTolerance);
             // Validation above ensures the parser succeeds before this point.
             if (expiryToleranceDays === undefined) {
                 return;
             }
-            const expiryToleranceChanged = expiryToleranceDays !== initialExpiryToleranceDays;
+            const expiryToleranceChanged = expiryToleranceDays !== savedSettings.current.days;
 
             let savedProduct = createdProduct;
             if (groupChanged) {
                 // Move to different group - this also clears any parent link server-side,
                 // since a product's parent must be in the same category.
                 await moveProduct({
-                    group: initialGroup,
-                    name: initialName,
+                    group: savedIdentity.group,
+                    name: savedIdentity.name,
                     targetGroup: values.group,
                     targetName: values.name,
                 });
+                savedSettings.current.parent = '';
             } else if (nameRenamed) {
                 // Rename in same group
-                await renameProduct({ group: initialGroup, name: initialName, targetName: values.name });
+                await renameProduct({ ...savedIdentity, targetName: values.name });
             } else if (!isEditing && !savedProduct) {
                 // Add new
                 await addProduct({ group: values.group, name: values.name, parent: values.parent || undefined });
+                savedSettings.current.parent = values.parent ?? '';
                 savedProduct = { group: values.group, name: values.name };
                 setCreatedProduct(savedProduct);
             }
-            const product = savedProduct ?? { group: values.group, name: values.name };
+            const product = { group: values.group, name: values.name };
+            setSavedIdentity(product);
+            setCreatedProduct(product);
+            if ((isEditing || !!createdProduct) && values.parent !== savedSettings.current.parent) {
+                await setProductParent({ group: values.group, name: values.name, parent: values.parent || undefined });
+                savedSettings.current.parent = values.parent ?? '';
+            }
+            if (expiryToleranceChanged) {
+                await setProductExpiryTolerance({ group: values.group, name: values.name, days: expiryToleranceDays });
+                savedSettings.current.days = expiryToleranceDays;
+            }
             if (imageChanged) {
                 failedField = 'image';
-                const uploadingImage = values.image.startsWith('data:');
-                if (uploadingImage) {
-                    setImageProgress(0);
-                }
-                if (uploadingImage) {
-                    await setProductImage(
-                        { group: product.group, name: product.name, image: values.image },
-                        setImageProgress
-                    );
-                } else {
-                    await setProductImage({ group: product.group, name: product.name, image: values.image });
-                }
-            }
-            if (isEditing && !groupChanged && parentChanged) {
-                await setProductParent({ group: values.group, name: values.name, parent: values.parent || undefined });
-            }
-            if ((isEditing && expiryToleranceChanged) || (!isEditing && expiryToleranceDays > 0)) {
-                await setProductExpiryTolerance({ group: values.group, name: values.name, days: expiryToleranceDays });
+                await setProductImage({ ...product, image: values.image });
             }
             trackFaroEvent('form_result', { form: 'product', result: 'success' });
             onClose(product.group, product.name);
@@ -377,7 +371,6 @@ export function ProductBox({
                 nameRef.current?.focus();
             }
         } finally {
-            setImageProgress(undefined);
             clearTimeout(loadingTimeout);
             setSubmitting(false);
             setLoading(false);
@@ -479,11 +472,17 @@ export function ProductBox({
                                 error={typeof form.errors.name === 'string' ? _(form.errors.name) : form.errors.name}
                             />
                             <ImageDropzone
-                                image={form.values.image}
+                                key={opened ? 'open' : 'closed'}
+                                image={
+                                    stagedImage.progress !== undefined || form.values.image.startsWith('upload:')
+                                        ? stagedImage.preview
+                                        : form.values.image
+                                }
                                 label={_('Product image')}
-                                onDrop={handleImageDrop}
-                                progress={imageProgress}
-                                onRemove={handleImageRemove}
+                                onDrop={stagedImage.drop}
+                                progress={stagedImage.progress}
+                                onBusyChange={stagedImage.setReading}
+                                onRemove={stagedImage.remove}
                                 disabled={loading}
                                 error={typeof form.errors.image === 'string' ? _(form.errors.image) : form.errors.image}
                             />
@@ -583,7 +582,7 @@ export function ProductBox({
                                     </Button>
                                     <Button
                                         type="submit"
-                                        disabled={submitting}
+                                        disabled={submitting || stagedImage.busy}
                                         loading={loading}
                                         leftSection={buttonContent.icon}
                                         {...(!isEditing ? { color: 'positive', 'data-color': 'positive' } : {})}

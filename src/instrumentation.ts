@@ -6,6 +6,12 @@ export async function register(): Promise<void> {
         installConsoleLogging();
         const { registerTracing } = await import('~/server/telemetry');
         registerTracing();
+        const { default: path } = await import('node:path');
+        const { IMAGES_DIR } = await import('~/server/data/images');
+        const { startStagedImageCleanup } = await import('~/server/stagedImageCleanupScheduler');
+        startStagedImageCleanup(path.join(IMAGES_DIR, '.pending'), () => {
+            logEvent('runtime_output_redacted', {}, 'error');
+        });
         logEvent('server_started');
     }
 }
