@@ -227,7 +227,28 @@ export function buildDashboards(sources: DataSources = defaults) {
             `(${memoryRatio}) and (${finiteMemory})`,
             'percentunit'
         ),
-        panel(7, 'Filesystem used fraction', 'prometheus', diskUsed, 'percentunit'),
+        {
+            ...panel(7, 'Filesystem used fraction', 'prometheus', diskUsed, 'percentunit'),
+            fieldConfig: {
+                defaults: {
+                    unit: 'percentunit',
+                    min: 0,
+                    max: 1,
+                    noValue: 'No data — check collection',
+                    color: { mode: 'thresholds' },
+                    thresholds: {
+                        mode: 'absolute',
+                        steps: [
+                            { color: 'green', value: null },
+                            { color: 'yellow', value: 0.85 },
+                            { color: 'red', value: 0.9 },
+                        ],
+                    },
+                    custom: { thresholdsStyle: { mode: 'line' } },
+                },
+                overrides: [],
+            },
+        },
         panel(
             8,
             'NAS disk read/write bytes per second',
@@ -381,6 +402,7 @@ export interface AlertSpec {
     dashboard: string;
     panelId: number;
     noData?: 'Alerting' | 'OK';
+    repeatInterval?: string;
 }
 
 export const alertSpecs: AlertSpec[] = [
@@ -430,6 +452,18 @@ export const alertSpecs: AlertSpec[] = [
         action: 'Inspect the named container, its configured limit, release and workload. Unlimited containers are excluded.',
         dashboard: 'infrastructure',
         panelId: 6,
+    },
+    {
+        uid: 'rusys-disk-space-warning',
+        title: 'Rusys filesystem capacity warning',
+        source: 'prometheus',
+        expr: `((${diskUsed}) > bool 0.85) * ((${diskUsed}) <= bool 0.90)`,
+        pending: '15m',
+        summary: 'Persistent filesystem usage above 85% and at most 90% for 15 minutes.',
+        action: 'Confirm the affected device/mount; inspect Docker storage, logs and backups. Do not delete database files.',
+        dashboard: 'infrastructure',
+        panelId: 7,
+        repeatInterval: '24h',
     },
     {
         uid: 'rusys-disk-space',
@@ -535,7 +569,7 @@ export function buildAlertRules(sources: DataSources, receiver: string) {
             group_by: ['grafana_folder', 'alertname'],
             group_wait: '30s',
             group_interval: '5m',
-            repeat_interval: '4h',
+            repeat_interval: spec.repeatInterval ?? '4h',
         },
         data: [
             {

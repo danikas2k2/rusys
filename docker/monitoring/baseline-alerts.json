@@ -356,6 +356,95 @@
     ]
   },
   {
+    "uid": "rusys-disk-space-warning",
+    "title": "Rusys filesystem capacity warning",
+    "ruleGroup": "rusys-baseline",
+    "folderUID": "rusys-monitoring",
+    "condition": "B",
+    "for": "15m",
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "labels": {
+      "project": "rusys",
+      "environment": "production",
+      "severity": "warning"
+    },
+    "annotations": {
+      "summary": "Persistent filesystem usage above 85% and at most 90% for 15 minutes.",
+      "description": "Confirm the affected device/mount; inspect Docker storage, logs and backups. Do not delete database files.",
+      "runbook_url": "https://github.com/danikas2k2/rusys/blob/main/docs/monitoring/DASHBOARDS-AND-ALERTS.md",
+      "__dashboardUid__": "rusys-infrastructure",
+      "__panelId__": "7"
+    },
+    "notification_settings": {
+      "receiver": "Rusys uptime email",
+      "group_by": ["grafana_folder", "alertname"],
+      "group_wait": "30s",
+      "group_interval": "5m",
+      "repeat_interval": "24h"
+    },
+    "data": [
+      {
+        "refId": "A",
+        "datasourceUid": "${prometheus}",
+        "relativeTimeRange": {
+          "from": 900,
+          "to": 0
+        },
+        "queryType": "instant",
+        "model": {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          },
+          "expr": "((1 - node_filesystem_avail_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"} / node_filesystem_size_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"}) > bool 0.85) * ((1 - node_filesystem_avail_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"} / node_filesystem_size_bytes{project=\"rusys\",environment=\"production\",host=\"synology-ds923\",fstype!~\"tmpfs|devtmpfs|overlay|squashfs|nsfs\",mountpoint=~\"/|/volume[0-9]+\"}) <= bool 0.90)",
+          "instant": true,
+          "range": false,
+          "queryType": "instant",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "datasourceUid": "__expr__",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "model": {
+          "refId": "B",
+          "type": "threshold",
+          "expression": "A",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "conditions": [
+            {
+              "evaluator": {
+                "type": "gt",
+                "params": [0.5]
+              },
+              "operator": {
+                "type": "and"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "type": "query",
+              "query": {
+                "params": ["B"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
     "uid": "rusys-disk-space",
     "title": "Rusys filesystem capacity",
     "ruleGroup": "rusys-baseline",

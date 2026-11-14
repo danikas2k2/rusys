@@ -87,6 +87,36 @@ describe('monitoring dashboards and alert contracts', () => {
         expect(disk?.expr).toContain('> bool 0.90');
     });
 
+    it('limits filesystem warnings to the warning range and preserves notification intervals', () => {
+        const warning = buildAlertRules(sources, contact).find((rule) => rule.uid === 'rusys-disk-space-warning');
+        const critical = buildAlertRules(sources, contact).find((rule) => rule.uid === 'rusys-disk-space');
+
+        expect(warning?.data[0].model.expr).toContain('> bool 0.85');
+        expect(warning?.data[0].model.expr).toContain('<= bool 0.90');
+        expect(warning?.for).toBe('15m');
+        expect(warning?.notification_settings.repeat_interval).toBe('24h');
+        expect(critical?.notification_settings.repeat_interval).toBe('4h');
+    });
+
+    it('plots filesystem usage with warning and critical threshold lines', () => {
+        const diskPanel = buildDashboards()[1].panels.find((item) => item.id === 7);
+        const fields = diskPanel?.fieldConfig as { defaults: { thresholds: unknown; custom: unknown } };
+        const targets = diskPanel?.targets as { expr: string; range: boolean }[];
+
+        expect(targets[0].range).toBe(true);
+        expect(targets[0].expr).toContain('1 - node_filesystem_avail_bytes');
+        expect(targets[0].expr).not.toContain('bool');
+        expect(fields.defaults.thresholds).toStrictEqual({
+            mode: 'absolute',
+            steps: [
+                { color: 'green', value: null },
+                { color: 'yellow', value: 0.85 },
+                { color: 'red', value: 0.9 },
+            ],
+        });
+        expect(fields.defaults.custom).toStrictEqual({ thresholdsStyle: { mode: 'line' } });
+    });
+
     it('covers missing checks independently and gates failure windows on three samples', () => {
         const down = alertSpecs.find((rule) => rule.uid === 'rusys-public-down');
         const missing = alertSpecs.find((rule) => rule.uid === 'rusys-public-missing');
@@ -123,7 +153,7 @@ describe('monitoring dashboards and alert contracts', () => {
     it('uses the existing contact point directly and documents actionable conditions', () => {
         const rules = buildAlertRules(sources, contact);
 
-        expect(rules).toHaveLength(10);
+        expect(rules).toHaveLength(11);
         expect(
             rules.every((rule) => rule.notification_settings.receiver === contact && rule.folderUID === folderUid)
         ).toBe(true);
@@ -219,7 +249,7 @@ describe('grafana administration boundaries', () => {
         const writes = transport.mock.calls.filter(([, options]) => options?.method === 'POST');
 
         expect(writes.filter(([url]) => String(url).endsWith('/api/dashboards/db'))).toHaveLength(4);
-        expect(writes.filter(([url]) => String(url).endsWith('/alert-rules'))).toHaveLength(10);
+        expect(writes.filter(([url]) => String(url).endsWith('/alert-rules'))).toHaveLength(11);
         expect(transport.mock.calls.some(([url]) => String(url).includes('/policies'))).toBe(false);
         expect(writes.every(([, options]) => !String(options?.body).includes('secureSettings'))).toBe(true);
     });

@@ -34,7 +34,7 @@ Definitions live in [baseline-alerts.json](../../docker/monitoring/baseline-aler
 [grafana-config.ts](../../scripts/grafana-config.ts). Every alert includes a summary, diagnostic action, dashboard link
 and runbook link. Rules route directly to the existing contact point rather than replacing the stack's notification
 policy. They group by folder/alert name, wait 30 seconds before notification, group updates every 5 minutes, and repeat
-after 4 hours.
+after 4 hours, except the filesystem warning, which repeats after 24 hours.
 
 | Alert                           | Condition / pending duration                                                                                                             | First action                                                                           |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
@@ -43,6 +43,7 @@ after 4 hours.
 | NAS memory pressure             | Available RAM below 15% of total for 10m                                                                                                 | Inspect container working sets, host services and swap                                 |
 | Container memory pressure       | Working set above 85% of a finite nonzero configured limit for 5m                                                                        | Inspect the named container and workload; assess its configured limit                  |
 | Filesystem capacity             | Used fraction above 90% for 15m on `/` or `/volume[0-9]+`                                                                                | Inspect volume usage, Docker storage and backup retention; never delete database files |
+| Filesystem capacity warning     | Used fraction above 85% and at most 90% for 15m on `/` or `/volume[0-9]+`; repeats every 24h                                             | Inspect the affected filesystem and plan capacity                                      |
 | Gateway telemetry missing       | No gateway log samples for 20m                                                                                                           | Check gateway access logging, Alloy discovery and Loki ingestion                       |
 | API 5xx errors                  | More than 2% 5xx and at least 20 real API requests in each 5m window, sustained for 5m                                                   | Correlate failure events, gateway status, release/slot and backend traces              |
 | API p95 latency                 | More than 1s and at least 20 real API requests in each 5m window, sustained for 10m                                                      | Inspect slow traces, MongoDB, image work and resource pressure                         |
