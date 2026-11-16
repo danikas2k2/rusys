@@ -32,7 +32,11 @@ test('product creation and additional details', async () => {
     await expect.element(dialog.getByRole('textbox', { name: 'Produktas' })).toHaveFocus();
     await settleVisual();
     await expect(page).toMatchScreenshot('product-create', dialogScreenshotOptions(dialog));
-    await dialog.getByRole('button', { name: 'Papildoma informacija' }).click();
+    const details = dialog.getByRole('button', { name: 'Papildoma informacija' });
+    await details.click();
+    // React commits this accordion in a transition; wait before measuring the screenshot clip.
+    await expect.element(details).toHaveAttribute('aria-expanded', 'true');
+    await expect.element(dialog.getByRole('combobox', { name: 'Tėvinis produktas' })).toBeVisible();
     await settleVisual();
     await expect(page).toMatchScreenshot('product-create-details', dialogScreenshotOptions(dialog));
 });

@@ -7,7 +7,9 @@ test('move variants dialog', async () => {
     await renderVisualApp('/');
     const amounts = await openProduct('Avietės');
     await amounts.getByRole('button', { name: 'Perkelti variantus' }).click();
-    await expect.element(amounts).toBeVisible();
+    // The dialog was already visible before the click; wait for the transfer controls to commit.
+    await expect.element(amounts.getByRole('combobox', { name: 'Perkelti į' })).toBeVisible();
+    await expect.element(amounts.getByRole('button', { name: 'Atšaukti' })).toBeVisible();
     await settleVisual();
     await expect(page).toMatchScreenshot('move-variants', dialogScreenshotOptions(amounts));
 });
