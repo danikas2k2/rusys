@@ -1,5 +1,6 @@
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render as renderBase, screen, waitFor, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
+import { MockData } from '@tests/MockData';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
 import { Button, Select } from '@mantine/core';
@@ -20,6 +21,10 @@ import type { ProductAmounts } from '~/schema';
 import { setAmountsAction } from '~/server/actions/products';
 import { useProducts } from '~/store/products';
 import { useGroupVariantNames } from '~/store/variants';
+
+function render(ui: React.ReactNode) {
+    return renderBase(ui, { wrapper: MockData });
+}
 
 vi.mock(import('~/features/products/MoveVariantsBox'), () => ({
     MoveVariantsBox: ({ amounts, onMoved }: any) => (

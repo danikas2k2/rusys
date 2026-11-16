@@ -92,7 +92,7 @@ export const FARO_EVENT_ATTRIBUTES = {
     refresh: { source: ['toolbar', 'pull_to_refresh'], result: results },
     auth: { action: ['login', 'logout'], result: results },
     navigation: { page: ['categories', 'products', 'variants', 'summary'] },
-    tab_changed: { tab: ['quantities', 'history'] },
+    tab_changed: { tab: ['quantities', 'history', 'consumed'] },
     view_changed: { view: ['detailed', 'total'] },
     data_action: {
         entity: ['group', 'variant', 'product', 'review', 'archive', 'stock'],

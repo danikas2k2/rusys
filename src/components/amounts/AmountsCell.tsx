@@ -65,7 +65,14 @@ export function AmountsCell({
         const content = (
             <Group justify="space-between" wrap="nowrap" gap="xs">
                 <Group wrap="nowrap" gap="xs">
-                    <ThemeIcon size="sm" variant="light" color={color} title={typeLabel} aria-label={typeLabel}>
+                    <ThemeIcon
+                        role="img"
+                        size="sm"
+                        variant="light"
+                        color={color}
+                        title={typeLabel}
+                        aria-label={typeLabel}
+                    >
                         <Icon size={14} />
                     </ThemeIcon>
                     <Text size="sm" c={labelColor}>

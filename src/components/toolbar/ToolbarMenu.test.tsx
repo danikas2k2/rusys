@@ -107,11 +107,12 @@ describe('<ToolbarMenu>', () => {
 
         expect(menu.getAllByRole('link')).toHaveListWithTextContent([
             'Products',
-            'Summary',
             'Variants',
             'Categories',
             'Utilities',
         ]);
+
+        expect(menu.queryByRole('link', { name: 'Summary' })).not.toBeInTheDocument();
 
         expect(menu.getByRole('switch', { name: 'Dark mode' })).toBeInTheDocument();
         expect(menu.getByRole('switch', { name: 'Switch to Lithuanian' })).toBeInTheDocument();
@@ -138,7 +139,7 @@ describe('<ToolbarMenu>', () => {
         expect(utilities).toHaveAttribute('data-expanded', 'true');
 
         await waitFor(() =>
-            expect(within(screen.getByRole('navigation')).findAllByRole('link')).resolves.toHaveLength(7)
+            expect(within(screen.getByRole('navigation')).findAllByRole('link')).resolves.toHaveLength(6)
         );
 
         expect(screen.getByRole('link', { name: 'Export' })).toBeInTheDocument();
@@ -148,7 +149,6 @@ describe('<ToolbarMenu>', () => {
     it.each`
         link                | item
         ${Links.PRODUCTS}   | ${'Products'}
-        ${Links.SUMMARY}    | ${'Summary'}
         ${Links.CATEGORIES} | ${'Categories'}
         ${Links.VARIANTS}   | ${'Variants'}
     `('renders $item menu item being active', async ({ link, item }: { link: string; item: string }) => {
@@ -187,9 +187,9 @@ describe('<ToolbarMenu>', () => {
 
         const menu = within(screen.getByRole('navigation'));
         const products = menu.getByRole('link', { name: 'Products' });
-        const summary = menu.getByRole('link', { name: 'Summary' });
+        const variants = menu.getByRole('link', { name: 'Variants' });
 
         expect(products).toHaveAttribute('href', expect.stringContaining('?q=apple&g=fruit'));
-        expect(summary).toHaveAttribute('href', expect.stringContaining('?q=apple&g=fruit'));
+        expect(variants).toHaveAttribute('href', expect.stringContaining('?q=apple&g=fruit'));
     });
 });

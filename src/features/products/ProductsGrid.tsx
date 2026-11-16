@@ -16,7 +16,7 @@ import { useProducts } from '~/store/products';
 
 import './ProductsGrid.css';
 
-const GRID_COLS = { base: 2, xs: 3, sm: 4, md: 5, lg: 6 };
+const GRID_COLS = { base: 1, sm: 2, lg: 3 };
 const GRID_SPACING = 'xs';
 
 interface ProductGridSectionProps {

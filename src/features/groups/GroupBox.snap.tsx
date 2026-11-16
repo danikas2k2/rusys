@@ -1,4 +1,4 @@
-import { css, renderVisualApp, settleVisual } from '@tests/browser/visual';
+import { css, dialogScreenshotOptions, renderVisualApp, settleVisual } from '@tests/browser/visual';
 import { expect, test } from 'vitest';
 
 import { page, userEvent } from 'vitest/browser';
@@ -12,12 +12,12 @@ test('category creation and editor', async () => {
     await expect.element(creation).toBeVisible();
     await expect.element(creation.getByRole('textbox', { name: 'Kategorija' })).toHaveFocus();
     await settleVisual();
-    await expect(creation).toMatchScreenshot('category-create');
+    await expect(page).toMatchScreenshot('category-create', dialogScreenshotOptions(creation));
     await userEvent.keyboard('{Escape}');
     await table.getByRole('row', { name: /Uogienės/ }).click();
     const editor = page.getByRole('dialog', { name: 'Taisyti kategoriją' });
     await expect.element(editor).toBeVisible();
     await expect.element(editor.getByRole('textbox', { name: 'Kategorija' })).toHaveFocus();
     await settleVisual();
-    await expect(editor).toMatchScreenshot('category-editor');
+    await expect(page).toMatchScreenshot('category-editor', dialogScreenshotOptions(editor));
 });

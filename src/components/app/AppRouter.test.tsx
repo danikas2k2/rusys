@@ -11,9 +11,6 @@ vi.mock(import('~/store/groups/useGroups'), () => ({ useGroups: () => [] }));
 vi.mock(import('~/features/products/ProductsPage'), () => ({
     ProductsPage: () => <div>ProductsPage</div>,
 }));
-vi.mock(import('~/features/summary/SummaryPage'), () => ({
-    SummaryPage: () => <div>SummaryPage</div>,
-}));
 vi.mock(import('~/features/groups/GroupsPage'), () => ({
     GroupsPage: () => <div>GroupsPage</div>,
 }));
@@ -39,12 +36,12 @@ describe('appRouter component', () => {
         expect(screen.getByText('VariantsPage')).toBeInTheDocument();
     });
 
-    it('renders SummaryPage at route /summary', () => {
+    it('falls back to ProductsPage at the removed /summary route', () => {
         window.history.pushState({}, '', '/summary');
 
         render(<AppRouter />);
 
-        expect(screen.getByText('SummaryPage')).toBeInTheDocument();
+        expect(screen.getByText('ProductsPage')).toBeInTheDocument();
     });
 
     it('renders ProductsPage at route /products', () => {

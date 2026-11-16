@@ -1,6 +1,7 @@
 import {
     clickMenuButton,
     css,
+    dialogScreenshotOptions,
     holdUploadProgress,
     productTile,
     renderVisualApp,
@@ -24,7 +25,7 @@ test('import dialog', async () => {
     const dialog = await openImportDialog();
     await expect.element(dialog).toBeVisible();
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('import-dialog');
+    await expect(page).toMatchScreenshot('import-dialog', dialogScreenshotOptions(dialog));
 });
 
 test('import upload progress', async () => {
@@ -39,5 +40,5 @@ test('import upload progress', async () => {
         .element(dialog.getByRole('progressbar', { name: 'Upload progress' }))
         .toHaveAttribute('aria-valuenow', '42');
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('import-upload-progress');
+    await expect(page).toMatchScreenshot('import-upload-progress', dialogScreenshotOptions(dialog));
 });

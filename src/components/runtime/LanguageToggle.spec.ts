@@ -46,8 +46,8 @@ test.describe('Lithuanian browser language', () => {
         expect((await context.cookies()).find(({ name }) => name === 'rusys-locale')?.value).toBe('en-US');
         expect(requests).toStrictEqual([]);
 
-        await menu.getByRole('link', { name: 'Summary' }).click();
-        await expect(page).toHaveURL(/\/summary(?:\?|$)/);
+        await menu.getByRole('link', { name: 'Variants' }).click();
+        await expect(page).toHaveURL(/\/variants(?:\?|$)/);
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 
         await page.reload();
@@ -89,7 +89,7 @@ test.describe('English browser language', () => {
         await expect(page.locator('html')).toHaveAttribute('lang', 'lt');
         await expect(page).toHaveTitle('Rūsys');
         await page.getByRole('button', { name: 'Meniu' }).click();
-        await expect(page.getByRole('navigation').getByRole('link', { name: 'Suvestinė' })).toBeVisible();
+        await expect(page.getByRole('navigation').getByRole('link', { name: 'Variantai' })).toBeVisible();
 
         await page.goto('/offline');
         await expect(page.getByRole('heading', { name: 'Nėra interneto ryšio' })).toBeVisible();

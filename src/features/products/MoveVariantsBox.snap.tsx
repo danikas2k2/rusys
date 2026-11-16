@@ -1,5 +1,7 @@
-import { openProduct, renderVisualApp, settleVisual } from '@tests/browser/visual';
+import { dialogScreenshotOptions, openProduct, renderVisualApp, settleVisual } from '@tests/browser/visual';
 import { expect, test } from 'vitest';
+
+import { page } from 'vitest/browser';
 
 test('move variants dialog', async () => {
     await renderVisualApp('/');
@@ -7,5 +9,5 @@ test('move variants dialog', async () => {
     await amounts.getByRole('button', { name: 'Perkelti variantus' }).click();
     await expect.element(amounts).toBeVisible();
     await settleVisual();
-    await expect(amounts).toMatchScreenshot('move-variants');
+    await expect(page).toMatchScreenshot('move-variants', dialogScreenshotOptions(amounts));
 });

@@ -418,7 +418,9 @@ describe('<AmountHistoryRow>', () => {
             },
         });
         expect(onMoved).toHaveBeenCalledWith();
-        expect(screen.queryByText('move')).not.toBeInTheDocument();
+
+        await waitFor(() => expect(screen.queryByText('move')).not.toBeInTheDocument());
+
         expect(screen.getByRole('table')).toHaveFocus();
     });
 

@@ -67,18 +67,6 @@ export function getVisualAppData(
     if (pathname === Links.VARIANTS) {
         return { data: { groups, variants: visualVariants(variants) }, resource: 'variants', initialGroup };
     }
-    if (pathname === Links.SUMMARY) {
-        return {
-            data: {
-                years: getYears(3, 8),
-                groups,
-                variants: visualVariants(variants),
-                summary: visualSummary(scenario, products),
-            },
-            resource: 'summary',
-            initialGroup,
-        };
-    }
     const years = getYears();
     for (const product of products) {
         for (const { year } of product.years ?? []) {
@@ -89,7 +77,13 @@ export function getVisualAppData(
     }
     years.sort((a, b) => b - a);
     return {
-        data: { groups, variants: visualVariants(variants), products: visualProducts(products), years },
+        data: {
+            groups,
+            variants: visualVariants(variants),
+            products: visualProducts(products),
+            years,
+            summary: visualSummary(scenario, products),
+        },
         resource: 'products',
         initialGroup:
             groups.find((group: Group) => products.some((product) => product.group === group.group))?.group ??

@@ -52,7 +52,6 @@ export {
     IconPhotoX as RemoveImageIcon,
     IconClipboardList as ReviewIcon,
     IconSelector as SelectDropdownIcon,
-    IconChartColumn as SummaryNavIcon,
     IconAlertTriangle as SuspiciousIcon,
     IconWeight as TotalAmountViewIcon,
     IconArrowBackUp as UndoIcon,

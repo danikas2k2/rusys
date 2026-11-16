@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
+import { invalidateProductHistories } from '~/features/products/hooks/historyCache';
 import { RecycleRefreshError } from '~/features/products/hooks/RecycleRefreshError';
-import { invalidatePendingProductHistory } from '~/features/products/hooks/useGetProductHistory';
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { trackFaroEvent } from '~/lib/observability/faro';
 import type { MoveConsumedToRecycled } from '~/schema';
@@ -18,7 +18,7 @@ export function useMoveConsumedToRecycled(): (request: MoveConsumedToRecycled) =
                 trackFaroEvent('data_action', { entity: 'stock', action: 'recycle', result: 'started' });
                 try {
                     await moveConsumedToRecycledAction(request);
-                    invalidatePendingProductHistory(client, request);
+                    invalidateProductHistories(client, request);
                     trackFaroEvent('data_action', { entity: 'stock', action: 'recycle', result: 'success' });
                 } catch (error) {
                     trackFaroEvent('data_action', { entity: 'stock', action: 'recycle', result: 'error' });

@@ -1,10 +1,15 @@
 import { ClientSession } from 'mongodb';
 
 import { ZodError } from '~/schema';
-import { getSummaryHistory, readSummary } from '~/server/actions/summary';
+import {
+    getSummaryHistory,
+    readProductConsumptionYears,
+    readProductSummary,
+    readSummary,
+} from '~/server/actions/summary';
 import { requireSession } from '~/server/auth/session';
 import { getSummaryHistoryData } from '~/server/data/actionHistory';
-import { getFullSummary } from '~/server/data/summary';
+import { getFullSummary, getProductConsumptionYears, getProductSummaryAmounts } from '~/server/data/summary';
 
 vi.mock(import('~/server/auth/session'));
 vi.mock(import('~/server/data/actionHistory'));
@@ -79,3 +84,58 @@ describe('readSummary', () => {
 });
 
 vi.mock(import('~/server/db'));
+
+describe('readProductSummary', () => {
+    afterEach(() => vi.clearAllMocks());
+
+    it('validates identity and loads the requested product consumption period after authorization', async () => {
+        const amounts = [{ variant: 'jar', amount: 2, recycled: false }];
+        vi.mocked(getProductSummaryAmounts).mockResolvedValueOnce(amounts);
+
+        await expect(readProductSummary({ group: ' A ', name: ' B ', year: 18 })).resolves.toBe(amounts);
+        expect(requireSession).toHaveBeenCalledExactlyOnceWith();
+        expect(getProductSummaryAmounts).toHaveBeenCalledExactlyOnceWith(
+            { group: 'A', name: 'B', year: 18 },
+            expect.any(ClientSession)
+        );
+    });
+
+    it('rejects invalid input before reading totals', async () => {
+        await expect(readProductSummary({ group: 'A', name: 'B', year: NaN })).rejects.toBeInstanceOf(ZodError);
+        expect(getProductSummaryAmounts).not.toHaveBeenCalled();
+    });
+
+    it('rejects unauthenticated reads before validation', async () => {
+        vi.mocked(requireSession).mockRejectedValueOnce(new Error('Unauthorized'));
+
+        await expect(readProductSummary(null as never)).rejects.toThrow('Unauthorized');
+        expect(getProductSummaryAmounts).not.toHaveBeenCalled();
+    });
+});
+
+describe('readProductConsumptionYears', () => {
+    afterEach(() => vi.clearAllMocks());
+
+    it('normalizes the exact product identity after checking authorization', async () => {
+        vi.mocked(getProductConsumptionYears).mockResolvedValueOnce([25, 24]);
+
+        await expect(readProductConsumptionYears({ group: ' A ', name: ' B ' })).resolves.toStrictEqual([25, 24]);
+        expect(requireSession).toHaveBeenCalledExactlyOnceWith();
+        expect(getProductConsumptionYears).toHaveBeenCalledExactlyOnceWith(
+            { group: 'A', name: 'B' },
+            expect.any(ClientSession)
+        );
+    });
+
+    it('rejects malformed identities before reading data', async () => {
+        await expect(readProductConsumptionYears({ group: 'A', name: {} as never })).rejects.toBeInstanceOf(ZodError);
+        expect(getProductConsumptionYears).not.toHaveBeenCalled();
+    });
+
+    it('rejects unauthenticated requests', async () => {
+        vi.mocked(requireSession).mockRejectedValueOnce(new Error('Unauthorized'));
+
+        await expect(readProductConsumptionYears(null as never)).rejects.toThrow('Unauthorized');
+        expect(getProductConsumptionYears).not.toHaveBeenCalled();
+    });
+});

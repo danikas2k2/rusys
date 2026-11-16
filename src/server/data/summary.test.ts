@@ -5,6 +5,8 @@ import type { Summary } from '~/schema';
 import { getGroups } from '~/server/data/groups';
 import {
     getFullSummary,
+    getProductConsumptionYears,
+    getProductSummaryAmounts,
     getSummary,
     getSummaryUndates,
     getSummaryUpdates,
@@ -33,6 +35,113 @@ describe('updates', () => {
         await d.collection('groups').deleteMany({});
         await d.collection('variants').deleteMany({});
         vi.clearAllMocks();
+    });
+
+    it('finds recent consumption-only periods for this product and excludes empty and old periods', async () => {
+        vi.mocked(getYears).mockReturnValueOnce([26, 25, 24]);
+        const group = 'Daržovės';
+        const entry = (year: number, amount: number, recycled = false) => ({
+            time: new Date(2000 + year, 9, 1).getTime(),
+            years: [{ year: 20, amounts: [{ variant: 'd', amount, recycled }] }],
+        });
+        await (await db()).collection('products').insertMany([
+            {
+                group,
+                name: 'Period child',
+                parent: 'Period parent',
+                years: [],
+                updates: [entry(23, -10), entry(24, -2), entry(25, -1, true), entry(26, -1), entry(26, 1)],
+            },
+            { group, name: 'Period parent', updates: [entry(26, -5)] },
+        ]);
+
+        await expect(
+            withinTransaction((session) =>
+                getProductConsumptionYears(
+                    {
+                        group,
+                        name: 'Period child',
+                    },
+                    session
+                )
+            )
+        ).resolves.toStrictEqual([25, 24]);
+        expect(getYears).toHaveBeenCalledWith(3, 8);
+    });
+
+    it('loads exact-product consumption for an old period without rolling children into their parent', async () => {
+        const group = 'Daržovės';
+        const time = Date.parse('2018-10-01T12:00:00Z');
+        await (await db()).collection('products').insertMany([
+            {
+                group,
+                name: 'Dialog parent',
+                updates: [
+                    {
+                        time,
+                        years: [{ year: 16, amounts: [{ variant: 'd', amount: -3, recycled: false }] }],
+                    },
+                ],
+            },
+            {
+                group,
+                name: 'Dialog child',
+                parent: 'Dialog parent',
+                updates: [
+                    {
+                        time,
+                        years: [{ year: 17, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                    },
+                ],
+            },
+            {
+                group: 'Other',
+                name: 'Dialog child',
+                updates: [
+                    {
+                        time,
+                        years: [{ year: 17, amounts: [{ variant: 'd', amount: -99, recycled: false }] }],
+                    },
+                ],
+            },
+        ]);
+
+        await expect(
+            withinTransaction((session) =>
+                getProductSummaryAmounts(
+                    {
+                        group,
+                        name: 'Dialog parent',
+                        year: 18,
+                    },
+                    session
+                )
+            )
+        ).resolves.toStrictEqual([{ variant: 'd', amount: 3, recycled: false }]);
+        await expect(
+            withinTransaction((session) =>
+                getProductSummaryAmounts(
+                    {
+                        group,
+                        name: 'Dialog child',
+                        year: 18,
+                    },
+                    session
+                )
+            )
+        ).resolves.toStrictEqual([{ variant: 'd', amount: 2, recycled: false }]);
+        await expect(
+            withinTransaction((session) =>
+                getProductSummaryAmounts(
+                    {
+                        group,
+                        name: 'Dialog child',
+                        year: 17,
+                    },
+                    session
+                )
+            )
+        ).resolves.toStrictEqual([]);
     });
 
     it('attributes a reclassification to the source and recycled accounting years', async () => {

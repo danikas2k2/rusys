@@ -1,7 +1,16 @@
 import type { ClientSession, WithId } from 'mongodb';
 
 import { addTypedVariantAmount } from '~/common/utils/amounts';
-import type { Group, History, Product, ProductYearIdentity, Summary, Variant, VariantAmount } from '~/schema';
+import type {
+    Group,
+    History,
+    Product,
+    ProductIdentity,
+    ProductYearIdentity,
+    Summary,
+    Variant,
+    VariantAmount,
+} from '~/schema';
 import { getGroups } from '~/server/data/groups';
 import { buildHistoryPipeline, projectRecycleEntries } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';
@@ -18,13 +27,18 @@ const SWITCH_MONTH = START_MONTH - 1; // Date#getMonth is zero-based
 // corrections predate that change and mutated history directly, so there's nothing to add here.
 const POSITIVE_CONSUMPTION_CUTOFF = new Date('2026-08-01T00:00:00.000Z');
 
-export const getSummary = async (years: number[], session: ClientSession): Promise<readonly Summary[]> =>
+export const getSummary = async (
+    years: number[],
+    session: ClientSession,
+    product?: ProductIdentity
+): Promise<readonly Summary[]> =>
     await (
         await db()
     )
         .collection('products')
         .aggregate<Summary>(
             [
+                ...(product ? [{ $match: { group: product.group, name: product.name } }] : []),
                 { $unwind: '$updates' },
                 ...projectRecycleEntries('updates'),
                 {
@@ -186,13 +200,14 @@ export const getSummary = async (years: number[], session: ClientSession): Promi
 
 // Aggregates home balances (positive home amounts in product.years) per variant per year.
 // These are merged into the main summary so the client gets a single unified list.
-const getSummaryHomeBalance = async (session: ClientSession): Promise<readonly Summary[]> =>
+const getSummaryHomeBalance = async (session: ClientSession, product?: ProductIdentity): Promise<readonly Summary[]> =>
     await (
         await db()
     )
         .collection('products')
         .aggregate<Summary>(
             [
+                ...(product ? [{ $match: { group: product.group, name: product.name } }] : []),
                 { $unwind: '$years' },
                 { $unwind: '$years.amounts' },
                 {
@@ -329,6 +344,33 @@ export function rollUpSummaries(
     }
 
     return result as unknown as readonly Summary[];
+}
+
+export async function getProductConsumptionYears(
+    identity: ProductIdentity,
+    session: ClientSession
+): Promise<readonly number[]> {
+    const recentYears = getYears(MAX_YEARS, SWITCH_MONTH);
+    const summary = await getSummary(recentYears, session, identity);
+    return (summary.find((item) => item.group === identity.group && item.name === identity.name)?.years ?? [])
+        .filter((entry) => recentYears.includes(entry.year) && entry.amounts?.some((amount) => amount.amount > 0))
+        .map((entry) => entry.year)
+        .toSorted((a, b) => b - a);
+}
+
+// Dialog totals belong to this product and requested consumption period, without the
+// category summary's parent rollup or its limited list of recent periods.
+export async function getProductSummaryAmounts(
+    identity: ProductYearIdentity,
+    session: ClientSession
+): Promise<readonly VariantAmount[]> {
+    const main = await getSummary([identity.year], session, identity);
+    const home = await getSummaryHomeBalance(session, identity);
+    return (
+        mergeSummaries(main, home)
+            .find((item) => item.group === identity.group && item.name === identity.name)
+            ?.years?.find((entry) => entry.year === identity.year)?.amounts ?? []
+    );
 }
 
 export const getFullSummary = async (

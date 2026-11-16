@@ -16,7 +16,7 @@ describe('<GridTile>', () => {
     const baseProps = { tileKind: 'product' as const, name: 'Avietės' };
     const renderTile = (tile: React.ReactElement) => render(<MockTheme>{tile}</MockTheme>);
 
-    it('renders the shared card structure and forwards its click handler', async () => {
+    it('renders a product card without an image and forwards its click handler', async () => {
         const onClick = vi.fn();
         renderTile(<GridTile {...baseProps} onClick={onClick} amounts={<span>3 vnt.</span>} />);
 
@@ -25,7 +25,8 @@ describe('<GridTile>', () => {
         expect(tile).toHaveAttribute('data-tile', 'product');
         expect(tile).toHaveAttribute('data-hidden', 'false');
         expect(tile).toHaveAttribute('data-empty', 'false');
-        expect(tile?.querySelector('[data-tile-icon]')).toBeInTheDocument();
+        expect(tile?.querySelector('[data-product-title]')).toHaveTextContent('Avietės');
+        expect(tile?.querySelector('img')).not.toBeInTheDocument();
         expect(screen.getByText('3 vnt.')).toBeInTheDocument();
 
         await user.click(tile!);
@@ -33,11 +34,12 @@ describe('<GridTile>', () => {
         expect(onClick).toHaveBeenCalledExactlyOnceWith(expect.any(Object));
     });
 
-    it('renders the photo layer in preference to an icon and applies shared state', () => {
+    it.each([true, false])('renders the summary photo layer with textShadow=%s and shared state', (textShadow) => {
         const { container } = renderTile(
             <GridTile
                 {...baseProps}
                 tileKind="summary"
+                textShadow={textShadow}
                 image="/icon.png"
                 photo="/photo.jpg"
                 hidden
@@ -79,10 +81,25 @@ describe('<GridTile>', () => {
         expect(photoBackground).toHaveAttribute('height', '240');
         expect(container.querySelector('[data-scrim]')).toBeInTheDocument();
         expect(container.querySelector('[data-icon-bg]')).not.toBeInTheDocument();
-        expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shadow', 'true');
+        expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shadow', String(textShadow));
     });
 
-    it('renders caller-provided slots and permits overriding the text shadow', () => {
+    it('renders the summary icon and quantities without a photo or scrim', () => {
+        const { container } = renderTile(
+            <GridTile {...baseProps} tileKind="summary" image="/images/icon.png" amounts={<span>2 vnt.</span>} />
+        );
+        const icon = container.querySelector('[data-icon-bg]');
+
+        expect(icon?.getAttribute('src')).toContain('/images/icon.png?w=');
+        expect(icon).toHaveAttribute('width', '80');
+        expect(icon).toHaveAttribute('height', '80');
+        expect(icon).toHaveAttribute('loading', 'lazy');
+        expect(container.querySelector('[data-photo-bg], [data-scrim]')).not.toBeInTheDocument();
+        expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shadow', 'true');
+        expect(container.querySelector('[data-tile-amounts]')).toHaveTextContent('2 vnt.');
+    });
+
+    it('renders caller-provided slots and a small title icon without a background', () => {
         const { container } = renderTile(
             <GridTile
                 {...baseProps}
@@ -97,15 +114,27 @@ describe('<GridTile>', () => {
         expect(screen.getByRole('button', { name: 'Available' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument();
         expect(container.querySelector('[data-tile-icon]')).not.toBeInTheDocument();
-        expect(container.querySelector('[data-icon-bg]')?.getAttribute('src')).toContain('%2Ficon.png');
-        expect(container.querySelector('[data-icon-bg]')).toHaveAttribute('loading', 'lazy');
-        expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shadow', 'false');
+        expect(container.querySelector('[data-product-title] [data-product-icon]')?.getAttribute('src')).toContain(
+            '%2Ficon.png'
+        );
+        expect(container.querySelector('[data-product-icon]')).toHaveAttribute('loading', 'lazy');
+        expect(container.querySelector('[data-product-icon]')).toHaveAttribute('width', '22');
+        expect(container.querySelector('[data-icon-bg], [data-photo-bg], [data-scrim]')).not.toBeInTheDocument();
+        expect(screen.getByText('Avietės')).not.toHaveAttribute('data-text-shadow');
         expect(container.querySelector('[data-overlay]')).toHaveTextContent('Recycled');
     });
 
-    it('loads an immediately visible tile image eagerly', () => {
-        const { container } = renderTile(<GridTile {...baseProps} photo="/photo.jpg" imageLoading="eager" />);
+    it('loads a product photo eagerly and prefers it over the title icon', () => {
+        const { container } = renderTile(
+            <GridTile {...baseProps} image="/icon.png" photo="/photo.jpg" imageLoading="eager" />
+        );
 
-        expect(container.querySelector('[data-photo-bg]')).toHaveAttribute('loading', 'eager');
+        const photo = container.querySelector('[data-product-thumbnail]');
+
+        expect(photo).toHaveAttribute('loading', 'eager');
+        expect(photo?.getAttribute('src')).toContain('%2Fphoto.jpg');
+        expect(photo).toHaveAttribute('width', '48');
+        expect(photo).toHaveAttribute('height', '48');
+        expect(container.querySelector('[data-product-icon], [data-photo-bg], [data-scrim]')).not.toBeInTheDocument();
     });
 });

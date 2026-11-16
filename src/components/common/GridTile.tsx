@@ -41,6 +41,7 @@ export function GridTile({
     textShadow = !!image || !!photo,
     tileData,
 }: GridTileProps) {
+    const thumbnail = tileKind === 'product' ? photo || image : undefined;
     const isPhoto = !!photo;
     const isIcon = !!image && !isPhoto;
 
@@ -57,7 +58,7 @@ export function GridTile({
             data-full-heading={fullHeading || undefined}
             {...tileData}
         >
-            {isPhoto && (
+            {tileKind === 'summary' && isPhoto && (
                 <>
                     <Image
                         data-photo-bg
@@ -72,7 +73,7 @@ export function GridTile({
                     <div data-scrim />
                 </>
             )}
-            {isIcon && (
+            {tileKind === 'summary' && isIcon && (
                 <Image
                     data-icon-bg
                     src={image}
@@ -84,26 +85,65 @@ export function GridTile({
                     unoptimized={image.includes('://') || image.startsWith('data:')}
                 />
             )}
-            <Stack gap={6} data-content h="100%">
-                {leading ?? <span data-tile-icon />}
-                <Group data-tile-heading justify="space-between" wrap="nowrap" gap={6} align="flex-start">
-                    <Text
-                        data-text-shadow={textShadow}
-                        lh={fullHeading ? 'xs' : 1}
-                        lineClamp={2}
-                        p={fullHeading ? undefined : '4 2'}
-                        style={{ flex: 1, minWidth: 0 }}
-                    >
-                        {name}
-                    </Text>
-                    {headingAction}
-                </Group>
-                {amounts && (
-                    <Group data-tile-amounts data-text-shadow={textShadow} justify="flex-end" lh="xs">
-                        {amounts}
+            {tileKind === 'product' ? (
+                <div data-product-content>
+                    <div data-product-check>{leading}</div>
+                    {isPhoto && thumbnail && (
+                        <Image
+                            data-product-thumbnail
+                            src={thumbnail}
+                            alt=""
+                            width={48}
+                            height={48}
+                            loading={imageLoading}
+                            loader={thumbnail.startsWith('/images/') ? localImageLoader : undefined}
+                            unoptimized={thumbnail.includes('://') || thumbnail.startsWith('data:')}
+                        />
+                    )}
+                    <div data-product-details>
+                        <div data-product-title>
+                            {isIcon && image && (
+                                <Image
+                                    data-product-icon
+                                    src={image}
+                                    alt=""
+                                    width={22}
+                                    height={22}
+                                    loading={imageLoading}
+                                    loader={image.startsWith('/images/') ? localImageLoader : undefined}
+                                    unoptimized={image.includes('://') || image.startsWith('data:')}
+                                />
+                            )}
+                            <Text data-product-name lineClamp={2}>
+                                {name}
+                            </Text>
+                        </div>
+                        {amounts && <div data-tile-amounts>{amounts}</div>}
+                    </div>
+                    {headingAction && <div data-product-action>{headingAction}</div>}
+                </div>
+            ) : (
+                <Stack gap={6} data-content h="100%">
+                    {leading ?? <span data-tile-icon />}
+                    <Group data-tile-heading justify="space-between" wrap="nowrap" gap={6} align="flex-start">
+                        <Text
+                            data-text-shadow={textShadow}
+                            lh={fullHeading ? 'xs' : 1}
+                            lineClamp={2}
+                            p={fullHeading ? undefined : '4 2'}
+                            style={{ flex: 1, minWidth: 0 }}
+                        >
+                            {name}
+                        </Text>
+                        {headingAction}
                     </Group>
-                )}
-            </Stack>
+                    {amounts && (
+                        <Group data-tile-amounts data-text-shadow={textShadow} justify="flex-end" lh="xs">
+                            {amounts}
+                        </Group>
+                    )}
+                </Stack>
+            )}
             {overlay}
         </Card>
     );

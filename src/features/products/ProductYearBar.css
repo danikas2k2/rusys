@@ -6,9 +6,9 @@
         vertical-align: super;
     }
 
-    /* .ui-SegmentedControl-indicator { */
-
-    /* } */
+    [data-year-option][data-current] {
+        font-weight: var(--mantine-font-weight-xl);
+    }
 
     .ui-SegmentedControl-control:has([data-year-option]) {
         --year-color: inherit;
@@ -91,6 +91,111 @@
     @media (hover: none) {
         &:active:not([data-disabled]) {
             background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+        }
+    }
+}
+
+[data-dialog-year-total] {
+    width: 100%;
+    font-size: var(--mantine-font-size-lg);
+    font-weight: var(--mantine-font-weight-md);
+    line-height: 1.2;
+
+    [data-type] > .ui-Text-root {
+        line-height: inherit;
+    }
+
+    [data-type],
+    [data-amounts-rows] {
+        align-items: center;
+        justify-content: center;
+    }
+
+    [data-amounts-row],
+    [data-value="true"] {
+        justify-content: center;
+    }
+
+    [data-value][data-total] {
+        font-size: var(--mantine-font-size-xl);
+        align-items: baseline;
+
+        > sub {
+            font-size: var(--mantine-font-size-md);
+            line-height: 1;
+        }
+    }
+
+    /* The annotated product total normally stretches its source breakdown to the cell edge. */
+
+    /* In a dialog it should stay with the total so the complete expression remains centred. */
+    [data-sources] {
+        flex: 0 1 auto;
+        align-items: baseline;
+        justify-content: center;
+
+        /* Parentheses were deliberately small in a table cell. Here they belong to the */
+
+        /* enlarged dialog total, so retain their secondary weight but align to its baseline. */
+        .ui-Text-root {
+            font-size: var(--mantine-font-size-md);
+            line-height: 1;
+        }
+    }
+}
+
+[data-product-year-totals] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    gap: 0 var(--mantine-spacing-md);
+    padding-block-start: 16px;
+    padding-inline: 24px;
+
+    > div {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    [data-amounts-row],
+    [data-value],
+    [data-sources] {
+        align-items: baseline;
+    }
+
+    .ui-Stack-root {
+        gap: 0;
+    }
+
+    [data-product-stock-total] {
+        text-align: start;
+
+        [data-amounts-rows],
+        [data-amounts-row],
+        [data-value],
+        [data-sources] {
+            justify-content: flex-start;
+        }
+    }
+
+    [data-product-summary-total] {
+        text-align: end;
+
+        .ui-Stack-root,
+        [data-amounts-rows] {
+            align-items: flex-end;
+        }
+
+        [data-amounts-row],
+        [data-value],
+        [data-sources] {
+            justify-content: flex-end;
+        }
+
+        .ui-Stack-root,
+        [data-type] {
+            width: 100%;
+            min-width: 0;
         }
     }
 }

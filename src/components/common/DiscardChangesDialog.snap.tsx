@@ -1,4 +1,4 @@
-import { css, productTile, renderVisualApp, settleVisual } from '@tests/browser/visual';
+import { css, dialogScreenshotOptions, productTile, renderVisualApp, settleVisual } from '@tests/browser/visual';
 import { expect, test } from 'vitest';
 
 import { page } from 'vitest/browser';
@@ -13,5 +13,5 @@ test('discard product changes confirmation', async () => {
     const confirmation = page.getByRole('dialog', { name: 'Atmesti neišsaugotus pakeitimus?' });
     await expect.element(confirmation).toBeVisible();
     await settleVisual();
-    await expect(confirmation).toMatchScreenshot('discard-confirmation');
+    await expect(page).toMatchScreenshot('discard-confirmation', dialogScreenshotOptions(confirmation));
 });

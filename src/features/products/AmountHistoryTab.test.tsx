@@ -57,7 +57,7 @@ describe('<AmountHistoryTab>', () => {
         renderTab();
 
         expect(screen.getByRole('table')).toBeInTheDocument();
-        expect(screen.queryAllByRole('row')).toHaveLength(1); // only thead
+        expect(screen.queryAllByRole('row')).toHaveLength(0);
     });
 
     it('shows an empty history table when no product is active', () => {
@@ -68,7 +68,7 @@ describe('<AmountHistoryTab>', () => {
         );
 
         expect(screen.getByRole('table')).toBeInTheDocument();
-        expect(screen.queryAllByRole('row')).toHaveLength(1);
+        expect(screen.queryAllByRole('row')).toHaveLength(0);
     });
 
     it('loads the active product year in the background', () => {
@@ -166,7 +166,7 @@ describe('<AmountHistoryTab>', () => {
 
         renderTab();
 
-        expect(screen.getAllByRole('row')).toHaveLength(4); // thead + 2 undates + divider
+        expect(screen.getAllByRole('row')).toHaveLength(3); // 2 undates + divider
     });
 
     it('renders amounts and comments from the product-year cache', () => {

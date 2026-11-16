@@ -1,4 +1,10 @@
-import { clickMenuButton, productTile, renderVisualApp, settleVisual } from '@tests/browser/visual';
+import {
+    clickMenuButton,
+    dialogScreenshotOptions,
+    productTile,
+    renderVisualApp,
+    settleVisual,
+} from '@tests/browser/visual';
 import { expect, test } from 'vitest';
 
 import { page } from 'vitest/browser';
@@ -13,5 +19,5 @@ test('export dialog', async () => {
     const dialog = page.getByRole('dialog', { name: /Eksportuoti duomenis/ });
     await expect.element(dialog).toBeVisible();
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('export-dialog');
+    await expect(page).toMatchScreenshot('export-dialog', dialogScreenshotOptions(dialog));
 });

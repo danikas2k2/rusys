@@ -355,7 +355,7 @@ describe('<ProductTile>', () => {
             expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
         });
 
-        it('shows the image as a corner watermark when icon-sized (no photo)', () => {
+        it('shows a small icon beside the title instead of a photo thumbnail', () => {
             const productWithImage = { ...product, image: '/images/ab/cd/product.png' };
 
             const { container } = render(
@@ -364,14 +364,17 @@ describe('<ProductTile>', () => {
                 </MockApp>
             );
 
-            expect(container.querySelector('[data-icon-bg]')?.getAttribute('src')).toContain(
+            expect(container.querySelector('[data-product-icon]')?.getAttribute('src')).toContain(
                 '/images/ab/cd/product.png?w='
             );
-            expect(container.querySelector('[data-icon-bg]')).toHaveAttribute('loading', 'lazy');
+            expect(container.querySelector('[data-product-icon]')).toHaveAttribute('loading', 'lazy');
+            expect(container.querySelector('[data-product-icon]')).toHaveAttribute('width', '22');
+            expect(container.querySelector('[data-product-title] [data-product-icon]')).toBeInTheDocument();
+            expect(container.querySelector('[data-product-thumbnail]')).not.toBeInTheDocument();
             expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
         });
 
-        it('shows the photo as a tile background with a scrim when photo-sized (photo present)', () => {
+        it('shows the photo as a thumbnail without a background or scrim', () => {
             const productWithImage = {
                 ...product,
                 image: '/images/ab/cd/thumb.png',
@@ -388,10 +391,12 @@ describe('<ProductTile>', () => {
 
             expect(tile).toHaveAttribute('data-photo', 'true');
 
-            const photoBackground = container.querySelector<HTMLImageElement>('[data-photo-bg]')!;
+            const photoBackground = container.querySelector<HTMLImageElement>('[data-product-thumbnail]')!;
 
-            expect(photoBackground.getAttribute('srcset')).toContain('/images/ab/cd/product.png?w=384');
-            expect(photoBackground.getAttribute('srcset')).toContain('/images/ab/cd/product.png?w=640');
+            expect(container.querySelector('[data-photo-bg], [data-scrim]')).not.toBeInTheDocument();
+
+            expect(photoBackground).toHaveAttribute('width', '48');
+            expect(photoBackground.getAttribute('src')).toContain('/images/ab/cd/product.png?w=');
             expect(photoBackground).toHaveAttribute('loading', 'lazy');
         });
     });

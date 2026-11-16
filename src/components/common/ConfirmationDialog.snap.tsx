@@ -1,4 +1,4 @@
-import { openProduct, renderVisualApp, settleVisual } from '@tests/browser/visual';
+import { dialogScreenshotOptions, openProduct, renderVisualApp, settleVisual } from '@tests/browser/visual';
 import { expect, test } from 'vitest';
 
 import { page } from 'vitest/browser';
@@ -11,7 +11,5 @@ test('product removal confirmation', async () => {
     const confirmation = page.getByRole('dialog', { name: 'Ar tikrai norite pašalinti?' });
     await expect.element(confirmation).toBeVisible();
     await settleVisual();
-    await expect(confirmation).toMatchScreenshot('remove-confirmation', {
-        comparatorOptions: { allowedMismatchedPixels: 2 },
-    });
+    await expect(page).toMatchScreenshot('remove-confirmation', dialogScreenshotOptions(confirmation));
 });

@@ -5,6 +5,7 @@ import React, { useDeferredValue, useEffect, useRef, useState } from 'react';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { AmountHistoryRow } from '~/features/products/AmountHistoryRow';
+import { useHistoryRevision } from '~/features/products/hooks/historyCache';
 import { invalidatePendingProductHistory, useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
 import type { History, Product, ProductAmounts } from '~/schema';
 import { CATALOG_KEYS } from '~/store/catalog';
@@ -22,6 +23,7 @@ export function AmountHistoryTab() {
     const name = activeData?.name ?? '';
     const year = activeData?.year ?? 0;
 
+    const revision = useHistoryRevision({ group, name });
     const loader = useGetProductHistory({ year, group, name });
     const products = useProducts();
     const product = products.find((item) => item.group === group && item.name === name);
@@ -45,7 +47,7 @@ export function AmountHistoryTab() {
     // server-provided history metadata update.
     useEffect(() => {
         void loader();
-    }, [loader, product?.updates, product?.undates]);
+    }, [loader, product?.updates, product?.undates, revision]);
 
     useEffect(() => {
         if (refreshFailed) {
@@ -99,16 +101,6 @@ function HistoryTable({
 
     return (
         <Table data-table="history" tabIndex={-1}>
-            <Table.Thead>
-                <Table.Tr>
-                    <Table.Th>
-                        <Label>When</Label>
-                    </Table.Th>
-                    <Table.Th>
-                        <Label>What</Label>
-                    </Table.Th>
-                </Table.Tr>
-            </Table.Thead>
             <Table.Tbody>
                 {[...undates].reverse().map((h) => (
                     <AmountHistoryRow key={`u:${h.time}:${h.year}`} h={h} dimmed />
