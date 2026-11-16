@@ -1,13 +1,11 @@
 import { getGroups } from '~/server/data/groups';
 import { getInitialAppData } from '~/server/data/initialAppData';
 import { getProductsWithYears } from '~/server/data/products';
-import { getFullSummary } from '~/server/data/summary';
 import { getVariants } from '~/server/data/variants';
 
 vi.mock(import('~/server/data/groups'));
 vi.mock(import('~/server/data/products'));
 vi.mock(import('~/server/data/variants'));
-vi.mock(import('~/server/data/summary'));
 
 describe('server-loaded product page', () => {
     it('loads collections directly and opens the first category with products', async () => {
@@ -63,15 +61,13 @@ describe('server-loaded page resources', () => {
         });
     });
 
-    it('loads summary and falls back to the first category when it has no items', async () => {
-        vi.mocked(getFullSummary).mockResolvedValueOnce({
-            groups: [{ group: 'First', order: 0 }],
-            summary: [],
-            years: [],
-        });
+    it('loads product data for the removed summary route', async () => {
+        vi.mocked(getGroups).mockResolvedValueOnce([{ group: 'First', order: 0 }]);
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products: [], years: [] });
+        vi.mocked(getVariants).mockResolvedValueOnce([]);
 
         await expect(getInitialAppData('/summary')).resolves.toMatchObject({
-            resource: 'summary',
+            resource: 'products',
             initialGroup: 'First',
         });
     });

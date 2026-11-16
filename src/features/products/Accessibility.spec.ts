@@ -1,4 +1,5 @@
 import { expect, test } from '@tests/fixtures/test';
+import { openProduct } from '@tests/helpers/ui';
 import { expectNoA11yViolations } from '@tests/playwright/accessibility';
 
 test.describe('product accessibility', () => {
@@ -8,6 +9,14 @@ test.describe('product accessibility', () => {
         await page.goto('/');
         await expect(page.locator('[data-tile-kind="product"]').first()).toBeVisible();
         await expectNoA11yViolations(page);
+    });
+
+    test('scans consumption history in the product dialog', async ({ page }) => {
+        await page.goto('/');
+        const dialog = await openProduct(page, 'Avietės');
+        await dialog.getByRole('tab', { name: 'Suvartota' }).click();
+        await expect(dialog.getByRole('table')).toContainText('Suvalgyta su arbata');
+        await expectNoA11yViolations(page, '[role="dialog"]');
     });
 
     test('scans the product creation dialog', async ({ page }) => {

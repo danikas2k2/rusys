@@ -4,21 +4,26 @@ import React, { startTransition, useCallback, useMemo } from 'react';
 import { HistoryTabIcon, PencilIcon, RecycledIcon } from '@icons';
 
 import { getCombinedAmounts } from '~/common/utils/amounts';
+import { getConsumptionYear } from '~/common/utils/consumptionYear';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
+import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
+import { useProductConsumptionYears } from '~/features/products/hooks/useProductConsumptionYears';
+import { useProductSummaryAmounts } from '~/features/products/hooks/useProductSummaryAmounts';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
+import { SummaryAmounts } from '~/features/products/SummaryAmounts';
 import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext';
 import { useLabels } from '~/lib/hooks/useLabels';
 import type { ProductAmounts, RemovingYearAmounts } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
 
-import '../common/YearTotal.css';
 import './ProductYearBar.css';
 
 export interface ProductYearBarProps {
     disabled?: boolean;
+    leadingAction?: React.ReactNode;
     dirtyYears?: readonly number[];
     onHistoryYearChange?: () => void;
 }
@@ -47,7 +52,12 @@ export function isPreferred(year: number, years: readonly RemovingYearAmounts[])
 // the year context - which year is selected, which are archived/current, which are marked for
 // removal - stays visible and controllable no matter which tab is open. Reads/writes the same
 // active content the two tabs already key off of, rather than owning its own state.
-export function ProductYearBar({ disabled = false, dirtyYears = [], onHistoryYearChange }: ProductYearBarProps) {
+export function ProductYearBar({
+    disabled = false,
+    dirtyYears = [],
+    onHistoryYearChange,
+    leadingAction,
+}: ProductYearBarProps) {
     const _ = useLabels();
     const [active, setActive] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
@@ -67,14 +77,30 @@ export function ProductYearBar({ disabled = false, dirtyYears = [], onHistoryYea
         [activeData, products]
     );
 
+    const { data: consumptionYears = [], isError: consumptionYearsFailed } = useProductConsumptionYears({
+        group,
+        name,
+    });
+    const { data: summaryAmounts, isError: summaryFailed } = useProductSummaryAmounts({
+        group,
+        name,
+        year: getConsumptionYear(year),
+    });
+
     const isAnnual = groups.find((g) => g.group === group)?.annual;
 
     // thisYear and the currently active year are always included, even if neither has an entry
     // yet, so switching to a brand new year (or back to one just left) is possible.
     const yearOptions = useMemo(() => {
-        const set = new Set([...(activeProduct?.years?.map((y) => y.year) ?? []), ...dirtyYears, thisYear, year]);
+        const set = new Set([
+            ...(activeProduct?.years?.map((y) => y.year) ?? []),
+            ...consumptionYears,
+            ...dirtyYears,
+            thisYear,
+            year,
+        ]);
         return Array.from(set).toSorted((a, b) => b - a);
-    }, [activeProduct, dirtyYears, thisYear, year]);
+    }, [activeProduct, consumptionYears, dirtyYears, thisYear, year]);
 
     // The product list includes compact update/undo metadata specifically so archived history
     // years can be discovered without loading each year's history. Keep them in a menu rather
@@ -82,9 +108,12 @@ export function ProductYearBar({ disabled = false, dirtyYears = [], onHistoryYea
     const historyOnlyYears = useMemo(() => {
         const amountYears = new Set(activeProduct?.years?.map(({ year: amountYear }) => amountYear) ?? []);
         return Array.from(new Set(activeProduct?.historyYears ?? []))
-            .filter((historyYear) => historyYear > 0 && !amountYears.has(historyYear))
+            .filter(
+                (historyYear) =>
+                    historyYear > 0 && !amountYears.has(historyYear) && !consumptionYears.includes(historyYear)
+            )
             .toSorted((a, b) => b - a);
-    }, [activeProduct]);
+    }, [activeProduct, consumptionYears]);
 
     const liveAmounts = useMemo(
         () =>
@@ -132,101 +161,119 @@ export function ProductYearBar({ disabled = false, dirtyYears = [], onHistoryYea
 
     return (
         <Stack gap={4} data-year-bar>
-            {isAnnual && (
-                <Group gap="xs" wrap="nowrap" align="center">
-                    <SegmentedControl
-                        size="sm"
-                        withItemsBorders={false}
-                        style={{ flex: 1 }}
-                        data={yearOptions
-                            .filter((y) => !disabled || y !== 0 || year === 0)
-                            .map((y) => {
-                                const old = y <= thisYear - OLD_YEARS_THRESHOLD;
-                                const preferred = isPreferred(y, activeProduct?.years ?? []);
-                                const removing = !!activeProduct?.years?.find((yy) => yy.year === y)?.removing;
-                                return {
-                                    value: String(y),
-                                    label: (
-                                        <span
-                                            data-year-option
-                                            data-current={y === year || undefined}
-                                            data-old={old || undefined}
-                                            data-preferred={preferred || undefined}
-                                            data-removing={removing || undefined}
-                                            aria-label={
-                                                dirtyYears.includes(y) ? `${y}, ${_('Unsaved changes')}` : undefined
-                                            }
-                                        >
-                                            {y}
-                                            {dirtyYears.includes(y) && (
-                                                <PencilIcon size={12} aria-hidden="true" data-dirty-year-icon />
-                                            )}
-                                        </span>
-                                    ),
-                                };
-                            })}
-                        value={String(year)}
-                        onChange={(v) => handleYearChange(Number(v))}
-                        disabled={disabled && year === 0}
-                    />
-                    {!!year && (
-                        <IconButtonTooltip>
-                            <ActionIcon
-                                variant={removingYear ? 'filled' : 'subtle'}
-                                color={removingYear ? 'negative' : 'gray'}
-                                onClick={handleToggleRemoving}
-                                disabled={disabled}
-                                aria-label={_('Removing this year?')}
-                                aria-pressed={removingYear}
-                            >
-                                <RecycledIcon size={16} />
-                            </ActionIcon>
-                        </IconButtonTooltip>
-                    )}
-                    {historyOnlyYears.length > 0 && (
-                        <Menu position="bottom-end" withinPortal={false}>
-                            <IconButtonTooltip label={_('History years')}>
-                                <span style={{ display: 'inline-flex' }}>
-                                    <Menu.Target>
-                                        <ActionIcon
-                                            variant="subtle"
-                                            color="gray"
-                                            disabled={disabled}
-                                            aria-label={_('History years')}
-                                        >
-                                            <HistoryTabIcon size={16} />
-                                        </ActionIcon>
-                                    </Menu.Target>
-                                </span>
-                            </IconButtonTooltip>
-                            <Menu.Dropdown
-                                className="history-years-menu-dropdown"
-                                style={{ maxHeight: 240, overflowY: 'auto' }}
-                            >
-                                {historyOnlyYears.map((historyYear) => (
-                                    <Menu.Item
-                                        key={historyYear}
-                                        className="history-years-menu-item"
-                                        data-current={historyYear === year || undefined}
-                                        onClick={() => handleHistoryYearChange(historyYear)}
+            {(isAnnual || leadingAction) && (
+                <Group gap="xs" wrap="nowrap" align="center" data-product-year-actions>
+                    {leadingAction}
+                    {isAnnual && (
+                        <>
+                            <SegmentedControl
+                                size="sm"
+                                withItemsBorders={false}
+                                style={{ flex: 1 }}
+                                data={yearOptions
+                                    .filter((y) => !disabled || y !== 0 || year === 0)
+                                    .map((y) => {
+                                        const old = y <= thisYear - OLD_YEARS_THRESHOLD;
+                                        const preferred = isPreferred(y, activeProduct?.years ?? []);
+                                        const removing = !!activeProduct?.years?.find((yy) => yy.year === y)?.removing;
+                                        return {
+                                            value: String(y),
+                                            label: (
+                                                <span
+                                                    data-year-option
+                                                    data-current={y === year || undefined}
+                                                    data-old={old || undefined}
+                                                    data-preferred={preferred || undefined}
+                                                    data-removing={removing || undefined}
+                                                    aria-label={
+                                                        dirtyYears.includes(y)
+                                                            ? `${y}, ${_('Unsaved changes')}`
+                                                            : undefined
+                                                    }
+                                                >
+                                                    {y}
+                                                    {dirtyYears.includes(y) && (
+                                                        <PencilIcon size={12} aria-hidden="true" data-dirty-year-icon />
+                                                    )}
+                                                </span>
+                                            ),
+                                        };
+                                    })}
+                                value={String(year)}
+                                onChange={(v) => handleYearChange(Number(v))}
+                                disabled={disabled && year === 0}
+                            />
+                            {!!year && (
+                                <IconButtonTooltip>
+                                    <ActionIcon
+                                        variant={removingYear ? 'filled' : 'subtle'}
+                                        color={removingYear ? 'negative' : 'gray'}
+                                        onClick={handleToggleRemoving}
+                                        disabled={disabled}
+                                        aria-label={_('Removing this year?')}
+                                        aria-pressed={removingYear}
                                     >
-                                        {historyYear}
-                                    </Menu.Item>
-                                ))}
-                            </Menu.Dropdown>
-                        </Menu>
+                                        <RecycledIcon size={16} />
+                                    </ActionIcon>
+                                </IconButtonTooltip>
+                            )}
+                            {historyOnlyYears.length > 0 && (
+                                <Menu position="bottom-end" withinPortal={false}>
+                                    <IconButtonTooltip label={_('History years')}>
+                                        <span style={{ display: 'inline-flex' }}>
+                                            <Menu.Target>
+                                                <ActionIcon
+                                                    variant="subtle"
+                                                    color="gray"
+                                                    disabled={disabled}
+                                                    aria-label={_('History years')}
+                                                >
+                                                    <HistoryTabIcon size={16} />
+                                                </ActionIcon>
+                                            </Menu.Target>
+                                        </span>
+                                    </IconButtonTooltip>
+                                    <Menu.Dropdown
+                                        className="history-years-menu-dropdown"
+                                        style={{ maxHeight: 240, overflowY: 'auto' }}
+                                    >
+                                        {historyOnlyYears.map((historyYear) => (
+                                            <Menu.Item
+                                                key={historyYear}
+                                                className="history-years-menu-item"
+                                                data-current={historyYear === year || undefined}
+                                                onClick={() => handleHistoryYearChange(historyYear)}
+                                            >
+                                                {historyYear}
+                                            </Menu.Item>
+                                        ))}
+                                    </Menu.Dropdown>
+                                </Menu>
+                            )}
+                        </>
                     )}
                 </Group>
             )}
-            {liveAmounts.length > 0 && (
-                <Group justify="center" data-year-total data-dialog-year-total>
-                    <AnnotatedTotalAmounts
-                        group={group}
-                        amounts={liveAmounts}
-                        expiryToleranceDays={activeProduct?.expiryToleranceDays}
-                    />
-                </Group>
-            )}
+            <div data-product-year-totals>
+                <div data-year-total data-dialog-year-total data-product-stock-total>
+                    {liveAmounts.length > 0 && (
+                        <AnnotatedTotalAmounts
+                            group={group}
+                            amounts={liveAmounts}
+                            expiryToleranceDays={activeProduct?.expiryToleranceDays}
+                        />
+                    )}
+                </div>
+                <div data-year-total data-dialog-year-total data-product-summary-total>
+                    {summaryFailed || consumptionYearsFailed ? (
+                        <span role="alert">
+                            <Label>Failed to load data</Label>
+                        </span>
+                    ) : summaryAmounts?.length ? (
+                        <SummaryAmounts group={group} amounts={summaryAmounts} />
+                    ) : null}
+                </div>
+            </div>
         </Stack>
     );
 }

@@ -1,4 +1,4 @@
-import { css, renderVisualApp, settleVisual } from '@tests/browser/visual';
+import { css, dialogScreenshotOptions, renderVisualApp, settleVisual } from '@tests/browser/visual';
 import { expect, test } from 'vitest';
 
 import { page, userEvent } from 'vitest/browser';
@@ -12,7 +12,7 @@ test('variant creation and editor', async () => {
     const creation = page.getByRole('dialog', { name: 'Pridėti naują variantą' });
     await expect.element(creation).toBeVisible();
     await settleVisual();
-    await expect(creation).toMatchScreenshot('variant-create');
+    await expect(page).toMatchScreenshot('variant-create', dialogScreenshotOptions(creation));
     await userEvent.keyboard('{Escape}');
     await table
         .getByRole('row', { name: /Stiklainis/ })
@@ -22,5 +22,5 @@ test('variant creation and editor', async () => {
     await expect.element(editor).toBeVisible();
     await expect.element(editor.getByRole('textbox', { name: 'Variantas' })).toHaveFocus();
     await settleVisual();
-    await expect(editor).toMatchScreenshot('variant-editor');
+    await expect(page).toMatchScreenshot('variant-editor', dialogScreenshotOptions(editor));
 });

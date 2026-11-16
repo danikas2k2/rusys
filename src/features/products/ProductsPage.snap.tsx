@@ -97,11 +97,46 @@ test('products page with images', async () => {
             .poll(() => {
                 const image = productTile(name)
                     .element()
-                    .querySelector<HTMLImageElement>('[data-icon-bg], [data-photo-bg]');
+                    .querySelector<HTMLImageElement>('[data-product-thumbnail], [data-product-icon]');
                 return !!image && image.complete && image.naturalWidth > 0;
             })
             .toBe(true);
     }
     await settleProductsPage();
     await expect(page).toMatchScreenshot('products-page-images');
+});
+
+test('product amounts stay beside the title and wrap only when space runs out', async () => {
+    await renderVisualApp('/');
+    await expect.element(productTile('Avietės')).toBeVisible();
+    const tile = productTile('Avietės').element() as HTMLElement;
+    const title = tile.querySelector<HTMLElement>('[data-product-title]')!;
+    const amounts = tile.querySelector<HTMLElement>('[data-tile-amounts]')!;
+    const details = tile.querySelector<HTMLElement>('[data-product-details]')!;
+    await expect
+        .poll(() => Math.abs(amounts.getBoundingClientRect().top - title.getBoundingClientRect().top))
+        .toBeLessThan(2);
+    expect(tile.getBoundingClientRect().height).toBeLessThan(60);
+    expect(Math.abs(amounts.getBoundingClientRect().right - details.getBoundingClientRect().right)).toBeLessThan(2);
+
+    tile.style.width = '120px';
+    await expect.poll(() => amounts.getBoundingClientRect().top >= title.getBoundingClientRect().bottom).toBe(true);
+    expect(Math.abs(amounts.getBoundingClientRect().right - details.getBoundingClientRect().right)).toBeLessThan(2);
+    expect(tile.scrollWidth).toBeLessThanOrEqual(tile.clientWidth);
+});
+
+test('neighboring product cards share the height of the tallest card in their row', async () => {
+    await renderVisualApp('/');
+    await expect.element(productTile('Avietės')).toBeVisible();
+    const first = productTile('Avietės').element() as HTMLElement;
+    const second = productTile('Braškės').element() as HTMLElement;
+    const grid = first.parentElement!;
+    grid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+    first.querySelector('[data-product-name]')!.textContent =
+        'Labai ilgas produkto pavadinimas su papildoma informacija';
+    await expect.poll(() => first.getBoundingClientRect().top === second.getBoundingClientRect().top).toBe(true);
+    await expect.poll(() => first.getBoundingClientRect().height === second.getBoundingClientRect().height).toBe(true);
+    expect(first.querySelector('[data-product-name]')!.getBoundingClientRect().height).toBeGreaterThan(
+        second.querySelector('[data-product-name]')!.getBoundingClientRect().height
+    );
 });

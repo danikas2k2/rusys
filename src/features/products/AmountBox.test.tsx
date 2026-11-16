@@ -21,9 +21,16 @@ vi.mock(import('~/features/products/AmountVariantsTab'), () => ({
 }));
 
 vi.mock(import('~/features/products/ProductYearBar'), () => ({
-    ProductYearBar: vi.fn(({ onHistoryYearChange }: { onHistoryYearChange: () => void }) => (
-        <button onClick={onHistoryYearChange}>Show selected year history</button>
+    ProductYearBar: vi.fn(({ onHistoryYearChange, leadingAction }: React.ComponentProps<typeof ProductYearBar>) => (
+        <>
+            {leadingAction}
+            <button onClick={onHistoryYearChange}>Show selected year history</button>
+        </>
     )),
+}));
+
+vi.mock(import('~/features/products/ConsumedHistoryTab'), () => ({
+    ConsumedHistoryTab: vi.fn(() => <div>Consumption history</div>),
 }));
 
 describe('<AmountBox>', () => {
@@ -133,6 +140,18 @@ describe('<AmountBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Edit' }));
 
         expect(onEdit).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it('opens the consumption history in its own tab', async () => {
+        render(
+            <MockTheme>
+                <AmountBox opened />
+            </MockTheme>
+        );
+        await user.click(screen.getByRole('tab', { name: 'Consumption' }));
+
+        expect(screen.getByRole('tab', { name: 'Consumption' })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByText('Consumption history')).toBeVisible();
     });
 
     it('opens the history tab when the year bar requests it', async () => {

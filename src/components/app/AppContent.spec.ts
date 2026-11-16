@@ -6,7 +6,7 @@ test.describe('app states and filters', () => {
         test.use({ scenario: 'empty' });
 
         test('shows no data on every primary route', async ({ page }) => {
-            for (const route of ['/', '/summary', '/variants', '/categories']) {
+            for (const route of ['/', '/variants', '/categories']) {
                 await page.goto(route);
                 await expect(page.locator('[data-error]').first()).toContainText('Duomenų nėra');
             }

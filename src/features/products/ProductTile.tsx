@@ -146,7 +146,7 @@ function ProductTileComponent({
                             data-product-expand
                             variant="subtle"
                             color="gray"
-                            size="sm"
+                            size={24}
                             onClick={handleToggleExpand}
                             aria-label={_(expanded ? 'Collapse' : 'Expand')}
                         >

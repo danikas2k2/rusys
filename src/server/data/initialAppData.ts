@@ -3,7 +3,6 @@ import { Links } from '~/lib/links';
 import type { Group } from '~/schema';
 import { getGroups } from '~/server/data/groups';
 import { getProductsWithYears } from '~/server/data/products';
-import { getFullSummary } from '~/server/data/summary';
 import { getVariants } from '~/server/data/variants';
 import { withinTransaction } from '~/server/db';
 
@@ -25,10 +24,6 @@ export async function getInitialAppData(pathname: string): Promise<{
                 resource: 'variants',
                 initialGroup: firstGroupWithContent(groups, variants),
             };
-        }
-        if (pathname === Links.SUMMARY) {
-            const data = await getFullSummary(session);
-            return { data, resource: 'summary', initialGroup: firstGroupWithContent(data.groups, data.summary) };
         }
         const productsWithYears = await getProductsWithYears(session);
         const groups = await getGroups(session);

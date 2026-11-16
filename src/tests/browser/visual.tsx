@@ -5,6 +5,7 @@ import { page } from 'vitest/browser';
 import { NextApp } from '~/components/app/NextApp';
 import type { Scenario } from '~/tests/fixtures/data';
 import { getVisualAppData } from '~/tests/fixtures/visualData';
+import { setVisualServerData } from './server-actions';
 
 import '@fontsource-variable/noto-sans/wght.css';
 import '@fontsource-variable/noto-sans-display/wght.css';
@@ -17,6 +18,7 @@ export async function renderVisualApp(pathname: string, scenario: Scenario = 'ba
     window.history.replaceState({}, '', pathname);
     document.documentElement.lang = 'lt';
     const { data, resource, initialGroup } = getVisualAppData(pathname, scenario);
+    setVisualServerData(data);
     await render(<NextApp initialData={data} initialResource={resource} initialGroup={initialGroup} locale="lt-LT" />);
     await document.fonts.ready;
     return page;
@@ -33,6 +35,18 @@ export async function settleVisual(): Promise<void> {
     );
 
     await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+}
+
+export function dialogScreenshotOptions(dialog: { element: () => Element }) {
+    const bounds = dialog.element().getBoundingClientRect();
+    const x = Math.ceil(bounds.left);
+    const y = Math.ceil(bounds.top);
+    // Round inward to avoid capturing a partial pixel of the page behind the dialog.
+    return {
+        screenshotOptions: {
+            clip: { x, y, width: Math.floor(bounds.right) - x, height: Math.floor(bounds.bottom) - y },
+        },
+    };
 }
 
 export function css(selector: string, parent?: { element: () => Element }) {

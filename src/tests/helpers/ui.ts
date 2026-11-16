@@ -9,13 +9,6 @@ export async function openProduct(page: Page, name: string) {
     return page.getByRole('dialog', { name: new RegExp(`${name} Uogienės`) });
 }
 
-export async function openSummaryHistory(page: Page) {
-    await page.goto('/summary');
-    const tile = page.locator('[data-summary-tile]').filter({ hasText: 'Avietės' });
-    await tile.click();
-    return page.getByRole('dialog').last();
-}
-
 export async function waitForImages(locator: Locator, count: number) {
     const images = locator.locator('img');
     await expect(images).toHaveCount(count);

@@ -1,4 +1,4 @@
-import { css, openProduct, renderVisualApp, settleVisual } from '@tests/browser/visual';
+import { css, dialogScreenshotOptions, openProduct, renderVisualApp, settleVisual } from '@tests/browser/visual';
 import { currentYear } from '@tests/fixtures/data';
 import { expect, test } from 'vitest';
 
@@ -9,7 +9,7 @@ test('product amounts, editable variant and history', async () => {
     const dialog = await openProduct('Avietės');
     await expect.element(dialog.getByRole('tab', { name: 'Kiekiai' })).toBeVisible();
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('amounts-dialog');
+    await expect(page).toMatchScreenshot('amounts-dialog', dialogScreenshotOptions(dialog));
 
     const variant = css('[data-amount-variant-key="Stiklainis"]', dialog);
     await variant.click();
@@ -21,7 +21,7 @@ test('product amounts, editable variant and history', async () => {
     }
     expect(card.getBoundingClientRect().right - panel.getBoundingClientRect().right).toBeLessThanOrEqual(0);
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('amounts-expanded');
+    await expect(page).toMatchScreenshot('amounts-expanded', dialogScreenshotOptions(dialog));
 
     await dialog.getByRole('textbox', { name: 'updated' }).fill('2');
     await expect.poll(() => !!card.querySelector('[data-state="positive"]')).toBe(true);
@@ -34,7 +34,7 @@ test('product amounts, editable variant and history', async () => {
     await expect.element(css('[data-history-date]', history)).toBeVisible();
     await expect.element(css('[data-history-date]', history)).toMatchTextContent('Rugsėjo');
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('amounts-history');
+    await expect(page).toMatchScreenshot('amounts-history', dialogScreenshotOptions(dialog));
     await dialog.getByRole('button', { name: /Perkelti į išmesta/ }).click();
     await expect.element(dialog.getByRole('textbox', { name: 'Kiekis' })).toBeVisible();
     await expect.element(dialog.getByRole('button', { name: 'Atšaukti' })).toBeVisible();
@@ -48,7 +48,7 @@ test('product amounts, editable variant and history', async () => {
     await dialog.getByRole('button', { name: 'Mažinti' }).click();
     await expect.element(dialog.getByRole('button', { name: /Perkelti į išmesta/ })).toMatchTextContent('0');
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('amounts-history-recycle');
+    await expect(page).toMatchScreenshot('amounts-history-recycle', dialogScreenshotOptions(dialog));
     await dialog.getByRole('button', { name: 'Atšaukti' }).click();
     await expect.element(dialog.getByRole('textbox', { name: 'Kiekis' })).not.toBeInTheDocument();
     await expect.element(dialog.getByRole('button', { name: /Perkelti į išmesta/ })).toHaveFocus();
@@ -60,7 +60,7 @@ test('year selector and year totals', async () => {
     const dialog = await openProduct('Avietės');
     await expect.element(css('[data-year-total]', dialog)).toBeVisible();
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('annual-amounts-dialog');
+    await expect(page).toMatchScreenshot('annual-amounts-dialog', dialogScreenshotOptions(dialog));
     const yearLabel = Array.from(dialog.element().querySelectorAll('label')).find((label) =>
         label.textContent?.includes(String(currentYear))
     );
@@ -72,7 +72,7 @@ test('year selector and year totals', async () => {
         .poll(() => dialog.element().querySelector('[data-amount-variant-key="Stiklainis"]')?.textContent)
         .toContain('3');
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('annual-current-year');
+    await expect(page).toMatchScreenshot('annual-current-year', dialogScreenshotOptions(dialog));
 });
 
 test('expands a later history amount across both columns', async () => {
@@ -93,5 +93,37 @@ test('expands a later history amount across both columns', async () => {
     const rows = Array.from(history.element().querySelectorAll('tr[data-history-entry]'));
     expect(getComputedStyle(rows[0]).borderBottomWidth).toBe('0px');
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('amounts-history-multiple');
+    await expect(page).toMatchScreenshot('amounts-history-multiple', dialogScreenshotOptions(dialog));
+});
+
+test('consumption totals and history share the selected year', async () => {
+    await renderVisualApp('/', 'history');
+    const dialog = await openProduct('Avietės');
+    await expect.element(css('[data-product-summary-total]', dialog)).toMatchTextContent('1');
+    await expect
+        .poll(() => {
+            const totals = dialog.element().querySelector('[data-product-year-totals]')!;
+            return getComputedStyle(totals).gridTemplateColumns.split(' ').length;
+        })
+        .toBe(2);
+    const totals = dialog.element().querySelector('[data-product-year-totals]')!;
+    const stock = totals.querySelector('[data-product-stock-total]')!;
+    const summary = totals.querySelector('[data-product-summary-total]')!;
+    const tabs = dialog.element().querySelector('.amount-box-tabs')!;
+    const totalStyle = getComputedStyle(totals);
+    const totalRect = totals.getBoundingClientRect();
+    expect(Math.abs(totalRect.left - tabs.getBoundingClientRect().left)).toBeLessThan(2);
+    expect(
+        Math.abs(stock.getBoundingClientRect().left - totalRect.left - parseFloat(totalStyle.paddingInlineStart))
+    ).toBeLessThan(2);
+    expect(
+        Math.abs(totalRect.right - summary.getBoundingClientRect().right - parseFloat(totalStyle.paddingInlineEnd))
+    ).toBeLessThan(2);
+    await dialog.getByRole('tab', { name: 'Suvartota' }).click();
+    await expect.element(dialog.getByRole('tab', { name: 'Suvartota' })).toHaveAttribute('aria-selected', 'true');
+    await expect
+        .element(dialog.getByRole('tabpanel', { name: 'Suvartota' }).getByRole('table'))
+        .toMatchTextContent('Suvalgyta su arbata');
+    await settleVisual();
+    await expect(page).toMatchScreenshot('amounts-consumed-history', dialogScreenshotOptions(dialog));
 });

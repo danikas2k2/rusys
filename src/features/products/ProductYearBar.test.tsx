@@ -6,8 +6,11 @@ import React from 'react';
 
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { ActiveContentContext, createActiveContentStore } from '~/components/runtime/ActiveContentContext';
+import { useProductConsumptionYears } from '~/features/products/hooks/useProductConsumptionYears';
+import { useProductSummaryAmounts } from '~/features/products/hooks/useProductSummaryAmounts';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { OLD_YEARS_THRESHOLD, ProductYearBar } from '~/features/products/ProductYearBar';
+import { SummaryAmounts } from '~/features/products/SummaryAmounts';
 import type { ProductAmounts } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
@@ -32,6 +35,17 @@ vi.mock(import('~/features/products/hooks/useSetProductRemoving'), () => ({
     useSetProductRemoving: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
+vi.mock(import('~/features/products/hooks/useProductConsumptionYears'), () => ({
+    useProductConsumptionYears: vi.fn(() => ({ data: [] })),
+}));
+vi.mock(import('~/store/years'), () => ({ useYears: vi.fn(() => []) }));
+vi.mock(import('~/features/products/hooks/useProductSummaryAmounts'), () => ({
+    useProductSummaryAmounts: vi.fn(() => ({ data: [], isError: false })),
+}));
+vi.mock(import('~/features/products/SummaryAmounts'), () => ({
+    SummaryAmounts: vi.fn(() => <span>Consumption total</span>),
+}));
+
 describe('<ProductYearBar>', () => {
     const group = 'Uogienės';
     const baseActive: ProductAmounts = {
@@ -43,10 +57,41 @@ describe('<ProductYearBar>', () => {
 
     beforeEach(() => {
         vi.mocked(useProducts).mockReturnValue([]);
+        vi.mocked(useProductConsumptionYears).mockReturnValue({ data: [] } as never);
+        vi.mocked(useProductSummaryAmounts).mockReturnValue({ data: [], isError: false } as never);
         vi.mocked(useGroups).mockReturnValue([]);
     });
 
     afterEach(() => vi.clearAllMocks());
+
+    it('merges stock years and consumption-only years without duplicates', async () => {
+        vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+        vi.mocked(useProducts).mockReturnValue([
+            {
+                group,
+                name: baseActive.name,
+                years: [{ year: 25, amounts: [{ variant: 'p', amount: 3 }] }],
+                historyYears: [24],
+            },
+        ]);
+        vi.mocked(useProductConsumptionYears).mockReturnValue({ data: [25, 24] } as never);
+        const setActive = vi.fn();
+        render(
+            <MockThemeActive active={{ action: 'values', data: { ...baseActive, year: 25 } }} setActive={setActive}>
+                <ProductYearBar />
+            </MockThemeActive>
+        );
+
+        expect(screen.getAllByRole('radio', { name: '25' })).toHaveLength(1);
+        expect(screen.getByRole('radio', { name: '24' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'History years' })).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('radio', { name: '24' }));
+
+        expect(setActive).toHaveBeenCalledWith(
+            expect.objectContaining({ data: expect.objectContaining({ year: 24 }) })
+        );
+    });
 
     it('marks only years with unsaved changes and clears the markers', () => {
         vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
@@ -402,6 +447,24 @@ describe('<ProductYearBar>', () => {
     });
 
     describe('total', () => {
+        it('shows consumption for the selected summary year independently of the stock amounts', () => {
+            const consumed = [{ variant: 'p', amount: 7, recycled: false }];
+            vi.mocked(useProductSummaryAmounts).mockReturnValue({ data: consumed, isError: false } as never);
+            vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+            vi.mocked(useProductConsumptionYears).mockReturnValue({
+                data: [baseActive.year, baseActive.year - 1],
+            } as never);
+            const { container } = renderBar();
+
+            expect(SummaryAmounts).toHaveBeenCalledWith(
+                expect.objectContaining({ group, amounts: consumed }),
+                undefined
+            );
+            expect(container.querySelector('[data-product-stock-total]')).toHaveTextContent('Annotated total');
+            expect(container.querySelector('[data-product-summary-total]')).toHaveTextContent('Consumption total');
+            expect(screen.getByText(String(baseActive.year - 1))).toBeInTheDocument();
+        });
+
         it('shows the annotated total for the selected year when liveAmounts is non-empty', () => {
             vi.mocked(useProducts).mockReturnValue([
                 { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts! }] },

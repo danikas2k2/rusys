@@ -300,7 +300,7 @@ select,
     overflow-y: auto;
 }
 
-/* Above this width AND height, a fullscreen dialog (AmountBox, ReviewBox, SummaryHistoryBox) no */
+/* Above this width AND height, a fullscreen dialog (AmountBox, ReviewBox) no */
 
 /* longer needs to cover the whole viewport - windowing it avoids wasting space around a */
 

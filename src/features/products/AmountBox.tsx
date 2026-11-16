@@ -1,7 +1,7 @@
-import { ActionIcon, Group, Stack, Tabs, type ModalProps } from '@mantine/core';
+import { ActionIcon, Group, Stack, Tabs, VisuallyHidden, type ModalProps } from '@mantine/core';
 import React, { startTransition, useCallback, useLayoutEffect, useRef, useState, ViewTransition } from 'react';
 
-import { EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
+import { ConsumedIcon, EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
@@ -10,6 +10,7 @@ import { useDialogTracking } from '~/components/common/useUsageTracking';
 import { ProductDialogIcon } from '~/components/products/ProductDialogIcon';
 import { AmountHistoryTab } from '~/features/products/AmountHistoryTab';
 import { AmountVariantsTab } from '~/features/products/AmountVariantsTab';
+import { ConsumedHistoryTab } from '~/features/products/ConsumedHistoryTab';
 import { ProductYearBar } from '~/features/products/ProductYearBar';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { trackFaroEvent } from '~/lib/observability/faro';
@@ -77,7 +78,7 @@ export function AmountBox({
     }, [onAfterClose]);
     const changeTab = useCallback(
         (value: string | null) => {
-            if (value !== activeTab && (value === 'quantities' || value === 'history')) {
+            if (value !== activeTab && (value === 'quantities' || value === 'history' || value === 'consumed')) {
                 trackFaroEvent('tab_changed', { tab: value });
             }
             startTransition(() => setActiveTab(value));
@@ -112,35 +113,33 @@ export function AmountBox({
         >
             {() => (
                 <>
-                    <div role="status" aria-live="polite" tabIndex={-1} ref={statusRef}>
+                    <VisuallyHidden component="div" role="status" aria-live="polite" tabIndex={-1} ref={statusRef}>
                         {submitting && (
                             <>
                                 <Label>Update</Label>…
                             </>
                         )}
-                    </div>
+                    </VisuallyHidden>
                     <Stack className="amount-box-content" gap="sm" inert={submitting}>
-                        <Group wrap="nowrap" gap="xs" align="flex-start">
-                            {onEdit && (
-                                <IconButtonTooltip>
-                                    <ActionIcon
-                                        variant="subtle"
-                                        color="gray"
-                                        onClick={() => onEdit()}
-                                        aria-label={_('Edit')}
-                                    >
-                                        <EditIcon size={18} />
-                                    </ActionIcon>
-                                </IconButtonTooltip>
-                            )}
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <ProductYearBar
-                                    disabled={hasChanges}
-                                    dirtyYears={dirtyYears}
-                                    onHistoryYearChange={() => changeTab('history')}
-                                />
-                            </div>
-                        </Group>
+                        <ProductYearBar
+                            disabled={hasChanges}
+                            dirtyYears={dirtyYears}
+                            onHistoryYearChange={() => changeTab('history')}
+                            leadingAction={
+                                onEdit && (
+                                    <IconButtonTooltip>
+                                        <ActionIcon
+                                            variant="subtle"
+                                            color="gray"
+                                            onClick={() => onEdit()}
+                                            aria-label={_('Edit')}
+                                        >
+                                            <EditIcon size={18} />
+                                        </ActionIcon>
+                                    </IconButtonTooltip>
+                                )
+                            }
+                        />
                         <Tabs
                             className="amount-box-tabs"
                             variant="outline"
@@ -154,6 +153,9 @@ export function AmountBox({
                                 </Tabs.Tab>
                                 <Tabs.Tab fz="md" value="history" leftSection={<HistoryTabIcon size={18} />}>
                                     <Label>History</Label>
+                                </Tabs.Tab>
+                                <Tabs.Tab fz="md" value="consumed" leftSection={<ConsumedIcon size={18} />}>
+                                    <Label>Consumption</Label>
                                 </Tabs.Tab>
                             </Tabs.List>
 
@@ -186,6 +188,9 @@ export function AmountBox({
                                 >
                                     <AmountHistoryTab />
                                 </ViewTransition>
+                            </Tabs.Panel>
+                            <Tabs.Panel className="amount-box-tab-panel" value="consumed" pt="sm" keepMounted={false}>
+                                <ConsumedHistoryTab />
                             </Tabs.Panel>
                         </Tabs>
                     </Stack>

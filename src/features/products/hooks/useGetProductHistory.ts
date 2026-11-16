@@ -1,6 +1,7 @@
 import { useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
+import { getHistoryRevision } from '~/features/products/hooks/historyCache';
 import type { Product, ProductYearIdentity } from '~/schema';
 import { getProductHistory } from '~/server/actions/products';
 import { CATALOG_KEYS } from '~/store/catalog';
@@ -22,9 +23,13 @@ export function useGetProductHistory({ group, name, year }: ProductYearIdentity)
             return;
         }
         const key = historyKey({ group, name, year });
+        const requestRevision = getHistoryRevision(client, { group, name });
         const generation = historyGeneration.get(client)?.get(key) ?? 0;
         const history = await getProductHistory({ group, name, year });
-        if ((historyGeneration.get(client)?.get(key) ?? 0) !== generation) {
+        if (
+            (historyGeneration.get(client)?.get(key) ?? 0) !== generation ||
+            getHistoryRevision(client, { group, name }) !== requestRevision
+        ) {
             return;
         }
         client.setQueryData<readonly Product[]>(CATALOG_KEYS.products, (products) =>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import React, { useCallback, useState } from 'react';
 
-import { CategoriesNavIcon, ProductsNavIcon, SummaryNavIcon, UtilitiesNavIcon, VariantsNavIcon } from '@icons';
+import { CategoriesNavIcon, ProductsNavIcon, UtilitiesNavIcon, VariantsNavIcon } from '@icons';
 
 import { Label } from '~/components/common/Label';
 import { ColorSchemeToggle } from '~/components/runtime/ColorSchemeToggle';
@@ -80,20 +80,6 @@ export function ToolbarMenu() {
                                 active={pathname === Links.PRODUCTS}
                                 onClick={close}
                             />
-                            <NavLink
-                                label={<Label>Summary</Label>}
-                                leftSection={
-                                    <ToolbarMenuIcon>
-                                        <SummaryNavIcon />
-                                    </ToolbarMenuIcon>
-                                }
-                                component={Link}
-                                prefetch={false}
-                                href={to(Links.SUMMARY)}
-                                active={pathname === Links.SUMMARY}
-                                onClick={close}
-                            />
-
                             <Divider m="xs" />
 
                             <NavLink

@@ -7,7 +7,6 @@ import { GroupFilterWrapper } from '~/features/filters/GroupFilterContext';
 import { QuickFilterWrapper } from '~/features/filters/QuickFilterContext';
 import { GroupsPage } from '~/features/groups/GroupsPage';
 import { ProductsPage } from '~/features/products/ProductsPage';
-import { SummaryPage } from '~/features/summary/SummaryPage';
 import { VariantsPage } from '~/features/variants/VariantsPage';
 import { Links } from '~/lib/links';
 import { trackFaroEvent } from '~/lib/observability/faro';
@@ -34,11 +33,9 @@ export function AppRouter() {
                 ? 'categories'
                 : pathname === Links.VARIANTS
                   ? 'variants'
-                  : pathname === Links.SUMMARY
-                    ? 'summary'
-                    : pathname === Links.PRODUCTS
-                      ? 'products'
-                      : undefined;
+                  : pathname === Links.PRODUCTS
+                    ? 'products'
+                    : undefined;
         if (page && page !== previousPage.current) {
             trackFaroEvent('navigation', { page });
         }
@@ -49,15 +46,7 @@ export function AppRouter() {
     if (pathname === Links.CATEGORIES) {
         return <GroupsPage />;
     }
-
-    const page =
-        pathname === Links.VARIANTS ? (
-            <VariantsPage />
-        ) : pathname === Links.SUMMARY ? (
-            <SummaryPage />
-        ) : (
-            <ProductsPage />
-        );
+    const page = pathname === Links.VARIANTS ? <VariantsPage /> : <ProductsPage />;
 
     return (
         <GroupFilterLayout initialGroup={initialGroup}>

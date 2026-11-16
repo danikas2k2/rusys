@@ -1,4 +1,4 @@
-import { productTile, renderVisualApp, settleVisual } from '@tests/browser/visual';
+import { dialogScreenshotOptions, productTile, renderVisualApp, settleVisual } from '@tests/browser/visual';
 import { expect, test } from 'vitest';
 
 import { page } from 'vitest/browser';
@@ -10,5 +10,5 @@ test('review dialog', async () => {
     const dialog = page.getByRole('dialog').last();
     await expect.element(dialog.getByRole('row', { name: 'Avietės' })).toBeVisible();
     await settleVisual();
-    await expect(dialog).toMatchScreenshot('review-dialog');
+    await expect(page).toMatchScreenshot('review-dialog', dialogScreenshotOptions(dialog));
 });
