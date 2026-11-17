@@ -2,6 +2,7 @@ import { Card, Group, Stack, Text } from '@mantine/core';
 import Image from 'next/image';
 import React from 'react';
 
+import { Thumbnail } from '~/components/common/Thumbnail';
 import { localImageLoader } from '~/lib/utils/localImageLoader';
 
 import './GridTile.css';
@@ -102,13 +103,24 @@ export function GridTile({
                     )}
                     <div data-product-details>
                         <div data-product-title>
+                            {!thumbnail && (
+                                <Thumbnail
+                                    data-product-avatar
+                                    alt=""
+                                    aria-hidden="true"
+                                    fallback={name.trim().charAt(0).toUpperCase()}
+                                    radius="sm"
+                                    size="sm"
+                                    p={0}
+                                />
+                            )}
                             {isIcon && image && (
                                 <Image
                                     data-product-icon
                                     src={image}
                                     alt=""
-                                    width={22}
-                                    height={22}
+                                    width={26}
+                                    height={26}
                                     loading={imageLoading}
                                     loader={image.startsWith('/images/') ? localImageLoader : undefined}
                                     unoptimized={image.includes('://') || image.startsWith('data:')}

@@ -11,6 +11,13 @@ test.describe('product accessibility', () => {
         await expectNoA11yViolations(page);
     });
 
+    test('scans the product page in dark mode', async ({ page }) => {
+        await page.goto('/');
+        await expect(page.locator('[data-tile-kind="product"]').first()).toBeVisible();
+        await page.locator('html').evaluate((element) => element.setAttribute('data-mantine-color-scheme', 'dark'));
+        await expectNoA11yViolations(page);
+    });
+
     test('scans consumption history in the product dialog', async ({ page }) => {
         await page.goto('/');
         const dialog = await openProduct(page, 'Avietės');

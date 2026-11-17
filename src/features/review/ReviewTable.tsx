@@ -25,6 +25,8 @@ export function ReviewTable({ group, touched, checkedKeys, onToggle, onSelectAll
     // Nothing to physically confirm for a product with no recorded stock at all.
     const products = useProducts().filter((p) => p.group === group && !isEmpty(p.years));
     const keys = products.map((p) => getId(p.group, p.name));
+    const visibleProducts = products.filter((product) => quickFilter(product.name));
+    const rows = { sm: Math.ceil(visibleProducts.length / 2), lg: Math.ceil(visibleProducts.length / 3) };
 
     const checkedCount = keys.filter((key) => checkedKeys.has(key)).length;
     const allChecked = touched && keys.length > 0 && checkedCount === keys.length;
@@ -60,7 +62,13 @@ export function ReviewTable({ group, touched, checkedKeys, onToggle, onSelectAll
                     </Table.Th>
                 </Table.Tr>
             </Table.Thead>
-            <Table.Tbody>
+            <Table.Tbody
+                style={{
+                    '--review-grid-rows': Math.max(1, visibleProducts.length),
+                    '--review-grid-rows-sm': Math.max(1, rows.sm),
+                    '--review-grid-rows-lg': Math.max(1, rows.lg),
+                }}
+            >
                 {products.map((p) => (
                     <ReviewProductRow
                         key={getId(p.group, p.name)}
@@ -69,6 +77,8 @@ export function ReviewTable({ group, touched, checkedKeys, onToggle, onSelectAll
                         touched={touched}
                         onToggle={onToggle}
                         hidden={!quickFilter(p.name)}
+                        gridIndex={visibleProducts.indexOf(p)}
+                        gridRows={rows}
                     />
                 ))}
             </Table.Tbody>

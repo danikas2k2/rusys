@@ -7,6 +7,35 @@ import type { Product } from '~/schema';
 test.use({ scenario: 'review' });
 
 test.describe('review', () => {
+    test('lays out filtered products in columns without gaps', async ({ page, db }) => {
+        await page.setViewportSize({ width: 1300, height: 800 });
+        await db.collection<Product>('products').insertMany(
+            Array.from({ length: 6 }, (_, index) => ({
+                group: 'Uogienės',
+                name: `Tikrinamas ${index}`,
+                years: [{ year: currentYear, amounts: [] }],
+            }))
+        );
+        await page.goto('/');
+        await page.getByRole('button', { name: 'Peržiūra' }).click();
+        const review = page.getByRole('dialog').last();
+        await review.getByRole('searchbox').fill('Tikrinamas');
+        const rows = review.locator('tbody tr[data-hidden="false"]');
+        await expect(rows).toHaveCount(6);
+        const boxes = await rows.evaluateAll((elements) =>
+            elements.map((element) => {
+                const { x, y } = element.getBoundingClientRect();
+                return { x, y };
+            })
+        );
+        expect(boxes[1].x).toBe(boxes[0].x);
+        expect(boxes[1].y).toBeGreaterThan(boxes[0].y);
+        expect(boxes[2].x).toBeGreaterThan(boxes[0].x);
+        expect(boxes[2].y).toBe(boxes[0].y);
+        expect(boxes[4].x).toBeGreaterThan(boxes[2].x);
+        expect(boxes[4].y).toBe(boxes[0].y);
+    });
+
     test('keeps the filter header in place across short and long categories', async ({ page, db }) => {
         await page.setViewportSize({ width: 390, height: 700 });
         await db.collection<Product>('products').insertMany(
