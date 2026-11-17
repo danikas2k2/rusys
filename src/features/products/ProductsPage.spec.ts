@@ -62,6 +62,7 @@ test.describe('products', () => {
         const rail = page.locator('[data-tabs="category-rail"]');
         const viewport = page.locator('.ui-AppShell-main [data-scrollarea-viewport]');
         await expect(rail).toHaveCSS('overscroll-behavior-y', 'contain');
+        await expect(rail).toHaveCSS('--category-rail-height', /\d+px/);
         expect(await rail.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
         const initialRailBox = (await rail.boundingBox())!;
         const viewportBox = (await viewport.boundingBox())!;
