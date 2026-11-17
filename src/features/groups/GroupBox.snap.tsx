@@ -14,6 +14,7 @@ test('category creation and editor', async () => {
     await settleVisual();
     await expect(page).toMatchScreenshot('category-create', dialogScreenshotOptions(creation));
     await userEvent.keyboard('{Escape}');
+    await expect.element(creation).not.toBeInTheDocument();
     await table.getByRole('row', { name: /Uogienės/ }).click();
     const editor = page.getByRole('dialog', { name: 'Taisyti kategoriją' });
     await expect.element(editor).toBeVisible();

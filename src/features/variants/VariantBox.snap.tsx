@@ -14,6 +14,7 @@ test('variant creation and editor', async () => {
     await settleVisual();
     await expect(page).toMatchScreenshot('variant-create', dialogScreenshotOptions(creation));
     await userEvent.keyboard('{Escape}');
+    await expect.element(creation).not.toBeInTheDocument();
     await table
         .getByRole('row', { name: /Stiklainis/ })
         .first()
