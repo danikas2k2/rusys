@@ -102,6 +102,7 @@ export function GridTile({
                         />
                     )}
                     <div data-product-details>
+                        {headingAction && <div data-product-action>{headingAction}</div>}
                         <div data-product-title>
                             {!thumbnail && (
                                 <Thumbnail
@@ -132,7 +133,6 @@ export function GridTile({
                         </div>
                         {amounts && <div data-tile-amounts>{amounts}</div>}
                     </div>
-                    {headingAction && <div data-product-action>{headingAction}</div>}
                 </div>
             ) : (
                 <Stack gap={6} data-content h="100%">

@@ -60,7 +60,7 @@
 
 /* Keep descendants visually grouped through indentation and a subtle background. */
 [data-children-panel] {
-    border-radius: var(--mantine-radius-md);
+    border-radius: 0 0 var(--mantine-radius-default) var(--mantine-radius-default);
     background-color: var(--mantine-color-neutral-0);
     padding: var(--mantine-spacing-xs);
 }

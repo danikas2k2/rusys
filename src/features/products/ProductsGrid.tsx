@@ -148,16 +148,14 @@ export function ProductsGrid() {
     const nodes = useMemo(() => buildProductGridTree(products, expandedIds), [products, expandedIds]);
 
     const handleToggleExpand = useCallback((id: string) => {
-        startTransition(() => {
-            setExpandedIds((prev) => {
-                const next = new Set(prev);
-                if (next.has(id)) {
-                    next.delete(id);
-                } else {
-                    next.add(id);
-                }
-                return next;
-            });
+        setExpandedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
         });
     }, []);
 
