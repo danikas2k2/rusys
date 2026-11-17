@@ -11,8 +11,9 @@
 
     position: sticky;
     top: 0;
-    max-height: var(--area-height);
+    max-height: var(--category-rail-height, var(--area-height));
     overflow: hidden auto;
+    overscroll-behavior-y: contain;
     box-sizing: border-box;
 
     @media (width >= 48em) {
@@ -30,26 +31,26 @@
     .ui-Tabs-list {
         width: 100%;
         min-width: 0;
+        flex-wrap: nowrap;
+        align-self: flex-start;
 
         &::before,
         &::after {
             content: "";
             display: block;
-            position: sticky;
+            position: relative;
             inset-inline: 0;
             pointer-events: none;
             z-index: 2;
         }
 
         &::before {
-            top: 0;
             height: 2rem;
             background: linear-gradient(to top, var(--mantine-color-mantle), transparent);
             border-image: linear-gradient(to top, var(--tab-border-color), transparent) 1;
         }
 
         &::after {
-            bottom: 0;
             height: 2.5rem;
             background: linear-gradient(to bottom, var(--mantine-color-mantle), transparent);
             border-inline-end: 1px solid;

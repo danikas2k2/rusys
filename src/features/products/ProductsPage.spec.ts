@@ -1,9 +1,109 @@
 import { expect, test } from '@tests/fixtures/test';
 import { openProduct, productTile } from '@tests/helpers/ui';
 
-import type { Product } from '~/schema';
+import type { Group, Product } from '~/schema';
 
 test.describe('products', () => {
+    test('reveals the selected category when filtering changes and restores the selection', async ({ page, db }) => {
+        await db
+            .collection<Group>('groups')
+            .insertMany(Array.from({ length: 40 }, (_, index) => ({ group: `Kategorija ${index}`, order: index + 2 })));
+        await db.collection<Product>('products').insertOne({
+            group: 'Kategorija 39',
+            name: 'Ieškomas produktas',
+            years: [],
+        });
+        await page.goto('/');
+        await expect(productTile(page, 'Avietės')).toBeVisible();
+        const rail = page.locator('[data-tabs="category-rail"]');
+        const viewport = page.locator('.ui-AppShell-main [data-scrollarea-viewport]');
+        await expect(rail).toHaveCSS('--category-rail-height', /\d+px/);
+        const search = page.getByRole('searchbox', { name: 'filtruokite' });
+        await search.fill('Ieškomas');
+        const lastCategory = rail.getByRole('tab', { name: 'Kategorija 39', exact: true });
+        await expect(lastCategory).toHaveAttribute('aria-selected', 'true');
+        await expect.poll(() => rail.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+        const railBox = (await rail.boundingBox())!;
+        const selectedBox = (await lastCategory.boundingBox())!;
+        const clearance = await page.evaluate(() =>
+            Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
+        );
+        expect(selectedBox.y).toBeGreaterThanOrEqual(railBox.y + clearance - 1);
+        expect(selectedBox.y + selectedBox.height).toBeLessThanOrEqual(railBox.y + railBox.height - clearance + 1);
+        expect(await viewport.evaluate((element) => element.scrollTop)).toBe(0);
+
+        await search.fill('');
+        const firstCategory = rail.getByRole('tab', { name: 'Uogienės', exact: true });
+        await expect(firstCategory).toHaveAttribute('aria-selected', 'true');
+        await expect
+            .poll(async () => (await firstCategory.boundingBox())!.y)
+            .toBeGreaterThanOrEqual(railBox.y + clearance - 1);
+        const restoredBox = (await firstCategory.boundingBox())!;
+        expect(restoredBox.y + restoredBox.height).toBeLessThanOrEqual(railBox.y + railBox.height + 1);
+        expect(await viewport.evaluate((element) => element.scrollTop)).toBe(0);
+    });
+
+    test('scrolls the category rail independently from product content', async ({
+        page,
+        db,
+        browserName,
+        isMobile,
+    }) => {
+        await db
+            .collection<Group>('groups')
+            .insertMany(Array.from({ length: 40 }, (_, index) => ({ group: `Kategorija ${index}`, order: index + 2 })));
+        await db
+            .collection<Product>('products')
+            .insertMany(
+                Array.from({ length: 100 }, (_, index) => ({ group: 'Uogienės', name: `Uogienė ${index}`, years: [] }))
+            );
+        await page.goto('/');
+        await expect(productTile(page, 'Avietės')).toBeVisible();
+        const rail = page.locator('[data-tabs="category-rail"]');
+        const viewport = page.locator('.ui-AppShell-main [data-scrollarea-viewport]');
+        await expect(rail).toHaveCSS('overscroll-behavior-y', 'contain');
+        expect(await rail.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+        const initialRailBox = (await rail.boundingBox())!;
+        const viewportBox = (await viewport.boundingBox())!;
+        expect(initialRailBox.y + initialRailBox.height).toBeLessThanOrEqual(viewportBox.y + viewportBox.height + 1);
+
+        await rail.hover({ position: { x: initialRailBox.width / 2, y: initialRailBox.height / 2 } });
+        // Playwright cannot send wheel input to mobile WebKit; exercise its native scrollport directly.
+        const supportsWheel = browserName !== 'webkit' || !isMobile;
+        if (supportsWheel) {
+            await page.mouse.wheel(0, 250);
+        } else {
+            await rail.evaluate((element) => element.scrollBy(0, 250));
+        }
+        await expect.poll(() => rail.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+        expect(await viewport.evaluate((element) => element.scrollTop)).toBe(0);
+
+        await rail.evaluate((element) => {
+            element.scrollTop = element.scrollHeight;
+        });
+        if (supportsWheel) {
+            await page.mouse.wheel(0, 400);
+        }
+        // Cross a rendering boundary so an incorrectly chained wheel has time to reach the parent.
+        await page.evaluate(
+            () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+        );
+        expect(await viewport.evaluate((element) => element.scrollTop)).toBe(0);
+        const railScrollTop = await rail.evaluate((element) => element.scrollTop);
+
+        const content = page.locator('.CategoryRailLayout-content');
+        const contentBox = (await content.boundingBox())!;
+        await page.mouse.move(contentBox.x + contentBox.width / 2, viewportBox.y + viewportBox.height / 2);
+        if (supportsWheel) {
+            await page.mouse.wheel(0, 300);
+        } else {
+            await viewport.evaluate((element) => element.scrollBy(0, 300));
+        }
+        await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+        expect(await rail.evaluate((element) => element.scrollTop)).toBe(railScrollTop);
+        expect((await rail.boundingBox())!.y).toBeCloseTo(initialRailBox.y, 0);
+    });
+
     test('keeps page snapshots behind the product dialog while changing years', async ({ page, db }) => {
         const currentYear = new Date().getFullYear() % 100;
         const previousYear = currentYear - 1;

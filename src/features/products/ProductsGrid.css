@@ -1,30 +1,65 @@
-/* The outer edge padding matches SimpleGrid's own inter-tile spacing (see GRID_SPACING in */
-
-/* ProductsGrid.tsx) so the gap around the grid is the same size as the gap between tiles, */
-
-/* instead of tiles running flush to the container edge while huge gaps separate them. */
 [data-grid="products"] {
     padding-inline: var(--mantine-spacing-xs);
 
     /* Matches the table's own margin-block-end (see .ui-Table-table in index.css) - only the */
 
     /* top-level grid, not a nested one shown for an expanded group's children. */
-    > .ui-SimpleGrid-root {
+    > [data-product-sections] {
         margin-block-end: 1rem;
     }
 }
 
-/* Frames an expanded parent's children as one visual group, distinct from unrelated tiles in */
+[data-grid="products"] .ui-SimpleGrid-root {
+    --product-divider: var(--mantine-color-default-border);
 
-/* the surrounding rows. Sits at its normal grid position (full border-radius, no shift) - the */
+    grid-auto-flow: column;
+    grid-template-rows: repeat(var(--product-grid-rows), auto);
 
-/* expanded parent tile's own ::after (see [data-expanded-parent] in ProductTile.css) bridges the */
+    > [data-tile-kind="product"] {
+        &::before,
+        &::after {
+            content: none;
+            position: absolute;
+            inset-inline: 0;
+            top: 0;
+            height: 1px;
+            background-color: var(--mantine-color-base);
+            pointer-events: none;
+        }
+    }
 
-/* gap above it, so the two read as one continuous frame rather than two separate boxes. */
+    > [data-tile-kind="product"] ~ [data-tile-kind="product"]::before {
+        content: "";
+    }
 
-/* Recurses naturally for a grandchild's panel. */
+    /* Match GRID_COLS; keep dividers between occupied cells, without an outer frame. */
+    @media (width >= 48em) {
+        grid-template-rows: repeat(var(--product-grid-rows-sm), auto);
+
+        > [data-tile-kind="product"] ~ [data-tile-kind="product"]::before {
+            content: none;
+        }
+
+        > [data-tile-kind="product"][data-grid-row-sm="true"]::after {
+            content: "";
+        }
+    }
+
+    @media (width >= 75em) {
+        grid-template-rows: repeat(var(--product-grid-rows-lg), auto);
+
+        > [data-tile-kind="product"][data-grid-row-lg="false"]::after {
+            content: none;
+        }
+
+        > [data-tile-kind="product"][data-grid-row-lg="true"]::after {
+            content: "";
+        }
+    }
+}
+
+/* Keep descendants visually grouped through indentation and a subtle background. */
 [data-children-panel] {
-    border: 1px solid var(--mantine-color-primary-filled);
     border-radius: var(--mantine-radius-md);
     background-color: var(--mantine-color-neutral-0);
     padding: var(--mantine-spacing-xs);

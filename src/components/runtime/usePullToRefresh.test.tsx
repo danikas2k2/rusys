@@ -15,7 +15,11 @@ function Harness() {
 
     return (
         <div ref={mainRef as React.RefObject<HTMLDivElement>}>
-            <section data-scrollarea-viewport aria-label="Scroll viewport" />
+            <section data-scrollarea-viewport aria-label="Scroll viewport">
+                <nav data-independent-scroll>
+                    <button>Category</button>
+                </nav>
+            </section>
             <output aria-label="Pull distance">{distance}</output>
             <output aria-label="Refreshing">{String(refreshing)}</output>
             <output aria-label="Dragging">{String(dragging)}</output>
@@ -33,6 +37,21 @@ describe('usePullToRefresh', () => {
     beforeEach(() => {
         refreshAll = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
         vi.mocked(useRefreshAll).mockReturnValue(refreshAll);
+    });
+
+    it('leaves touches within an independent scroll area to that area', () => {
+        render(<Harness />);
+        const category = screen.getByRole('button', { name: 'Category' });
+
+        act(() => {
+            fireEvent.touchStart(category, touch(0));
+            fireEvent.touchMove(category, touch(160));
+            fireEvent.touchEnd(category, touch(160));
+        });
+
+        expect(screen.getByLabelText('Pull distance')).toHaveTextContent('0');
+        expect(screen.getByLabelText('Dragging')).toHaveTextContent('false');
+        expect(refreshAll).not.toHaveBeenCalled();
     });
 
     it('does not track a pull that starts when the viewport is already scrolled', () => {
