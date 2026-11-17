@@ -11,10 +11,11 @@ test('product amounts, editable variant and history', async () => {
     await settleVisual();
     await expect(page).toMatchScreenshot('amounts-dialog', dialogScreenshotOptions(dialog));
 
-    const variant = css('[data-amount-variant-key="Stiklainis"]', dialog);
+    // Keep the locator stable when opening the accordion changes its text and matching ancestors.
+    const variant = dialog.getByRole('button', { name: /^Stiklainis\b/ });
     await variant.click();
     await expect.element(dialog.getByRole('textbox', { name: 'updated' })).toBeVisible();
-    const card = variant.element();
+    const card = variant.element().closest('.ui-Accordion-item')!;
     const panel = card.closest('.amount-box-quantities-panel');
     if (!panel) {
         throw new Error('Quantities panel not found');
@@ -60,14 +61,12 @@ test('year selector and year totals', async () => {
     const dialog = await openProduct('Avietės');
     await expect.element(css('[data-year-total]', dialog)).toBeVisible();
     await settleVisual();
+    // Modal autofocus can finish later on CI. Capture the totals without an incidental focus ring.
+    const close = dialog.getByRole('button', { name: 'Uždaryti' });
+    await expect.element(close).toHaveFocus();
+    close.element().blur();
     await expect(page).toMatchScreenshot('annual-amounts-dialog', dialogScreenshotOptions(dialog));
-    const yearLabel = Array.from(dialog.element().querySelectorAll('label')).find((label) =>
-        label.textContent?.includes(String(currentYear))
-    );
-    if (!yearLabel) {
-        throw new Error(`Year label ${currentYear} not found`);
-    }
-    await page.elementLocator(yearLabel).click();
+    await dialog.getByText(String(currentYear), { exact: true }).click();
     await expect
         .poll(() => dialog.element().querySelector('[data-amount-variant-key="Stiklainis"]')?.textContent)
         .toContain('3');

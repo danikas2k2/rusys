@@ -30,6 +30,7 @@ test('products page', async () => {
 test('sticky filter during a category transition', async () => {
     const originalWidth = window.innerWidth;
     const originalHeight = window.innerHeight;
+    const style = document.createElement('style');
     await page.viewport(390, 700);
     try {
         await renderVisualApp('/', 'scrolled-products');
@@ -53,7 +54,6 @@ test('sticky filter during a category transition', async () => {
         });
 
         document.documentElement.dataset.visualMotion = 'enabled';
-        const style = document.createElement('style');
         style.textContent =
             '::view-transition-old(.category-update), ::view-transition-new(.category-update) { animation-duration: 2s !important; }';
         document.head.appendChild(style);
@@ -65,7 +65,8 @@ test('sticky filter during a category transition', async () => {
             screenshotOptions: { clip },
         });
     } finally {
-        await new Promise((resolve) => setTimeout(resolve, 2100));
+        await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
+        style.remove();
         delete document.documentElement.dataset.visualMotion;
         await page.viewport(originalWidth, originalHeight);
     }

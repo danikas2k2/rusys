@@ -1,3 +1,4 @@
+import { Locator } from '@vitest/browser/locators';
 import React from 'react';
 import { render } from 'vitest-browser-react';
 import { page } from 'vitest/browser';
@@ -49,22 +50,50 @@ export function dialogScreenshotOptions(dialog: { element: () => Element }) {
     };
 }
 
+const locatorIds = new WeakMap<Element, string>();
+let nextLocatorId = 0;
+
+class VisualCssLocator extends Locator {
+    constructor(public selector: string) {
+        super();
+    }
+
+    protected locator(selector: string): Locator {
+        return new VisualCssLocator(`${this.selector} >> ${selector}`);
+    }
+
+    protected elementLocator(element: Element): Locator {
+        return stableElementLocator(element);
+    }
+}
+
+function stableElementLocator(element: Element): Locator {
+    // Bind actions to this node instead of generated text/nth selectors that React updates can invalidate.
+    let id = locatorIds.get(element);
+    if (!id) {
+        id = String(++nextLocatorId);
+        locatorIds.set(element, id);
+    }
+    element.setAttribute('data-visual-locator', id);
+    return new VisualCssLocator(`[data-visual-locator="${id}"]`);
+}
+
 export function css(selector: string, parent?: { element: () => Element }) {
     const element = (parent?.element() ?? document).querySelector(selector);
     if (!element) {
         throw new Error(`Element ${selector} not found`);
     }
-    return page.elementLocator(element);
+    return stableElementLocator(element);
 }
 
 export function productTile(name: string) {
-    const tile = Array.from(document.querySelectorAll('[data-tile-kind="product"]')).find((element) =>
-        element.textContent?.includes(name)
+    const tile = Array.from(document.querySelectorAll('[data-tile-kind="product"]')).find(
+        (element) => element.querySelector('[data-product-name]')?.textContent?.trim() === name
     );
     if (!tile) {
         throw new Error(`Product tile ${name} not found`);
     }
-    return page.elementLocator(tile);
+    return stableElementLocator(tile);
 }
 
 export async function openProduct(name: string) {
