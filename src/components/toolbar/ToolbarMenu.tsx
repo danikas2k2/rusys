@@ -80,8 +80,6 @@ export function ToolbarMenu() {
                                 active={pathname === Links.PRODUCTS}
                                 onClick={close}
                             />
-                            <Divider m="xs" />
-
                             <NavLink
                                 label={<Label>Variants</Label>}
                                 leftSection={

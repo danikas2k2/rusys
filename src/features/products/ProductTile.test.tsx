@@ -368,7 +368,7 @@ describe('<ProductTile>', () => {
                 '/images/ab/cd/product.png?w='
             );
             expect(container.querySelector('[data-product-icon]')).toHaveAttribute('loading', 'lazy');
-            expect(container.querySelector('[data-product-icon]')).toHaveAttribute('width', '22');
+            expect(container.querySelector('[data-product-icon]')).toHaveAttribute('width', '26');
             expect(container.querySelector('[data-product-title] [data-product-icon]')).toBeInTheDocument();
             expect(container.querySelector('[data-product-thumbnail]')).not.toBeInTheDocument();
             expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');

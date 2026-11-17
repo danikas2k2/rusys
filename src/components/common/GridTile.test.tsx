@@ -118,10 +118,17 @@ describe('<GridTile>', () => {
             '%2Ficon.png'
         );
         expect(container.querySelector('[data-product-icon]')).toHaveAttribute('loading', 'lazy');
-        expect(container.querySelector('[data-product-icon]')).toHaveAttribute('width', '22');
+        expect(container.querySelector('[data-product-icon]')).toHaveAttribute('width', '26');
         expect(container.querySelector('[data-icon-bg], [data-photo-bg], [data-scrim]')).not.toBeInTheDocument();
         expect(screen.getByText('Avietės')).not.toHaveAttribute('data-text-shadow');
         expect(container.querySelector('[data-overlay]')).toHaveTextContent('Recycled');
+    });
+
+    it('renders a decorative initial when a product has no image or photo', () => {
+        const { container } = renderTile(<GridTile {...baseProps} name="  avietės" />);
+
+        expect(container.querySelector('[data-product-avatar]')).toHaveTextContent('A');
+        expect(container.querySelector('[data-product-avatar]')).toHaveAttribute('aria-hidden', 'true');
     });
 
     it('loads a product photo eagerly and prefers it over the title icon', () => {
@@ -136,5 +143,6 @@ describe('<GridTile>', () => {
         expect(photo).toHaveAttribute('width', '48');
         expect(photo).toHaveAttribute('height', '48');
         expect(container.querySelector('[data-product-icon], [data-photo-bg], [data-scrim]')).not.toBeInTheDocument();
+        expect(container.querySelector('[data-product-avatar]')).not.toBeInTheDocument();
     });
 });

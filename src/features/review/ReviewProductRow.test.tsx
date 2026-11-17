@@ -53,7 +53,7 @@ describe('<ReviewProductRow>', () => {
         const product = { ...products[0], image: '/images/products/avietes.png' };
         renderRow(product);
 
-        expect(document.querySelector('img')?.getAttribute('src')).toContain('/images/products/avietes.png?w=32');
+        expect(document.querySelector('img')?.getAttribute('src')).toContain('/images/products/avietes.png?w=64');
     });
 
     it('renders checkbox as checked when checked=true', () => {
@@ -82,6 +82,33 @@ describe('<ReviewProductRow>', () => {
         renderRow(products[0], false, true, true);
 
         expect(screen.getByRole('row')).toHaveAttribute('data-hidden', 'true');
+    });
+
+    it.each([
+        [0, 'false', 'false'],
+        [1, 'true', 'true'],
+        [2, 'true', 'false'],
+        [3, 'false', 'true'],
+    ])('marks column boundaries for grid index %i', (gridIndex, smallRow, largeRow) => {
+        render(
+            <MockTheme>
+                <Table>
+                    <Table.Tbody>
+                        <ReviewProductRow
+                            product={products[0]}
+                            checked={false}
+                            touched
+                            onToggle={onToggle}
+                            gridIndex={gridIndex}
+                            gridRows={{ sm: 3, lg: 2 }}
+                        />
+                    </Table.Tbody>
+                </Table>
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('row')).toHaveAttribute('data-grid-row-sm', smallRow);
+        expect(screen.getByRole('row')).toHaveAttribute('data-grid-row-lg', largeRow);
     });
 
     it('marks the checkbox as untouched when the group has not been touched', () => {

@@ -15,6 +15,14 @@ test('products page', async () => {
     expect(matchMedia('(prefers-reduced-motion: reduce)').matches).toBe(true);
     expect(getComputedStyle(productTile('Avietės').element()).transitionDuration).toBe('0s');
     expect(getComputedStyle(css('input').element()).caretColor).toBe('rgba(0, 0, 0, 0)');
+    const avatarWidth = productTile('Avietės')
+        .element()
+        .querySelector('[data-product-avatar]')!
+        .getBoundingClientRect().width;
+    expect(avatarWidth).toBe(26);
+    expect(getComputedStyle(productTile('Braškės').element()).backgroundColor).toBe(
+        getComputedStyle(productTile('Avietės').element()).backgroundColor
+    );
     await settleProductsPage();
     await expect(page).toMatchScreenshot('products-page');
 });
@@ -197,6 +205,17 @@ test('products page with images', async () => {
             })
             .toBe(true);
     }
+    const stocked = productTile('Avietės').element();
+    const empty = productTile('Braškės').element();
+    const stockedIcon = stocked.querySelector<HTMLElement>('[data-product-icon]')!;
+    const emptyIcon = empty.querySelector<HTMLElement>('[data-product-icon]')!;
+    expect(stockedIcon.getBoundingClientRect().width).toBe(26);
+    expect(getComputedStyle(stockedIcon).filter).toBe('none');
+    expect(getComputedStyle(emptyIcon).filter).toBe('grayscale(1)');
+    expect(getComputedStyle(emptyIcon).opacity).toBe('0.4');
+    expect(getComputedStyle(empty.querySelector('[data-product-name]')!).color).not.toBe(
+        getComputedStyle(stocked.querySelector('[data-product-name]')!).color
+    );
     await settleProductsPage();
     await expect(page).toMatchScreenshot('products-page-images');
 });
