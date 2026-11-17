@@ -481,7 +481,9 @@ export function AmountVariantsTab({
         [movingKeys]
     );
     const handleExpandChange = useCallback((key: string | null) => {
-        startTransition(() => setExpandedKey(key));
+        // Accordion animates its height itself. A view transition would also snapshot
+        // the rows while automatic scrolling moves them, causing jumps and unclipped overlays.
+        setExpandedKey(key);
     }, []);
     const handleMoved = useCallback(() => {
         startTransition(() => {
@@ -576,8 +578,7 @@ export function AmountVariantsTab({
                     <Accordion
                         value={moving ? null : expandedKey}
                         onChange={moving ? (key) => key && handleMoveToggle(key) : handleExpandChange}
-                        variant="contained"
-                        radius="md"
+                        variant="default"
                         chevron={null}
                     >
                         {visibleKeys.map((key) => {

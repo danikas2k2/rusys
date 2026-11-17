@@ -23,6 +23,94 @@ describe('<CategoryRail>', () => {
         vi.mocked(supportsClippedViewTransitions).mockReset();
     });
 
+    it('fits the scroll viewport and follows its size changes', () => {
+        const observe = vi.fn();
+        const disconnect = vi.fn();
+        const callbacks: Array<() => void> = [];
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                constructor(callback: () => void) {
+                    callbacks.push(callback);
+                }
+                observe = observe;
+                disconnect = disconnect;
+            }
+        );
+        try {
+            const { container, unmount } = render(
+                <MockTheme>
+                    <div data-scrollarea-viewport>
+                        <CategoryRail
+                            groups={[{ group: 'Uogienės', order: 0 }]}
+                            selected="Uogienės"
+                            onSelect={vi.fn()}
+                            groupsWithContent={new Set(['Uogienės'])}
+                        />
+                    </div>
+                </MockTheme>
+            );
+            const viewport = container.querySelector('[data-scrollarea-viewport]')!;
+            const rail = container.querySelector<HTMLElement>('[data-tabs="category-rail"]')!;
+
+            expect(observe).toHaveBeenCalledWith(viewport);
+
+            for (const height of [480, 320]) {
+                Object.defineProperty(viewport, 'clientHeight', { value: height, configurable: true });
+                callbacks[0]();
+
+                expect(rail.style.getPropertyValue('--category-rail-height')).toBe(`${height}px`);
+            }
+            unmount();
+
+            expect(disconnect).toHaveBeenCalledExactlyOnceWith();
+        } finally {
+            vi.unstubAllGlobals();
+        }
+    });
+
+    it('reveals a newly selected category above or below the rail without moving visible categories', () => {
+        const props = {
+            groups: [
+                { group: 'Uogienės', order: 0 },
+                { group: 'Daržovės', order: 1 },
+                { group: 'Uogos', order: 2 },
+            ],
+            onSelect: vi.fn(),
+            groupsWithContent: new Set(['Uogienės', 'Daržovės', 'Uogos']),
+        };
+        const fixture = (selected: string) => (
+            <MockTheme>
+                <CategoryRail {...props} selected={selected} />
+            </MockTheme>
+        );
+        const { container, rerender } = render(fixture('Uogienės'));
+        const rail = container.querySelector<HTMLElement>('[data-tabs="category-rail"]')!;
+        Object.defineProperty(rail, 'clientHeight', { value: 100 });
+        vi.spyOn(rail, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 20, 200, 100));
+        vi.spyOn(screen.getByRole('tab', { name: 'Daržovės' }), 'getBoundingClientRect').mockReturnValue(
+            new DOMRect(0, 140, 200, 40)
+        );
+        vi.spyOn(screen.getByRole('tab', { name: 'Uogos' }), 'getBoundingClientRect').mockReturnValue(
+            new DOMRect(0, 40, 200, 40)
+        );
+        vi.spyOn(screen.getByRole('tab', { name: 'Uogienės' }), 'getBoundingClientRect').mockReturnValue(
+            new DOMRect(0, -20, 200, 40)
+        );
+
+        rerender(fixture('Daržovės'));
+
+        expect(rail.scrollTop).toBe(76);
+
+        rerender(fixture('Uogos'));
+
+        expect(rail.scrollTop).toBe(76);
+
+        rerender(fixture('Uogienės'));
+
+        expect(rail.scrollTop).toBe(20);
+    });
+
     it('renders nothing when there are no categories', () => {
         const { container } = render(
             <MockTheme>

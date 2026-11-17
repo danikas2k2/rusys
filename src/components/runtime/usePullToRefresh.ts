@@ -27,6 +27,9 @@ export function usePullToRefresh(): PullToRefreshState {
     const refreshingRef = useRef(false);
 
     const handleTouchStart = useCallback((e: TouchEvent) => {
+        if (e.target instanceof Element && e.target.closest('[data-independent-scroll]')) {
+            return;
+        }
         if (refreshingRef.current || e.touches.length !== 1) {
             return;
         }

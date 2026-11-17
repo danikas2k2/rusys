@@ -79,7 +79,7 @@ describe('<ProductTile>', () => {
         expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-empty', 'false');
     });
 
-    it('marks the tile and shows an icon when any product year is marked for removal', () => {
+    it('marks the tile and describes the checkbox when any product year is marked for removal', () => {
         render(
             <MockApp>
                 <ProductTile
@@ -96,7 +96,7 @@ describe('<ProductTile>', () => {
         );
 
         expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-removing', 'true');
-        expect(screen.getByLabelText('Marked for removal')).toBeInTheDocument();
+        expect(screen.getByRole('checkbox')).toHaveAccessibleDescription('Marked for removal');
     });
 
     it('does not mark the tile when no product year is marked for removal', () => {
@@ -108,7 +108,7 @@ describe('<ProductTile>', () => {
 
         expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-removing', 'false');
         expect(screen.getByText(name).closest('[data-tile="product"]')).not.toHaveAttribute('data-expiry');
-        expect(screen.queryByLabelText('Marked for removal')).not.toBeInTheDocument();
+        expect(screen.getByRole('checkbox')).not.toHaveAccessibleDescription();
     });
 
     it('marks only soon-expiring and expired amount rows', () => {
@@ -135,7 +135,7 @@ describe('<ProductTile>', () => {
         expect(tile).toHaveAttribute('data-expiry', 'expired');
     });
 
-    it('uses a soon status for the tile border when no amount is expired', () => {
+    it('tracks a soon status when no amount is expired', () => {
         render(
             <MockApp>
                 <ProductTile

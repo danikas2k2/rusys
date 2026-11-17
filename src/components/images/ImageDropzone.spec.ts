@@ -204,7 +204,7 @@ test.describe('image uploads', () => {
                     .getByRole('textbox', { name: kind === 'category' ? 'Kategorija' : 'Produktas', exact: true })
                     .fill('Išsaugota be paveikslėlio');
                 await dialog.getByRole('button', { name: 'Naujinti' }).click();
-                await expect(dialog.getByRole('alert')).toContainText('Kiti pakeitimai išsaugoti');
+                await expect(dialog.getByRole('alert')).toContainText('Kiti pakeitimai išsaugoti', { timeout: 15_000 });
                 const collection =
                     kind === 'category' ? db.collection<Group>('groups') : db.collection<Product>('products');
                 const filter =

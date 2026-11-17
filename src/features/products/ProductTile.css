@@ -1,5 +1,8 @@
 .ui-Card-root[data-tile-kind="product"] {
     overflow: visible;
+    border: 0;
+    border-radius: var(--mantine-radius-default);
+    padding-block: var(--mantine-spacing-xs);
 
     [data-product-content] {
         display: flex;
@@ -82,38 +85,10 @@
     &[data-expanded-parent="true"] {
         overflow: visible;
         background-color: var(--mantine-color-neutral-0);
-        border-color: var(--mantine-color-primary-filled);
-
-        &::before {
-            content: "";
-            position: absolute;
-            z-index: -1;
-            inset-inline: -1px;
-            bottom: calc(var(--mantine-spacing-xs) * -1.5);
-            height: calc(var(--mantine-spacing-xs) * 2);
-            border-inline: 1px solid var(--mantine-color-primary-filled);
-        }
-
-        &::after {
-            content: "";
-            position: absolute;
-            inset-inline: 0;
-            bottom: calc(var(--mantine-spacing-xs) * -1.5);
-            height: calc(var(--mantine-spacing-xs) * 2);
-            background-color: var(--mantine-color-neutral-0);
-        }
     }
 
     &[data-removing="true"] {
-        border: 2px solid var(--mantine-color-negative-filled);
-    }
-
-    &[data-expiry="soon"] {
-        border: 2px solid var(--mantine-color-orange-filled);
-    }
-
-    &[data-expiry="expired"] {
-        border: 2px solid var(--mantine-color-negative-filled);
+        background-color: var(--mantine-color-negative-light);
     }
 
     [data-tile-amounts] {
@@ -142,23 +117,6 @@
         [data-expires="expired"] {
             color: var(--mantine-color-negative-text);
         }
-    }
-
-    [data-removing-icon] {
-        position: absolute;
-        z-index: 2;
-        inset-block-start: -0.45rem;
-        inset-inline-end: -0.35rem;
-        pointer-events: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.35rem;
-        height: 1.35rem;
-        border-radius: 50%;
-        color: var(--mantine-color-negative-text);
-        background-color: var(--mantine-color-body);
-        box-shadow: 0 0 4px var(--mantine-color-shadow);
     }
 
     .ui-Checkbox-input {

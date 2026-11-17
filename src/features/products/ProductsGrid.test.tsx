@@ -270,7 +270,7 @@ describe('<ProductsGrid>', () => {
             );
 
             // Children stay mounted while collapsed (see ProductGridNode.children) so expanding
-            // can animate smoothly instead of the panel just appearing - see the 'frames the
+            // can animate smoothly instead of the panel just appearing - see the 'keeps the
             // expanded children' test below for the actual hidden-vs-visible check.
             expect(ProductTile).toHaveBeenCalledTimes(2);
             expect(ProductTile).toHaveBeenNthCalledWith(
@@ -321,7 +321,7 @@ describe('<ProductsGrid>', () => {
             );
         });
 
-        it('frames the expanded children in a panel, hidden (not removed) while collapsed', () => {
+        it('keeps the children in a panel, hidden (not removed) while collapsed', () => {
             render(
                 <MockTheme>
                     <MockData state={state}>
@@ -341,6 +341,32 @@ describe('<ProductsGrid>', () => {
             act(() => onToggleExpand!());
 
             expect(getWrapper()).toHaveAttribute('aria-hidden', 'false');
+        });
+
+        it('starts a new grid row after an expanded children panel', () => {
+            const sibling = { ...parentProduct, name: 'Braškės' };
+            vi.mocked(useProducts).mockReturnValue([parentProduct, childProduct, sibling]);
+            render(
+                <MockTheme>
+                    <MockData state={state}>
+                        <ProductsGrid />
+                    </MockData>
+                </MockTheme>
+            );
+
+            expect(ProductTile).toHaveBeenCalledWith(
+                expect.objectContaining({ product: sibling, gridIndex: 1 }),
+                undefined
+            );
+
+            const { onToggleExpand } = vi.mocked(ProductTile).mock.calls[0][0];
+            vi.mocked(ProductTile).mockClear();
+            act(() => onToggleExpand!());
+
+            expect(ProductTile).toHaveBeenCalledWith(
+                expect.objectContaining({ product: sibling, gridIndex: 0 }),
+                undefined
+            );
         });
 
         it('collapses back to a single rolled-up tile on a second toggle', () => {

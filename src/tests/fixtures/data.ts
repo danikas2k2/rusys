@@ -7,11 +7,13 @@ export type Scenario =
     | 'basic'
     | 'annual'
     | 'review'
+    | 'removing'
     | 'history'
     | 'images'
     | 'history-images'
     | 'consumed-recycled'
-    | 'scrolled-products';
+    | 'scrolled-products'
+    | 'grouped-products';
 
 export const currentYear = new Date().getFullYear() % 100;
 
@@ -77,6 +79,13 @@ export function createScenarioData(scenario: Scenario): {
         );
     }
 
+    if (scenario === 'grouped-products') {
+        products.push(
+            { ...products[0]!, name: 'Avietės su medumi', parent: 'Avietės' },
+            ...Array.from({ length: 6 }, (_, index) => ({ group: 'Uogienės', name: `Uogienė ${index}`, years: [] }))
+        );
+    }
+
     if (scenario === 'images' || scenario === 'history-images') {
         const images = [
             { file: 'uogienes.png', target: groups[0]! },
@@ -98,6 +107,9 @@ export function createScenarioData(scenario: Scenario): {
     }
     if (scenario === 'review') {
         products[0]!.missing = true;
+    }
+    if (scenario === 'removing') {
+        products[0]!.years![0]!.removing = true;
     }
 
     return { groups, variants, products };

@@ -2,7 +2,7 @@ import { ActionIcon, Checkbox, Group } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
-import { CollapseIcon, ExpandIcon, RecycledIcon } from '@icons';
+import { CollapseIcon, ExpandIcon } from '@icons';
 
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import { getExpiryStatus, getWorstExpiryStatus } from '~/common/utils/expiry';
@@ -22,6 +22,8 @@ export interface ProductTileProps {
     annual?: boolean;
     hidden?: boolean;
     imageLoading?: 'eager' | 'lazy';
+    gridIndex?: number;
+    gridRows?: { sm: number; lg: number };
     hasChildren?: boolean;
     expanded?: boolean;
     onToggleExpand?: () => void;
@@ -55,6 +57,8 @@ function ProductTileComponent({
     annual = false,
     hidden = false,
     imageLoading,
+    gridIndex,
+    gridRows,
     hasChildren = false,
     expanded = false,
     onToggleExpand,
@@ -130,12 +134,14 @@ function ProductTileComponent({
                 <Group gap={4} wrap="nowrap" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                         variant="outline"
+                        color={hasRemovingYear ? 'negative' : undefined}
                         size="sm"
                         checked={!product.missing}
                         disabled={!available}
                         indeterminate={!available}
                         onChange={handleMissingChange}
                         aria-label={_(product.missing ? 'Mark as available' : 'Mark as missing')}
+                        aria-description={hasRemovingYear ? _('Marked for removal') : undefined}
                     />
                 </Group>
             }
@@ -164,19 +170,14 @@ function ProductTileComponent({
                     />
                 )
             }
-            overlay={
-                hasRemovingYear && (
-                    <span data-removing-icon aria-label={_('Marked for removal')} title={_('Marked for removal')}>
-                        <RecycledIcon size={16} />
-                    </span>
-                )
-            }
             tileData={{
                 'data-tile-kind': 'product',
                 'data-summary': isSummaryTile,
                 'data-expanded-parent': hasChildren && expanded,
                 'data-removing': hasRemovingYear,
                 'data-expiry': expiryStatus,
+                'data-grid-row-sm': gridIndex === undefined || !gridRows ? undefined : gridIndex % gridRows.sm > 0,
+                'data-grid-row-lg': gridIndex === undefined || !gridRows ? undefined : gridIndex % gridRows.lg > 0,
             }}
         />
     );

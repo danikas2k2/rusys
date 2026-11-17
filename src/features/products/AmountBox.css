@@ -115,6 +115,11 @@
 
     .ui-Accordion-item {
         transition: none;
+        border-bottom-color: var(--mantine-color-neutral-1);
+
+        &:last-child {
+            border-bottom: 0;
+        }
     }
 
     @media (hover: hover) {
@@ -129,19 +134,19 @@
         }
     }
 
-    .ui-Accordion-item[data-active] .ui-Accordion-control,
-    .ui-Accordion-item[data-active] .ui-Accordion-panel {
-        background-color: var(--mantine-color-soft);
-    }
+    .ui-Accordion-item[data-active] {
+        .ui-Accordion-control,
+        .ui-Accordion-panel {
+            background-color: var(--mantine-color-soft);
+        }
 
-    .ui-Accordion-item:last-of-type[data-active] .ui-Accordion-control {
-        border-end-start-radius: 0;
-        border-end-end-radius: 0;
-    }
+        .ui-Accordion-control {
+            border-radius: var(--mantine-radius-default) var(--mantine-radius-default) 0 0;
+        }
 
-    .ui-Accordion-item:last-of-type[data-active] .ui-Accordion-panel {
-        border-end-start-radius: var(--mantine-radius-md);
-        border-end-end-radius: var(--mantine-radius-md);
+        .ui-Accordion-panel {
+            border-radius: 0 0 var(--mantine-radius-default) var(--mantine-radius-default);
+        }
     }
 
     .ui-Accordion-item[data-suspicious="true"] {

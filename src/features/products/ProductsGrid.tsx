@@ -17,7 +17,6 @@ import { useProducts } from '~/store/products';
 import './ProductsGrid.css';
 
 const GRID_COLS = { base: 1, sm: 2, lg: 3 };
-const GRID_SPACING = 'xs';
 
 interface ProductGridSectionProps {
     nodes: readonly ProductGridNode[];
@@ -27,51 +26,83 @@ interface ProductGridSectionProps {
 }
 
 function ProductGridSection({ nodes, annual, toggleHandlers, eagerInitialImages = false }: ProductGridSectionProps) {
+    const sections = useMemo(() => {
+        const result: ProductGridNode[][] = [];
+        let section: ProductGridNode[] = [];
+        for (const node of nodes) {
+            section.push(node);
+            // Full-width children interrupt the column flow; subsequent products start a new section.
+            if (node.hasChildren && node.expanded) {
+                result.push(section);
+                section = [];
+            }
+        }
+        if (section.length) {
+            result.push(section);
+        }
+        return result;
+    }, [nodes]);
     return (
-        <SimpleGrid cols={GRID_COLS} spacing={GRID_SPACING}>
-            {nodes.map((node, index) => {
-                const id = getId(node.product.group, node.product.name);
-                const tile = (
-                    <ProductTile
-                        product={node.product}
-                        imageLoading={eagerInitialImages && index < 2 ? 'eager' : 'lazy'}
-                        annual={annual}
-                        hasChildren={node.hasChildren}
-                        expanded={node.expanded}
-                        onToggleExpand={toggleHandlers.get(id)}
-                        totalAmounts={node.totalAmounts}
-                        hasNonEmptyDescendant={node.hasNonEmptyDescendant}
-                    />
-                );
+        <div data-product-sections>
+            {sections.map((section, sectionIndex) => {
+                const rows = { sm: Math.ceil(section.length / 2), lg: Math.ceil(section.length / 3) };
                 return (
-                    <React.Fragment key={id}>
-                        <ViewTransition
-                            enter="product-tile-enter"
-                            exit="product-tile-exit"
-                            update={node.hasChildren ? 'grouped-product-update' : 'none'}
-                            default="none"
+                    <React.Fragment key={getId(section[0].product.group, section[0].product.name)}>
+                        <SimpleGrid
+                            cols={GRID_COLS}
+                            spacing="0.5rem"
+                            verticalSpacing={0}
+                            style={{
+                                '--product-grid-rows': section.length,
+                                '--product-grid-rows-sm': rows.sm,
+                                '--product-grid-rows-lg': rows.lg,
+                            }}
                         >
-                            {tile}
-                        </ViewTransition>
-                        {node.hasChildren && (
-                            // Children stay mounted (see ProductGridNode.children) so this can
-                            // animate the height smoothly instead of the panel just appearing/
-                            // disappearing. Bordered so it's visually obvious which tiles belong
-                            // to the parent above, rather than reading as an unrelated next row.
-                            <Collapse expanded={node.expanded} style={{ gridColumn: '1 / -1' }}>
-                                <div data-children-panel>
-                                    <ProductGridSection
-                                        nodes={node.children}
+                            {section.map((node, index) => (
+                                <ViewTransition
+                                    key={getId(node.product.group, node.product.name)}
+                                    enter="product-tile-enter"
+                                    exit="product-tile-exit"
+                                    update={node.hasChildren ? 'grouped-product-update' : 'none'}
+                                    default="none"
+                                >
+                                    <ProductTile
+                                        product={node.product}
+                                        gridIndex={index}
+                                        gridRows={rows}
+                                        imageLoading={
+                                            eagerInitialImages && sectionIndex === 0 && index < 2 ? 'eager' : 'lazy'
+                                        }
                                         annual={annual}
-                                        toggleHandlers={toggleHandlers}
+                                        hasChildren={node.hasChildren}
+                                        expanded={node.expanded}
+                                        onToggleExpand={toggleHandlers.get(
+                                            getId(node.product.group, node.product.name)
+                                        )}
+                                        totalAmounts={node.totalAmounts}
+                                        hasNonEmptyDescendant={node.hasNonEmptyDescendant}
                                     />
-                                </div>
-                            </Collapse>
-                        )}
+                                </ViewTransition>
+                            ))}
+                        </SimpleGrid>
+                        {section
+                            .filter((node) => node.hasChildren)
+                            .map((node) => (
+                                // Keep collapsed descendants mounted, outside the column flow.
+                                <Collapse key={getId(node.product.group, node.product.name)} expanded={node.expanded}>
+                                    <div data-children-panel>
+                                        <ProductGridSection
+                                            nodes={node.children}
+                                            annual={annual}
+                                            toggleHandlers={toggleHandlers}
+                                        />
+                                    </div>
+                                </Collapse>
+                            ))}
                     </React.Fragment>
                 );
             })}
-        </SimpleGrid>
+        </div>
     );
 }
 
