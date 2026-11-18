@@ -41,6 +41,9 @@ Verify page content rather than only navigation URLs. Failed tests retain a trac
 [PLAN.md](PLAN.md) when adding or changing scenario coverage; mark a scenario covered only when a working browser test
 exercises it. Authentication is bypassed in the E2E development server, so these tests do not verify production sign-in.
 
+Tag a Playwright test with `@mobile` when it specifically exercises touch or mobile layout. Tagged tests run in mobile
+Chromium and WebKit. Untagged tests run in desktop Chromium, including the axe scans.
+
 ## Visual tests
 
 Visual tests compare the rendered result only through screenshots. Do not add separate assertions for text, focus,

@@ -194,6 +194,48 @@ test.describe('annual products', () => {
         }
     });
 
+    test('splits consumption history and totals at the September boundary', async ({ page, db }) => {
+        const boundaryYear = currentYear - 1;
+        const before = 'Before the September boundary';
+        const after = 'At the September boundary';
+        await db.collection<Product>('products').updateOne(
+            { group: 'Uogienės', name: 'Avietės' },
+            {
+                $set: {
+                    updates: [
+                        { time: Date.UTC(2000 + boundaryYear, 7, 31, 23, 59, 59, 999), comment: before, amount: -2 },
+                        { time: Date.UTC(2000 + boundaryYear, 8, 1), comment: after, amount: -5 },
+                    ].map(({ time, comment, amount }) => ({
+                        time,
+                        comment,
+                        years: [
+                            { year: boundaryYear - 1, amounts: [{ variant: 'Stiklainis', amount, recycled: false }] },
+                        ],
+                    })),
+                },
+            }
+        );
+
+        await page.goto('/');
+        const dialog = await openProduct(page, 'Avietės');
+        await dialog.getByRole('tab', { name: 'Suvartota' }).click();
+        const history = dialog.getByRole('tabpanel', { name: 'Suvartota' }).getByRole('table');
+        const total = dialog.locator('[data-product-summary-total] [data-type="consumed"]');
+        for (const period of [
+            { year: boundaryYear - 1, included: before, excluded: after, total: '2' },
+            { year: boundaryYear, included: after, excluded: before, total: '5' },
+        ]) {
+            await dialog
+                .locator('label')
+                .filter({ hasText: new RegExp(`^${period.year}$`) })
+                .click();
+            await expect(dialog.getByRole('radio', { name: String(period.year), exact: true })).toBeChecked();
+            await expect(history).toContainText(period.included);
+            await expect(history).not.toContainText(period.excluded);
+            await expect(total).toContainText(period.total);
+        }
+    });
+
     test('switches annual content and persists the removal marker', async ({ page, db }) => {
         await page.goto('/');
         const amount = await openProduct(page, 'Avietės');

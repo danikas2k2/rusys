@@ -347,8 +347,7 @@ test.describe('products', () => {
         await expect(productTile(page, 'Mėlynės')).toBeVisible();
     });
 
-    test('centred product dialog aligns with a simulated keyboard viewport', async ({ page, isMobile }) => {
-        test.skip(!isMobile);
+    test('centred product dialog aligns with a simulated keyboard viewport', { tag: '@mobile' }, async ({ page }) => {
         await page.goto('/');
         await page.locator('[data-action="add"]').click();
         const dialog = page.getByRole('dialog', { name: 'Pridėti naują produktą' });

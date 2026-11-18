@@ -133,9 +133,7 @@ test.describe('desktop navigation', () => {
     });
 });
 
-test.describe('mobile navigation', () => {
-    test.skip(({ isMobile }) => !isMobile);
-
+test.describe('mobile navigation', { tag: '@mobile' }, () => {
     test('page and menu fit within the viewport with iOS safe area insets', async ({ page }) => {
         await page.goto('/');
         await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();

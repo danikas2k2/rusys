@@ -1,9 +1,8 @@
 import { expect, test } from '@tests/fixtures/test';
 
 test.use({ scenario: 'review' });
-test.skip(({ isMobile }) => !isMobile);
 
-test('review controls stay inside the iOS safe area', async ({ page }) => {
+test('review controls stay inside the iOS safe area', { tag: '@mobile' }, async ({ page }) => {
     await page.goto('/');
     await page.addStyleTag({
         content:
