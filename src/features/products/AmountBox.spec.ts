@@ -98,6 +98,60 @@ test.describe('product amounts', () => {
         await expect(updated.locator('[data-product-summary-total] [data-type="recycled"]')).toBeVisible();
     });
 
+    test('reduces stock without recording consumption or waste', async ({ page, db }) => {
+        await page.goto('/');
+        let amount = await openProduct(page, 'Avietės');
+        await amount.locator('[data-amount-variant-key="Stiklainis"] [aria-expanded="false"]').click();
+        await amount.getByRole('textbox', { name: 'updated' }).fill('-1');
+        await amount.getByRole('button', { name: 'Naujinti' }).click();
+        await expect(amount).toBeHidden();
+        await expect
+            .poll(
+                async () =>
+                    (await db.collection<Product>('products').findOne({ name: 'Avietės' }))?.years?.[0]?.amounts?.[0]
+                        ?.amount
+            )
+            .toBe(2);
+        await page.reload();
+        await expect(productTile(page, 'Avietės')).toContainText('2');
+        amount = await openProduct(page, 'Avietės');
+        await expect(amount.locator('[data-product-summary-total] [data-type="consumed"]')).toHaveCount(0);
+        await expect(amount.locator('[data-product-summary-total] [data-type="recycled"]')).toHaveCount(0);
+    });
+
+    test('updates multiple stock variants in one action', async ({ page, db }) => {
+        await db
+            .collection<Product>('products')
+            .updateOne(
+                { name: 'Avietės' },
+                { $push: { 'years.0.amounts': { variant: 'Didelis indelis', amount: 4 } } }
+            );
+        await page.goto('/');
+        let amount = await openProduct(page, 'Avietės');
+        const small = amount.locator('[data-amount-variant-key="Stiklainis"]');
+        const large = amount.locator('[data-amount-variant-key="Didelis indelis"]');
+        await small.locator('[aria-expanded="false"]').click();
+        await small.getByRole('textbox', { name: 'consumed' }).fill('1');
+        await large.locator('[aria-expanded="false"]').click();
+        await large.getByRole('textbox', { name: 'recycled' }).fill('2');
+        await amount.getByRole('button', { name: 'Naujinti' }).click();
+        await expect(amount).toBeHidden();
+        await expect
+            .poll(
+                async () => (await db.collection<Product>('products').findOne({ name: 'Avietės' }))?.years?.[0]?.amounts
+            )
+            .toEqual(
+                expect.arrayContaining([
+                    { variant: 'Stiklainis', amount: 2 },
+                    { variant: 'Didelis indelis', amount: 2 },
+                ])
+            );
+        await page.reload();
+        amount = await openProduct(page, 'Avietės');
+        await expect(amount.locator('[data-product-summary-total] [data-type="consumed"]')).toBeVisible();
+        await expect(amount.locator('[data-product-summary-total] [data-type="recycled"]')).toBeVisible();
+    });
+
     test('moves a stock variant to another product in the same category', async ({ page, db }) => {
         await page.goto('/');
         const amount = await openProduct(page, 'Avietės');
