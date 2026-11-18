@@ -1,7 +1,7 @@
 import { expect, test } from '@tests/fixtures/test';
 import { openProduct, productTile } from '@tests/helpers/ui';
 
-import type { Product } from '~/schema';
+import type { Product, Variant } from '~/schema';
 
 test.describe('product amounts', () => {
     test('keeps the dialog and content width stable while saving', async ({ page }) => {
@@ -173,6 +173,41 @@ test.describe('product amounts', () => {
             .toBe(true);
         await page.reload();
         await expect(productTile(page, 'Braškės')).toContainText('3');
+    });
+
+    test('moves stock to another category and copies its variant', async ({ page, db }) => {
+        await page.goto('/');
+        const amount = await openProduct(page, 'Avietės');
+        await amount.getByRole('button', { name: 'Perkelti variantus' }).click();
+        await amount
+            .locator('[data-amount-variant-key="Stiklainis"]')
+            .getByRole('checkbox', { name: 'Pasirinkite variantą' })
+            .check();
+        await amount.getByRole('combobox', { name: 'Perkelti į' }).click();
+        await page.getByRole('option', { name: 'Morkos' }).click();
+        await amount.getByRole('button', { name: 'Perkelti', exact: true }).click();
+        await expect
+            .poll(async () =>
+                (await db.collection<Product>('products').findOne({ group: 'Daržovės', name: 'Morkos' }))?.years?.some(
+                    ({ amounts }) =>
+                        amounts.some(({ variant, amount: quantity }) => variant === 'Stiklainis' && quantity === 3)
+                )
+            )
+            .toBe(true);
+        const source = await db.collection<Product>('products').findOne({ group: 'Uogienės', name: 'Avietės' });
+        expect(
+            source?.years?.flatMap(({ amounts }) => amounts).find(({ variant }) => variant === 'Stiklainis')?.amount ??
+                0
+        ).toBe(0);
+        expect(
+            await db.collection<Variant>('variants').findOne({ group: 'Daržovės', variant: 'Stiklainis' })
+        ).toMatchObject({ count: 1, units: 'vnt' });
+        expect(
+            await db.collection<Variant>('variants').countDocuments({ group: 'Uogienės', variant: 'Stiklainis' })
+        ).toBe(1);
+        await page.reload();
+        await page.getByRole('tab', { name: 'Daržovės' }).click();
+        await expect(productTile(page, 'Morkos')).toContainText('3');
     });
 
     test('reclassifies part of consumed stock as discarded from history', async ({ page, db }) => {
