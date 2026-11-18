@@ -7,8 +7,9 @@ refactoring is safer. It does not aim to cover every line of code: details of ca
 data operations remain in Vitest tests.
 
 **Status:** functional Playwright tests run with `pnpm test:e2e`, visual tests with `pnpm test:visual`, and six critical
-scenarios carry the `@critical` tag. CI runs the functional Chromium suite and visual Chromium and WebKit suites. The
-items below distinguish tested scenarios from branches that still need coverage.
+scenarios carry the `@critical` tag. CI runs the functional desktop Chromium and selected mobile Chromium and WebKit
+suites, plus visual Chromium and WebKit suites. The items below distinguish tested scenarios from branches that still
+need coverage.
 
 ## Test infrastructure — complete
 
@@ -30,7 +31,7 @@ items below distinguish tested scenarios from branches that still need coverage.
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Categories        | Create with `Annual`/`Review`, discard a draft, rename and move related products and variants, confirm deletion, drag to reorder, and verify after reload.                                                       | Change `Annual` and `Review` on an **existing** category and check the effect on lists.                                                                      |
 | Variants          | Create with an amount and label, rename and update stock, copy to another category, confirm deletion, reorder, and verify persistence after reload.                                                              | Change units and amount separately while editing a variant; check copy conflicts.                                                                            |
-| Products          | Create through “+” and open the amounts dialog, rename, move between categories, set and expand a parent product, cancel and confirm deletion, and discard an unsaved product with `Escape`.                     | Collapse a parent product, change its parent relationship, and prevent moving a product that has children.                                                   |
+| Products          | Create through “+” and open the amounts dialog, rename, move between categories, set, expand, and collapse a parent product, cancel and confirm deletion, and discard an unsaved product with `Escape`.          | Change a product parent relationship and prevent moving a product that has children.                                                                         |
 | Stock and history | Add stock, consume with a comment, discard, transfer a whole variant to another product, reclassify part of consumed stock as discarded, inspect history, use `Undo`/`Redo`, and check card and summary results. | Cover simple stock reduction separately, transfer to **another category** with a copied variant, and handle multiple variant types in one action.            |
 | Years and summary | Switch annual years, mark a year for deletion and verify persistence, show consumption and discarded amounts in the summary, and use summary history and filters.                                                | Check nonannual products across years, historical years in the menu, period boundaries before and after September, and switching years with unsaved changes. |
 | Review            | Change a product's `missing` value in a card and dialog, use the “missing only” filter, select all, and return a category to its untouched state without changing another category.                              | Apply changes to multiple categories at once and cancel the review dialog with unsaved changes.                                                              |
@@ -45,9 +46,11 @@ The six-test critical suite covers creating a category, variant, and product; co
 - [x] Dragging to reorder categories and variants, with persistence after reload.
 - [x] Canceling unsaved category changes, discarding a product with `Escape`, and confirming product and deletion
       dialogs.
-- [x] Theme selection persists after reload. Mobile Chromium checks the menu, navigation, and amounts dialog via
-      `touch`.
-- [ ] Verify that dragging is disabled while a search filter is active; collapse a parent product.
+- [x] Theme selection persists after reload. Language switching is checked without a route refresh and after a server
+      reload. Mobile interaction projects check the menu, navigation, and amounts dialog.
+- [x] Automated accessibility scans cover the primary product, category, and variant pages, navigation menu, offline
+      page, and selected product dialogs. These scans do not replace keyboard and assistive technology testing.
+- [ ] Verify that dragging is disabled while a search filter is active.
 - [ ] Check clicking outside an unsaved dialog when the amounts, product edit, and deletion dialogs are stacked.
 - [ ] Add scenarios for real mobile gestures: swiping and pull to refresh, if those actions remain in the app.
 
@@ -59,6 +62,7 @@ The six-test critical suite covers creating a category, variant, and product; co
       cancel an import without changing data.
 - [x] Upload a product image, verify its `images/` entry in the ZIP archive, and restore it from the archive after
       deleting it from the temporary file directory.
+- [x] Exercise staged image uploads, cancellation, late responses, expired tokens, and replacement images.
 - [x] Handle a `LoadableContent` API error and retry successfully.
 - [x] Preserve the draft and leave the database unchanged after a category-edit API error; retry successfully and verify
       persistence after reload.
@@ -71,10 +75,12 @@ The six-test critical suite covers creating a category, variant, and product; co
 
 - [x] Visual tests cover pages, cards, tables, menus, dialogs, photos, annual stock, and input states. The category
       transition screenshot uses explicit timing checkpoints.
-- [x] `.github/workflows/ci.yml` runs functional tests in a separate Node 26 Linux job (`pnpm test:e2e`) and visual
-      tests in an `xcode-27` macOS 27 arm64 job to match the screenshot reference environment. References are kept for
-      every device and both themes.
+- [x] `.github/workflows/ci.yml` runs functional desktop and mobile browser projects in a separate Node 26 Linux job
+      (`pnpm test:e2e`) and visual tests in an `xcode-27` macOS 27 arm64 job to match the screenshot reference
+      environment. References are kept for every device and both themes.
 - [x] Added iPhone 17 and iPad mini WebKit visual scenarios for the main pages and dialogs.
+- [ ] Extend accessibility coverage to remaining dialogs and summary flows; check keyboard and assistive technology
+      interactions beyond automated scans.
 - [ ] Add targeted Firefox critical scenarios if browser compatibility requires them. There is no need to duplicate the
       entire suite in every browser.
 
