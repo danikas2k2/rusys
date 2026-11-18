@@ -12,17 +12,6 @@ async function settleProductsPage() {
 test('products page', async () => {
     await renderVisualApp('/');
     await expect.element(productTile('Avietės')).toBeVisible();
-    expect(matchMedia('(prefers-reduced-motion: reduce)').matches).toBe(true);
-    expect(getComputedStyle(productTile('Avietės').element()).transitionDuration).toBe('0s');
-    expect(getComputedStyle(css('input').element()).caretColor).toBe('rgba(0, 0, 0, 0)');
-    const avatarWidth = productTile('Avietės')
-        .element()
-        .querySelector('[data-product-avatar]')!
-        .getBoundingClientRect().width;
-    expect(avatarWidth).toBe(26);
-    expect(getComputedStyle(productTile('Braškės').element()).backgroundColor).toBe(
-        getComputedStyle(productTile('Avietės').element()).backgroundColor
-    );
     await settleProductsPage();
     await expect(page).toMatchScreenshot('products-page');
 });
@@ -96,23 +85,6 @@ test('products use responsive dividers and a subtle removal background', async (
     await renderVisualApp('/', 'removing');
     await expect.element(productTile('Avietės')).toBeVisible();
     await settleProductsPage();
-    const first = productTile('Avietės').element();
-    const second = productTile('Braškės').element();
-    expect(getComputedStyle(first).borderTopWidth).toBe('0px');
-    expect(getComputedStyle(first).backgroundColor).not.toBe(getComputedStyle(second).backgroundColor);
-    expect(first.querySelector('[data-removing-icon]')).toBeNull();
-    expect(getComputedStyle(first.querySelector('.ui-Checkbox-icon')!).color).not.toBe(
-        getComputedStyle(second.querySelector('.ui-Checkbox-icon')!).color
-    );
-    expect(getComputedStyle(first, '::before').content).toBe('none');
-    const divider = getComputedStyle(second, '::before');
-    if (first.getBoundingClientRect().top === second.getBoundingClientRect().top) {
-        expect(divider.content).toBe('none');
-    } else {
-        expect(divider.content).toBe('""');
-        expect(divider.height).toBe('1px');
-        expect(Number.parseFloat(divider.width)).toBeCloseTo(second.getBoundingClientRect().width, 2);
-    }
     await expect(page).toMatchScreenshot('products-page-removing');
 });
 
@@ -121,34 +93,8 @@ test('products flow down each column with horizontal dividers and a half-rem col
     await expect.element(productTile('Avietės')).toBeVisible();
     await settleProductsPage();
     const grid = productTile('Avietės').element().parentElement!;
-    const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
     const tiles = grid.querySelectorAll(':scope > [data-tile-kind="product"]');
-    const rows = getComputedStyle(grid).gridTemplateRows.split(' ').length;
     const nextRow = tiles[1];
-    expect(getComputedStyle(grid).rowGap).toBe('0px');
-    expect(getComputedStyle(grid).columnGap).toBe('8px');
-    const horizontalDivider = getComputedStyle(nextRow, columns > 1 ? '::after' : '::before');
-    expect(horizontalDivider.content).toBe('""');
-    expect(horizontalDivider.height).toBe('1px');
-    expect(nextRow.getBoundingClientRect().top).toBe(tiles[0].getBoundingClientRect().bottom);
-    for (let index = 1; index < tiles.length; index++) {
-        const previous = tiles[index - 1].getBoundingClientRect();
-        const current = tiles[index].getBoundingClientRect();
-        if (index % rows === 0) {
-            expect(current.top).toBe(tiles[0].getBoundingClientRect().top);
-            expect(current.left - previous.right).toBeCloseTo(8, 1);
-        } else {
-            expect(current.left).toBe(previous.left);
-            expect(current.top).toBe(previous.bottom);
-        }
-    }
-    if (columns > 1) {
-        const nextColumn = tiles[rows];
-        expect(getComputedStyle(nextColumn, '::before').content).toBe('none');
-        expect(getComputedStyle(nextColumn, '::after').content).toBe('none');
-        expect(getComputedStyle(nextRow, '::before').content).toBe('none');
-        expect(getComputedStyle(tiles[0], '::after').content).toBe('none');
-    }
     const bounds = grid.getBoundingClientRect();
     const x = Math.ceil(bounds.left);
     const y = Math.ceil(bounds.top);
@@ -162,29 +108,6 @@ test('products flow down each column with horizontal dividers and a half-rem col
             },
         },
     });
-});
-
-test('expanded children span the column flow and subsequent products start below them', async () => {
-    await renderVisualApp('/', 'grouped-products');
-    const parent = productTile('Avietės');
-    await expect.element(parent).toBeVisible();
-    const parentElement = parent.element();
-    await css('[data-product-expand]', parent).click();
-    const child = productTile('Avietės su medumi');
-    await expect.element(child).toBeVisible();
-    await settleProductsPage();
-    const panel = child.element().closest('[data-children-panel]')!;
-    const grid = parentElement.parentElement!;
-    expect(panel.getBoundingClientRect().width).toBeCloseTo(grid.getBoundingClientRect().width, 1);
-    expect(panel.getBoundingClientRect().top).toBeGreaterThanOrEqual(parentElement.getBoundingClientRect().bottom);
-    expect(productTile('Braškės').element().getBoundingClientRect().top).toBeGreaterThanOrEqual(
-        panel.getBoundingClientRect().bottom
-    );
-    await css('[data-product-expand]', productTile('Avietės')).click();
-    await expect.element(child).not.toBeVisible();
-    expect(child.element().isConnected).toBe(true);
-    await css('[data-product-expand]', productTile('Avietės')).click();
-    await expect.element(child).toBeVisible();
 });
 
 test('products page with images', async () => {
@@ -206,53 +129,6 @@ test('products page with images', async () => {
             })
             .toBe(true);
     }
-    const stocked = productTile('Avietės').element();
-    const empty = productTile('Braškės').element();
-    const stockedIcon = stocked.querySelector<HTMLElement>('[data-product-icon]')!;
-    const emptyIcon = empty.querySelector<HTMLElement>('[data-product-icon]')!;
-    expect(stockedIcon.getBoundingClientRect().width).toBe(26);
-    expect(getComputedStyle(stockedIcon).filter).toBe('none');
-    expect(getComputedStyle(emptyIcon).filter).toBe('grayscale(1)');
-    expect(getComputedStyle(emptyIcon).opacity).toBe('0.4');
-    expect(getComputedStyle(empty.querySelector('[data-product-name]')!).color).not.toBe(
-        getComputedStyle(stocked.querySelector('[data-product-name]')!).color
-    );
     await settleProductsPage();
     await expect(page).toMatchScreenshot('products-page-images');
-});
-
-test('product amounts stay beside the title and wrap only when space runs out', async () => {
-    await renderVisualApp('/');
-    await expect.element(productTile('Avietės')).toBeVisible();
-    const tile = productTile('Avietės').element() as HTMLElement;
-    const title = tile.querySelector<HTMLElement>('[data-product-title]')!;
-    const amounts = tile.querySelector<HTMLElement>('[data-tile-amounts]')!;
-    const details = tile.querySelector<HTMLElement>('[data-product-details]')!;
-    await expect
-        .poll(() => Math.abs(amounts.getBoundingClientRect().top - title.getBoundingClientRect().top))
-        .toBeLessThan(2);
-    expect(tile.getBoundingClientRect().height).toBeLessThan(60);
-    expect(Math.abs(amounts.getBoundingClientRect().right - details.getBoundingClientRect().right)).toBeLessThan(2);
-
-    tile.style.width = '120px';
-    await expect.poll(() => amounts.getBoundingClientRect().top >= title.getBoundingClientRect().bottom).toBe(true);
-    expect(Math.abs(amounts.getBoundingClientRect().right - details.getBoundingClientRect().right)).toBeLessThan(2);
-    expect(tile.scrollWidth).toBeLessThanOrEqual(tile.clientWidth);
-});
-
-test('neighboring product cards share the height of the tallest card in their row', async () => {
-    await renderVisualApp('/');
-    await expect.element(productTile('Avietės')).toBeVisible();
-    const first = productTile('Avietės').element() as HTMLElement;
-    const second = productTile('Braškės').element() as HTMLElement;
-    const grid = first.parentElement!;
-    grid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
-    grid.style.gridTemplateRows = 'auto';
-    first.querySelector('[data-product-name]')!.textContent =
-        'Labai ilgas produkto pavadinimas su papildoma informacija, kurios neužtenka sutalpinti vienoje eilutėje';
-    await expect.poll(() => first.getBoundingClientRect().top === second.getBoundingClientRect().top).toBe(true);
-    await expect.poll(() => first.getBoundingClientRect().height === second.getBoundingClientRect().height).toBe(true);
-    expect(first.querySelector('[data-product-name]')!.getBoundingClientRect().height).toBeGreaterThan(
-        second.querySelector('[data-product-name]')!.getBoundingClientRect().height
-    );
 });

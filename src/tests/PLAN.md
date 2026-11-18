@@ -16,10 +16,7 @@ items below distinguish tested scenarios from branches that still need coverage.
       scenarios. Years use the app's two-digit format; the history example aligns with the September summary boundary.
 - [x] `src/tests/fixtures/test.ts` resets the temporary `mongodb-memory-server` database and image directory before
       **every E2E test**. The URI, database name, and directory path are checked before cleanup; no live database is
-      used. Tests sharing the database run in one worker. Vitest visual tests mount client UI with fixture data and do
-      not use MongoDB or start a Next server.
-- [x] Tests use visible names, accessibility roles, and stable `data-*` selectors. Important mutations are checked
-      against MongoDB records and, where applicable, after a page reload.
+      used.
 - [x] Menu navigation and direct entry for all four pages verify content, not just the URL; an empty-database scenario
       is included. Failures retain a `trace` and screenshot.
 - [ ] Add real image files to the `images` scenario. Separate upload tests currently create images, while the scenario
@@ -66,38 +63,19 @@ The six-test critical suite covers creating a category, variant, and product; co
 - [x] Preserve the draft and leave the database unchanged after a category-edit API error; retry successfully and verify
       persistence after reload.
 - [ ] Check deletion of a product image, a large image thumbnail and full preview, and removal of the physical file.
-- [ ] Check oversized-file errors, upload API failure and retry, and slow-response UI behavior. Ordinary CRUD tests
-      should keep using the real API; error scenarios should use Playwright network routing.
+- [ ] Check oversized-file errors, upload API failure and retry, and slow-response UI behavior.
 - [ ] Add a separate controlled sign-in and permissions mode with a deterministic test identity or stubbed OAuth
       responses. Authentication is bypassed in `next dev`, so current E2E tests **do not verify production sign-in**.
 
-## Running tests and refactoring gates
+## Browser coverage and remaining work
 
-- [x] `pnpm test:e2e:critical` provides a quick check; all `test:e2e` commands use `playwright.config.ts` and run only
-      `*.spec.ts` files, including the mobile Chromium project. Visual tests run with Vitest Browser Mode and use
-      `*.snap.tsx` files. Tests are order-independent; the category transition screenshot uses explicit timing
-      checkpoints to capture the same point in that animation.
-- [x] `src/**/*.snap.tsx` compares screenshots of pages, cards, tables, menus, dialogs, photos, annual stock, and input
-      states across all five device projects in light and dark themes. Tests live beside their components, and
-      references live in the corresponding `__screenshots__/<test>/` directory. `pnpm test:visual` compares images with
-      references; `pnpm test:visual:update` updates them. Visual fixtures emulate reduced motion and disable CSS
-      animations and transitions before capture; the category-transition snapshot explicitly opts back in. Review
-      changed images visually before accepting them. When a reference includes a focused input, await
-      `expect.element(input).toHaveFocus()` after `settleVisual()` and immediately before the screenshot assertion. This
-      catches focus stolen after delayed autofocus; stacked dialogs must leave focus trapping to the topmost dialog.
+- [x] Visual tests cover pages, cards, tables, menus, dialogs, photos, annual stock, and input states. The category
+      transition screenshot uses explicit timing checkpoints.
 - [x] `.github/workflows/ci.yml` runs functional tests in a separate Node 26 Linux job (`pnpm test:e2e`) and visual
       tests in an `xcode-27` macOS 27 arm64 job to match the screenshot reference environment. References are kept for
       every device and both themes.
 - [x] Added iPhone 17 and iPad mini WebKit visual scenarios for the main pages and dialogs.
 - [ ] Add targeted Firefox critical scenarios if browser compatibility requires them. There is no need to duplicate the
       entire suite in every browser.
-- [ ] When refactoring a module without coverage, add at least one successful user scenario, an important cancel or
-      error branch, and a check after reload if stored data changes.
 
-`pnpm test:visual:update` updates the single set of screenshot references. Generate and compare them in the `macOS 27`
-arm64 environment used by CI's `xcode-27` job; browser images can differ across operating systems.
-
-Unit tests are `src/**/*.test.ts` or `src/**/*.test.tsx`, functional E2E tests are `src/**/*.spec.ts`, and visual tests
-are `src/**/*.snap.tsx`, each beside the relevant component or function. Shared initial states live in
-`src/tests/fixtures/`, UI actions in `src/tests/helpers/`, and E2E server startup and cleanup in
-`src/tests/playwright/`. Update this document when adding scenarios so “covered” always means a working browser test.
+For test requirements and commands, see [SPECS.md](SPECS.md).

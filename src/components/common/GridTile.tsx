@@ -94,14 +94,15 @@ export function GridTile({
                             data-product-thumbnail
                             src={thumbnail}
                             alt=""
-                            width={48}
-                            height={48}
+                            width={26}
+                            height={26}
                             loading={imageLoading}
                             loader={thumbnail.startsWith('/images/') ? localImageLoader : undefined}
                             unoptimized={thumbnail.includes('://') || thumbnail.startsWith('data:')}
                         />
                     )}
                     <div data-product-details>
+                        {headingAction && <div data-product-action>{headingAction}</div>}
                         <div data-product-title>
                             {!thumbnail && (
                                 <Thumbnail
@@ -132,7 +133,6 @@ export function GridTile({
                         </div>
                         {amounts && <div data-tile-amounts>{amounts}</div>}
                     </div>
-                    {headingAction && <div data-product-action>{headingAction}</div>}
                 </div>
             ) : (
                 <Stack gap={6} data-content h="100%">

@@ -18,6 +18,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - If something fails, diagnose it and attempt a focused repair rather than immediately stopping. Do not retry the same failed patch unchanged; re-read the file and use a smaller edit.
 
 ## Verify the change
+- Before writing or changing tests, read and follow [src/tests/SPECS.md](src/tests/SPECS.md).
 - Discover commands from the affected package. For code changes, run relevant focused lint, typecheck, and tests when available. Do not run the whole monorepo by default.
 - For changed behavior, add or update meaningful regression tests where useful. Never weaken checks or tests to make a failure disappear.
 - If a check fails due to the change, fix it and rerun affected checks. If a check is unavailable, expensive, or blocked, report that limitation honestly; it is not a reason to abandon an otherwise safe implementation.

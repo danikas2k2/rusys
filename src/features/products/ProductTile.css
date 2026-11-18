@@ -16,7 +16,7 @@
         align-items: center;
         justify-content: center;
         width: 20px;
-        margin-block-start: 1px;
+        height: 26px;
 
         .ui-Checkbox-body {
             position: relative;
@@ -32,8 +32,8 @@
 
     [data-product-thumbnail] {
         flex-shrink: 0;
-        width: 48px;
-        height: 48px;
+        width: 26px;
+        height: 26px;
         border-radius: var(--mantine-radius-sm);
         object-fit: contain;
     }
@@ -55,7 +55,8 @@
         display: flex;
         max-width: 100%;
         min-width: 0;
-        align-items: flex-start;
+        align-items: center;
+        min-height: 26px;
         gap: 6px;
     }
 
@@ -94,7 +95,14 @@
     }
 
     [data-product-action] {
-        flex-shrink: 0;
+        float: right;
+        margin-block: calc(-1 * var(--mantine-spacing-xs));
+        margin-inline-end: calc(-1 * var(--mantine-spacing-sm));
+    }
+
+    [data-product-expand] {
+        width: 44px;
+        height: 44px;
     }
 
     &[data-summary="true"] {
@@ -103,6 +111,7 @@
 
     &[data-expanded-parent="true"] {
         overflow: visible;
+        border-radius: var(--mantine-radius-default);
         background-color: var(--mantine-color-neutral-0);
     }
 
@@ -111,8 +120,11 @@
     }
 
     [data-tile-amounts] {
-        flex: 0 1 auto;
-        margin-inline-start: auto;
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        vertical-align: top;
+        margin-inline-start: var(--mantine-spacing-xs);
         width: auto;
         min-width: 0;
         max-width: 100%;
@@ -135,6 +147,22 @@
 
         [data-expires="expired"] {
             color: var(--mantine-color-negative-text);
+        }
+    }
+
+    [data-product-details]:not(:has([data-product-action])) {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px var(--mantine-spacing-xs);
+
+        [data-product-title] {
+            display: flex;
+        }
+
+        [data-tile-amounts] {
+            flex: 0 1 auto;
+            margin-inline-start: auto;
         }
     }
 
