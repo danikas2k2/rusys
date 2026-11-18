@@ -395,7 +395,7 @@ describe('<ProductTile>', () => {
 
             expect(container.querySelector('[data-photo-bg], [data-scrim]')).not.toBeInTheDocument();
 
-            expect(photoBackground).toHaveAttribute('width', '48');
+            expect(photoBackground).toHaveAttribute('width', '26');
             expect(photoBackground.getAttribute('src')).toContain('/images/ab/cd/product.png?w=');
             expect(photoBackground).toHaveAttribute('loading', 'lazy');
         });

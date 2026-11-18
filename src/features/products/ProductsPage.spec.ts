@@ -281,6 +281,55 @@ test.describe('products', () => {
         await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeHidden();
     });
 
+    test('product amounts wrap when the tile is narrow', async ({ page }) => {
+        await page.goto('/');
+        const tile = productTile(page, 'Avietės');
+        await expect(tile).toBeVisible();
+        const title = tile.locator('[data-product-title]');
+        const amounts = tile.locator('[data-tile-amounts]');
+        const details = tile.locator('[data-product-details]');
+        await expect
+            .poll(async () => Math.abs((await amounts.boundingBox())!.y - (await title.boundingBox())!.y))
+            .toBeLessThan(2);
+        await tile.evaluate((element) => {
+            (element as HTMLElement).style.width = '120px';
+        });
+        await expect
+            .poll(
+                async () =>
+                    (await amounts.boundingBox())!.y >=
+                    (await title.boundingBox())!.y + (await title.boundingBox())!.height
+            )
+            .toBe(true);
+        const amountBox = (await amounts.boundingBox())!;
+        const detailsBox = (await details.boundingBox())!;
+        expect(Math.abs(amountBox.x + amountBox.width - detailsBox.x - detailsBox.width)).toBeLessThan(2);
+        expect(await tile.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+    });
+
+    test('neighboring product cards share the height of the tallest card', async ({ page, db }) => {
+        const longName =
+            'Labai ilgas produkto pavadinimas su papildoma informacija, kurios neužtenka sutalpinti vienoje eilutėje';
+        await db.collection<Product>('products').updateOne({ name: 'Avietės' }, { $set: { name: longName } });
+        await page.goto('/');
+        const first = productTile(page, longName);
+        const second = productTile(page, 'Braškės');
+        await expect(first).toBeVisible();
+        await expect(second).toBeVisible();
+        await first.evaluate((element) => {
+            const grid = element.parentElement!;
+            grid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+            grid.style.gridTemplateRows = 'auto';
+        });
+        const firstBox = (await first.boundingBox())!;
+        const secondBox = (await second.boundingBox())!;
+        expect(firstBox.y).toBe(secondBox.y);
+        expect(firstBox.height).toBe(secondBox.height);
+        expect((await first.locator('[data-product-name]').boundingBox())!.height).toBeGreaterThan(
+            (await second.locator('[data-product-name]').boundingBox())!.height
+        );
+    });
+
     test('creates a product and opens its amounts dialog @critical', async ({ page, db }) => {
         await page.goto('/');
         await expect(productTile(page, 'Avietės')).toBeVisible();

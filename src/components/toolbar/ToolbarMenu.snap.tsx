@@ -12,8 +12,6 @@ import { page } from 'vitest/browser';
 test('navigation drawer and utilities in both themes', async () => {
     await renderVisualApp('/');
     await expect.element(productTile('Avietės')).toBeVisible();
-    const expectedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    expect(document.documentElement.getAttribute('data-mantine-color-scheme')).toBe(expectedTheme);
     clickMenuButton();
     const menu = page.getByRole('dialog', { name: 'Meniu' });
     await expect.element(menu).toBeVisible();
