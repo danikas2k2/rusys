@@ -1,6 +1,6 @@
 import { currentYear } from '@tests/fixtures/data';
 import { expect, test } from '@tests/fixtures/test';
-import { openProduct, productTile } from '@tests/helpers/ui';
+import { openProduct } from '@tests/helpers/ui';
 
 import type { Product } from '~/schema';
 
@@ -192,85 +192,5 @@ test.describe('annual products', () => {
         } finally {
             release();
         }
-    });
-
-    test('splits consumption history and totals at the September boundary', async ({ page, db }) => {
-        const boundaryYear = currentYear - 1;
-        const before = 'Before the September boundary';
-        const after = 'At the September boundary';
-        await db.collection<Product>('products').updateOne(
-            { group: 'Uogienės', name: 'Avietės' },
-            {
-                $set: {
-                    updates: [
-                        { time: Date.UTC(2000 + boundaryYear, 7, 31, 23, 59, 59, 999), comment: before, amount: -2 },
-                        { time: Date.UTC(2000 + boundaryYear, 8, 1), comment: after, amount: -5 },
-                    ].map(({ time, comment, amount }) => ({
-                        time,
-                        comment,
-                        years: [
-                            { year: boundaryYear - 1, amounts: [{ variant: 'Stiklainis', amount, recycled: false }] },
-                        ],
-                    })),
-                },
-            }
-        );
-
-        await page.goto('/');
-        const dialog = await openProduct(page, 'Avietės');
-        await dialog.getByRole('tab', { name: 'Suvartota' }).click();
-        const history = dialog.getByRole('tabpanel', { name: 'Suvartota' }).getByRole('table');
-        const total = dialog.locator('[data-product-summary-total] [data-type="consumed"]');
-        for (const period of [
-            { year: boundaryYear - 1, included: before, excluded: after, total: '2' },
-            { year: boundaryYear, included: after, excluded: before, total: '5' },
-        ]) {
-            await dialog
-                .locator('label')
-                .filter({ hasText: new RegExp(`^${period.year}$`) })
-                .click();
-            await expect(dialog.getByRole('radio', { name: String(period.year), exact: true })).toBeChecked();
-            await expect(history).toContainText(period.included);
-            await expect(history).not.toContainText(period.excluded);
-            await expect(total).toContainText(period.total);
-        }
-    });
-
-    test('switches annual content and persists the removal marker', async ({ page, db }) => {
-        await page.goto('/');
-        const amount = await openProduct(page, 'Avietės');
-        await test.step('switches between years', async () => {
-            await amount
-                .locator('label')
-                .filter({ hasText: String(currentYear) })
-                .click();
-            await expect(amount.locator('[data-amount-variant-key="Stiklainis"]')).toContainText('3');
-            await amount
-                .locator('label')
-                .filter({ hasText: String(currentYear - 1) })
-                .click();
-            await expect(amount.locator('[data-amount-variant-key="Stiklainis"]')).toContainText('2');
-        });
-
-        await test.step('annual years remain separate and removal marker persists', async () => {
-            await expect(amount.getByRole('radio', { name: String(currentYear - 1) })).toBeChecked();
-            await amount
-                .locator('label')
-                .filter({ hasText: String(currentYear) })
-                .click();
-            await expect(amount.locator('[data-amount-variant-key="Stiklainis"]')).toContainText('3');
-            await amount.getByRole('button', { name: 'Šie metai naikinami?' }).click();
-            await expect(productTile(page, 'Avietės')).toHaveAttribute('data-removing', 'true');
-            await expect
-                .poll(async () => {
-                    const item = await db.collection<Product>('products').findOne({ name: 'Avietės' });
-                    return item?.years?.find(({ year }) => year === currentYear)?.removing;
-                })
-                .toBe(true);
-            await page.reload();
-            const product = await db.collection<Product>('products').findOne({ name: 'Avietės' });
-            expect(product?.years?.find(({ year }) => year === currentYear)?.removing).toBe(true);
-            expect(product?.years?.find(({ year }) => year === currentYear - 1)?.amounts?.[0]?.amount).toBe(2);
-        });
     });
 });

@@ -107,35 +107,6 @@ test.describe('import and export', () => {
         expect(await response.body()).toEqual(png);
     });
 
-    test('rejects an invalid import without replacing existing data', async ({ page, db }) => {
-        await page.goto('/');
-        await openUtility(page, 'Importuoti');
-        const dialog = page.getByRole('dialog', { name: 'Importuoti' });
-        await dialog.locator('input[type="file"]').setInputFiles({
-            name: 'broken.zip',
-            mimeType: 'application/zip',
-            buffer: Buffer.from('not a zip'),
-        });
-        await dialog.getByRole('button', { name: 'Importuoti' }).click();
-        await expect(dialog.getByRole('alert')).toBeVisible();
-        expect(await db.collection<Product>('products').countDocuments({ name: 'Avietės' })).toBe(1);
-    });
-
-    test('rejects a ZIP with an invalid data schema', async ({ page, db }) => {
-        const zip = new JSZip();
-        zip.file('data.json', '{}');
-        const archive = await zip.generateAsync({ type: 'nodebuffer' });
-        await page.goto('/');
-        await openUtility(page, 'Importuoti');
-        const dialog = page.getByRole('dialog', { name: 'Importuoti' });
-        await dialog
-            .locator('input[type="file"]')
-            .setInputFiles({ name: 'invalid.zip', mimeType: 'application/zip', buffer: archive });
-        await dialog.getByRole('button', { name: 'Importuoti' }).click();
-        await expect(dialog.getByRole('alert')).toBeVisible();
-        expect(await db.collection<Product>('products').countDocuments({ name: 'Avietės' })).toBe(1);
-    });
-
     test('cancelled import leaves the database unchanged', async ({ page, db }) => {
         await page.goto('/');
         await openUtility(page, 'Importuoti');

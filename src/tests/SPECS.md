@@ -17,6 +17,11 @@ mirror implementation details. For persisted changes, verify the stored result a
 refactoring a module without coverage, add a successful user scenario, an important cancel or error branch, and a reload
 check if stored data changes, where applicable.
 
+For transactions, aggregation, and persisted data invariants, use the
+[MongoDB integration suite](../server/actions/data-integrity.integration.test.ts). It runs as part of `pnpm test` and
+`pnpm test:coverage`. To run it alone, use `pnpm test src/server/actions/data-integrity.integration.test.ts`. The suite
+uses a temporary MongoDB replica set and requires a local port and access to the pinned MongoDB binary.
+
 ## Queries, interactions, and fixtures
 
 - Prefer accessible roles, labels, and visible text when selecting UI elements. Use stable `data-*` selectors when

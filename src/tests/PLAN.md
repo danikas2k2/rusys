@@ -27,6 +27,9 @@ need coverage.
 
 ## Critical user flows
 
+The table describes coverage across Playwright and Vitest. The [E2E reduction plan](E2E-REDUCTION.md) records which data
+integrity cases now run against MongoDB in Vitest.
+
 | Area              | Covered                                                                                                                                                                                                                                                                 | Remaining                                                                                                      |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | Categories        | Create with `Annual`/`Review`, discard a draft, rename and move related products and variants, confirm deletion, drag to reorder, and verify after reload.                                                                                                              | Change `Annual` and `Review` on an **existing** category and check the effect on lists.                        |

@@ -43,12 +43,13 @@ this as a baseline for scope and measure actual CI time separately.
       no changes. Playwright retains tooltip geometry and the persisted review flow.
     - `AmountVariantsTab.test.tsx` and `ProductYearBar.test.tsx` already cover drafts across years, nonannual amount
       aggregation, and historical-year selection. Use those tests as the starting point for future annual logic changes.
-3. **Move data integrity cases before removing them.** Reuse the temporary replica-set approach in
-   `src/tests/playwright/start-server.ts` for a focused Vitest integration suite with no Next process. The existing data
-   tests often use `vitest/fakeDb.ts` (Mingo), including parts of the current action integration coverage. Prioritize
-   source/destination balances and copied metadata, rename cascades, September aggregation boundaries, and rejected
-   imports leaving persisted data intact. Prove each replacement catches the original regression before removing its
-   browser case.
+3. **Move data integrity cases (done).** The
+   [MongoDB integration suite](../server/actions/data-integrity.integration.test.ts) runs real server actions against an
+   isolated replica set in Vitest. It covers stock changes and transfers, discarded stock accounting, category and
+   variant reference rewrites, variant copy, the annual removal marker, the September boundary, and rejected imports
+   leaving every catalog collection intact. Existing component tests cover the form and year controls, and the remaining
+   variant editor journey checks initial focus. Playwright retains live cache behavior and the archive round trip with
+   an image. Removing the 13 duplicates leaves 78 project entries.
 4. **Move layout checks to a real browser with fixture data.** Use the existing Vitest browser setup and add a focused
    browser project for interaction or geometry assertions if needed. Keep screenshot comparisons in the visual project
    and avoid moving CSS layout assertions to jsdom. Keep the existing Playwright case until the replacement reproduces

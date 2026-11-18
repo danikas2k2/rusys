@@ -1,6 +1,6 @@
 import { expect, test } from '@tests/fixtures/test';
 
-import type { Product, Variant } from '~/schema';
+import type { Variant } from '~/schema';
 
 test.describe('variants', () => {
     test('clips the category transition to the scrolled variants viewport', async ({ page, db }) => {
@@ -56,44 +56,13 @@ test.describe('variants', () => {
 
         await page.getByRole('row', { name: /Šeimyninis stiklainis/ }).click();
         const edit = page.getByRole('dialog', { name: 'Taisyti variantą' });
+        await expect(edit.getByRole('textbox', { name: 'Variantas' })).toBeFocused();
         await edit.getByRole('textbox', { name: 'Variantas' }).fill('Dovanų rinkinys');
         await edit.getByRole('button', { name: 'Naujinti' }).click();
         await expect(page.getByRole('row', { name: /Dovanų rinkinys/ })).toBeVisible();
         await page.reload();
         await expect(page.getByRole('row', { name: /Dovanų rinkinys/ })).toBeVisible();
         expect(await db.collection<Variant>('variants').countDocuments({ variant: 'Šeimyninis stiklainis' })).toBe(0);
-    });
-
-    test('renaming a used variant updates product amounts', async ({ page, db }) => {
-        await page.goto('/variants');
-        await expect(page.getByRole('row', { name: /Stiklainis/ }).first()).toBeVisible();
-        await page
-            .getByRole('row', { name: /Stiklainis/ })
-            .first()
-            .click();
-        const dialog = page.getByRole('dialog', { name: 'Taisyti variantą' });
-        await dialog.getByRole('textbox', { name: 'Variantas' }).fill('Vienas stiklainis');
-        await dialog.getByRole('button', { name: 'Naujinti' }).click();
-        await expect(page.getByRole('row', { name: /Vienas stiklainis/ })).toBeVisible();
-        const product = await db.collection<Product>('products').findOne({ group: 'Uogienės', name: 'Avietės' });
-        expect(product?.years?.[0]?.amounts?.[0]?.variant).toBe('Vienas stiklainis');
-    });
-
-    test('copies a variant into another category without removing the source', async ({ page, db }) => {
-        await page.goto('/variants');
-        await page.getByRole('row', { name: /Didelis indelis/ }).click();
-        const edit = page.getByRole('dialog', { name: 'Taisyti variantą' });
-        await expect(edit.getByRole('textbox', { name: 'Variantas' })).toBeFocused();
-        const category = edit.getByRole('combobox', { name: 'Kategorija' });
-        await category.click();
-        await page.getByRole('option', { name: 'Daržovės' }).click();
-        await expect(category).toHaveValue('Daržovės');
-        await edit.getByRole('button', { name: 'Kopijuoti' }).click();
-        await page.getByRole('tab', { name: 'Daržovės' }).click();
-        await expect(page.getByRole('row', { name: /Didelis indelis/ })).toBeVisible();
-        expect(await db.collection<Variant>('variants').countDocuments({ variant: 'Didelis indelis' })).toBe(2);
-        await page.reload();
-        await expect(page.getByRole('row', { name: /Didelis indelis/ })).toBeVisible();
     });
 
     test('reorders variants and archives one after confirmation', async ({ page, db }) => {

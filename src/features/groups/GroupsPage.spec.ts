@@ -1,6 +1,6 @@
 import { expect, test } from '@tests/fixtures/test';
 
-import type { Group, Product, Variant } from '~/schema';
+import type { Group } from '~/schema';
 
 test.describe('categories', () => {
     test('creates a category, persists its options, and discards a cancelled draft @critical', async ({ page, db }) => {
@@ -29,21 +29,6 @@ test.describe('categories', () => {
         const category = await db.collection<Group>('groups').findOne({ group: 'Konservai' });
         expect(category?.annual).toBe(false);
         expect(category?.review).toBe(true);
-    });
-
-    test('renames a category and updates its products and variants', async ({ page, db }) => {
-        await page.goto('/categories');
-        await page.getByRole('row', { name: /Uogienės/ }).click();
-        const dialog = page.getByRole('dialog', { name: 'Taisyti kategoriją' });
-        await expect(dialog).toBeVisible();
-        await dialog.getByRole('textbox', { name: 'Kategorija' }).fill('Uogų uogienės');
-        await dialog.getByRole('button', { name: 'Naujinti' }).click();
-        await expect(page.getByRole('row', { name: /Uogų uogienės/ })).toBeVisible();
-        await page.reload();
-        await expect(page.getByRole('row', { name: /Uogų uogienės/ })).toBeVisible();
-        expect(await db.collection<Group>('groups').countDocuments({ group: 'Uogienės' })).toBe(0);
-        expect(await db.collection<Product>('products').countDocuments({ group: 'Uogų uogienės' })).toBe(2);
-        expect(await db.collection<Variant>('variants').countDocuments({ group: 'Uogų uogienės' })).toBe(2);
     });
 
     test('keeps an edited category after a failed save and succeeds on retry', async ({ page, db }) => {
