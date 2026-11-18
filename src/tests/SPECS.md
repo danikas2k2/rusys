@@ -1,14 +1,15 @@
 # Test specifications
 
-Read this guide when adding or changing tests. For covered and missing E2E scenarios, see [PLAN.md](PLAN.md).
+Use this guide to choose a test level and locate coverage before adding or changing tests.
 
 ## Choose the test level
 
 - Use Vitest `*.test.ts` or `*.test.tsx` for calculations, validation, server logic, components, and other focused
   behavior. Tests run through `pnpm test`; client tests use jsdom and common and server tests use Node. Check
   `vitest.config.mts` for the directories included in each project.
-- Use Playwright `*.spec.ts` for important user flows across the browser, Next server, and database. Run them with
-  `pnpm test:e2e`; `pnpm test:e2e:critical` runs the `@critical` subset. Tests live beside their feature.
+- Use Playwright `*.spec.ts` for critical user flows across the browser, Next server, and database. Tag them `@critical`
+  and run them with `pnpm test:e2e` or its alias `pnpm test:e2e:critical`. Run axe scans separately with
+  `pnpm test:a11y`. Tests live beside their feature.
 - Use Vitest Browser Mode `*.snap.tsx` for visual comparisons. Run `pnpm test:visual` to compare screenshots and
   `pnpm test:visual:update` to update references. Keep visual tests beside the component they cover.
 - Use Vitest Browser Mode `*.spec.ts` in a `layout` folder next to the feature for interactive layout and geometry with
@@ -27,6 +28,16 @@ For transactions, aggregation, and persisted data invariants, use the
 [MongoDB integration suite](../server/actions/data-integrity.integration.test.ts). It runs as part of `pnpm test` and
 `pnpm test:coverage`. To run it alone, use `pnpm test src/server/actions/data-integrity.integration.test.ts`. The suite
 uses a temporary MongoDB replica set and requires a local port and access to the pinned MongoDB binary.
+
+## Coverage by test level
+
+| Area                               | Critical Playwright coverage                                                                                                                                                                                                                                                                                                                              | Focused Vitest coverage                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Navigation and preferences         | [Navigation](../components/app/AppRouter.spec.ts) checks server-rendered data, URL filters, Back, menu dismissal, and mobile touch. [Locale](../components/runtime/LanguageToggle.spec.ts) checks switching in place, the cookie, and reload.                                                                                                             | Browser fixtures cover empty states, quick search in the three primary views, and theme restoration after remount. Component and server tests cover menu URLs and locale selection. [App states](../components/app/layout/AppContent.spec.ts), [menu](../components/toolbar/ToolbarMenu.test.tsx), [locale toggle](../components/runtime/LanguageToggle.test.tsx), [request locale](../server/requestLocale.test.ts)                                                                                                                                                                                                                                                                                                          |
+| Categories, variants, and products | [Categories](../features/groups/GroupsPage.spec.ts) covers drag reorder, archive confirmation, and retry after a failed save. [Products](../features/products/ProductsPage.spec.ts) covers child creation from the grid, parent expansion, rename, move, and archive.                                                                                     | The MongoDB integration suite covers category options and rename cascades, plus variant metadata, stock reference rewrites, copying, ordering, and archival. Component tests cover form inputs, discard and confirmation, and grouped products. [Category form](../features/groups/GroupBox.test.tsx), [variant form](../features/variants/VariantBox.test.tsx), [product form](../features/products/ProductBox.test.tsx), [grid](../features/products/ProductsGrid.test.tsx), [modal dismissal](../components/common/ConfirmableModal.test.tsx)                                                                                                                                                                              |
+| Stock, years, and review           | [Consumption](../features/products/AmountBox.spec.ts) verifies both histories after save, undo, redo, and reload. [Consumption periods](../features/products/ProductYearBar.spec.ts) checks history for a period without stock and cache behavior. [Review](../features/review/ReviewBox.spec.ts) checks updates to the touched category and persistence. | The MongoDB integration suite covers stock adjustments, multiple variants, transfers, reclassification, the annual removal marker, and the September boundary. Component tests cover drafts across years, variant selection and cancellation, history table semantics, missing-only filtering, and review reset and discard. [Amount controls](../features/products/AmountVariantsTab.test.tsx), [year bar](../features/products/ProductYearBar.test.tsx), [history](../features/products/AmountHistoryTab.test.tsx), [consumption history](../features/products/ConsumedHistoryTab.test.tsx), [missing-only state](../features/products/MissingOnlyEffects.test.tsx), [review dialog](../features/review/ReviewBox.test.tsx) |
+| Images and archives                | [Images](../components/images/ImageDropzone.spec.ts) checks seeded image decoding, staged upload, token-only save, and cleanup when leaving the page. [Archive round trip](../features/dialogs/ImportBox.spec.ts) restores catalog data and image bytes.                                                                                                  | Component and file lifecycle tests cover upload cancellation, late responses, stale tokens, replacement, and image removal. Import component tests cover discard and errors. The MongoDB integration suite verifies that invalid archives leave the catalog intact. [Upload hook](../components/images/useStagedImage.test.tsx), [staged files](../server/data/stagedImages.test.ts), [variant image picker](../features/products/VariantImagePicker.test.tsx), [import dialog](../features/dialogs/ImportBox.test.tsx)                                                                                                                                                                                                       |
+| Layout and accessibility           | `pnpm test:a11y` runs the rendered-page axe scans separately from the functional suite. The full-app mobile journey verifies touch navigation on both engines.                                                                                                                                                                                            | Browser fixtures cover independent scrolling, transition clipping, responsive cards and review columns, totals alignment, dialog width during saves, tooltip placement, and reduced motion. The mobile fixtures cover safe areas and simulated keyboard geometry. [App shell](../components/app/layout/AppShell.spec.ts), [mobile shell](../components/app/layout/mobile/AppShell.spec.ts), [products](../features/products/layout/ProductsPage.spec.ts), [amounts](../features/products/layout/AmountBox.spec.ts), [variants](../features/variants/layout/VariantsPage.spec.ts), [review](../features/review/layout/ReviewBox.spec.ts)                                                                                       |
 
 ## Queries, interactions, and fixtures
 
@@ -48,9 +59,8 @@ locations before cleanup. Tests sharing this database run with one worker; do no
 isolating the database and application process per worker. Server startup and cleanup live in `src/tests/playwright/`.
 
 Use the real API for ordinary CRUD scenarios. Use Playwright routing to exercise specific errors or slow responses.
-Verify page content rather than only navigation URLs. Failed tests retain a trace and screenshot. Update
-[PLAN.md](PLAN.md) when adding or changing scenario coverage; mark a scenario covered only when a working browser test
-exercises it. Authentication is bypassed in the E2E development server, so these tests do not verify production sign-in.
+Verify page content as well as navigation URLs. Failed tests retain a trace and screenshot. Authentication is bypassed
+in the E2E development server. Production sign-in requires a separate controlled environment.
 
 Playwright automatically marks its specs with `@e2e` and excludes `layout` folders before loading files. Use `@mobile`
 for Playwright tests that exercise touch or mobile behavior. They run in mobile Chromium and WebKit. The other
@@ -60,7 +70,8 @@ Playwright specs run in desktop Chromium, including the axe scans.
 
 Visual tests compare the rendered result only through screenshots. Do not add separate assertions for text, focus,
 attributes, CSS values, dimensions, or other implementation details. An `expect` is allowed when it is needed to wait
-for the intended state before capture; test functional behavior in unit or E2E tests. Keep tests independent of order.
+for the intended state before capture. Use component, browser fixture, integration, or E2E tests for behavior. Keep
+tests independent of order.
 
 Visual tests mount the client with fixture data, without MongoDB or a Next server. They run in five browser/device
 projects in light and dark themes. References live under the corresponding `__screenshots__/<test>/` directory. Fixtures

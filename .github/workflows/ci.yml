@@ -110,6 +110,10 @@ jobs:
       - name: Run E2E tests
         run: pnpm test:e2e
 
+      - name: Run accessibility scans
+        if: ${{ !cancelled() }}
+        run: pnpm test:a11y
+
       - name: Upload Playwright traces
         if: failure()
         uses: actions/upload-artifact@v7

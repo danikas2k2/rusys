@@ -3,62 +3,7 @@ import { openProduct, productTile } from '@tests/helpers/ui';
 
 import type { Product } from '~/schema';
 
-test.describe('products', () => {
-    test('filters missing products in both directions', async ({ page, db }) => {
-        await db.collection<Product>('products').updateOne({ name: 'Avietės' }, { $set: { missing: true } });
-        await page.goto('/');
-        await expect(productTile(page, 'Avietės')).toBeVisible();
-        await expect(productTile(page, 'Braškės')).toBeVisible();
-        const filter = page.locator('[data-products-header]').getByRole('checkbox');
-        await filter.click();
-        await expect(filter).not.toBeChecked();
-        await expect(productTile(page, 'Avietės')).toBeVisible();
-        await expect(productTile(page, 'Braškės')).toHaveCount(0);
-
-        await filter.click();
-        await expect(filter).toBeChecked();
-        await expect(productTile(page, 'Braškės')).toBeVisible();
-    });
-
-    test('adds and removes a product from the grid', async ({ page, db }) => {
-        await page.goto('/');
-        await expect(productTile(page, 'Avietės')).toBeVisible();
-        await page.locator('[data-action="add"]').click();
-        const add = page.getByRole('dialog', { name: 'Pridėti naują produktą' });
-        await add.getByRole('textbox', { name: 'Produktas' }).fill('Šilauogės');
-        await add.getByRole('button', { name: 'Pridėti' }).click();
-        await expect(productTile(page, 'Šilauogės')).toBeVisible();
-        await expect.poll(() => db.collection<Product>('products').countDocuments({ name: 'Šilauogės' })).toBe(1);
-
-        const amount = page.getByRole('dialog', { name: /Šilauogės Uogienės/ });
-        await amount.getByRole('button', { name: 'Taisyti' }).click();
-        const edit = page.getByRole('dialog', { name: 'Taisyti produktą' });
-        await edit.getByRole('button', { name: 'Šalinti' }).click();
-        const confirm = page.getByRole('dialog', { name: 'Ar tikrai norite pašalinti?' });
-        await confirm.getByRole('button', { name: 'Šalinti' }).click();
-        await expect(productTile(page, 'Šilauogės')).toHaveCount(0);
-        await expect
-            .poll(async () => (await db.collection<Product>('products').findOne({ name: 'Šilauogės' }))?.archivedAt)
-            .toBeDefined();
-    });
-
-    test('creates a product and opens its amounts dialog @critical', async ({ page, db }) => {
-        await page.goto('/');
-        await expect(productTile(page, 'Avietės')).toBeVisible();
-        await page.locator('[data-action="add"]').click();
-        const add = page.getByRole('dialog', { name: 'Pridėti naują produktą' });
-        await add.getByRole('textbox', { name: 'Produktas' }).fill('Mėlynės');
-        await add.getByRole('button', { name: 'Pridėti' }).click();
-        await expect(page.getByRole('dialog', { name: /Mėlynės Uogienės/ })).toBeVisible();
-        expect((await db.collection<Product>('products').findOne({ name: 'Mėlynės' }))?.group).toBe('Uogienės');
-        await page
-            .getByRole('dialog', { name: /Mėlynės Uogienės/ })
-            .getByRole('button', { name: 'Uždaryti' })
-            .click();
-        await page.reload();
-        await expect(productTile(page, 'Mėlynės')).toBeVisible();
-    });
-
+test.describe('products', { tag: '@critical' }, () => {
     test('renames, moves and removes a product with confirmation', async ({ page, db }) => {
         await page.goto('/');
         let amount = await openProduct(page, 'Avietės');
@@ -137,21 +82,8 @@ test.describe('products', () => {
         await expect(page.getByRole('dialog', { name: /Avietės Uogienės/ })).not.toBeVisible();
         await parentTile.getByRole('button', { name: 'Išplėsti' }).click();
         await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeVisible();
-    });
-
-    test('Escape discards an unsaved product while preserving the database', async ({ page, db }) => {
-        await page.goto('/');
-        await expect(productTile(page, 'Avietės')).toBeVisible();
-        await page.locator('[data-action="add"]').click();
-        const add = page.getByRole('dialog', { name: 'Pridėti naują produktą' });
-        await expect(add.getByRole('textbox', { name: 'Produktas' })).toBeFocused();
-        await add.getByRole('textbox', { name: 'Produktas' }).fill('Serbentai');
-        await page.keyboard.press('Escape');
-        await page
-            .getByRole('dialog', { name: 'Atmesti neišsaugotus pakeitimus?' })
-            .getByRole('button', { name: 'Atmesti' })
-            .click();
-        await expect(add).toHaveCount(0);
-        expect(await db.collection<Product>('products').countDocuments({ name: 'Serbentai' })).toBe(0);
+        await page.reload();
+        await productTile(page, 'Avietės').getByRole('button', { name: 'Išplėsti' }).click();
+        await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeVisible();
     });
 });

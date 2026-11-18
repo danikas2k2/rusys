@@ -6,7 +6,7 @@ import type { Product } from '~/schema';
 
 test.use({ scenario: 'annual' });
 
-test.describe('annual products', () => {
+test.describe('annual products', { tag: '@critical' }, () => {
     test('offers consumption periods without stock and shows their totals and history', async ({ page, db }) => {
         const consumptionYear = currentYear - 1;
         await db.collection<Product>('products').updateOne(

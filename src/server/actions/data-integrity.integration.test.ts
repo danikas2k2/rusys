@@ -6,7 +6,7 @@ import { MongoMemoryReplSet } from 'mongodb-memory-server';
 
 import { SchemaError, type Product, type Variant } from '~/schema';
 import { importArchive } from '~/server/actions/archive';
-import { renameGroupAction } from '~/server/actions/groups';
+import { renameGroupAction, updateGroupAction } from '~/server/actions/groups';
 import {
     getProductHistory,
     moveConsumedToRecycledAction,
@@ -15,7 +15,14 @@ import {
     transferAmountsAction,
 } from '~/server/actions/products';
 import { getSummaryHistory, readProductConsumptionYears, readProductSummary } from '~/server/actions/summary';
-import { copyVariantAction, renameVariantAction } from '~/server/actions/variants';
+import {
+    copyVariantAction,
+    deleteVariantAction,
+    getVariantsAction,
+    renameVariantAction,
+    reorderVariantsAction,
+    updateVariantAction,
+} from '~/server/actions/variants';
 import { $clients, $dbs, db } from '~/server/db';
 
 vi.mock(import('~/server/auth/session'), () => ({
@@ -226,6 +233,41 @@ describe('catalog integrity with MongoDB', () => {
             await expect(database.collection(collection).countDocuments({ group: source.group })).resolves.toBe(0);
             await expect(database.collection(collection).countDocuments({ group: targetGroup })).resolves.toBe(count);
         }
+    });
+
+    it('persists the selected category options when creating a category', async () => {
+        const group = 'Uogų atsargos';
+        await updateGroupAction({ group, annual: false, review: true });
+
+        await expect(database.collection('groups').findOne({ group })).resolves.toMatchObject({
+            annual: false,
+            review: true,
+        });
+    });
+
+    it('preserves variant display metadata through creation, rename, and reorder', async () => {
+        const group = source.group;
+        await updateVariantAction({ group, variant: 'Šeimyninis stiklainis', count: 4, suffix: 'pak.', units: 'vnt' });
+        await renameVariantAction({ group, variant: 'Šeimyninis stiklainis', targetVariant: 'Dovanų rinkinys' });
+        await reorderVariantsAction({ group, variants: { 'Dovanų rinkinys': 0, [jar]: 1, [largeJar]: 2 } });
+        await deleteVariantAction({ group, variant: largeJar });
+
+        const { variants } = await getVariantsAction();
+
+        expect(variants.filter((variant) => variant.group === group).map((variant) => variant.variant)).toStrictEqual([
+            'Dovanų rinkinys',
+            jar,
+        ]);
+        expect(
+            variants.find((variant) => variant.group === group && variant.variant === 'Dovanų rinkinys')
+        ).toMatchObject({
+            count: 4,
+            suffix: 'pak.',
+            units: 'vnt',
+        });
+        await expect(variantCollection().findOne({ group, variant: largeJar })).resolves.toMatchObject({
+            archivedAt: expect.any(Number),
+        });
     });
 
     it('renames a variant and rewrites stock rows that reference it', async () => {

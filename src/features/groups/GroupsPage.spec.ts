@@ -2,35 +2,7 @@ import { expect, test } from '@tests/fixtures/test';
 
 import type { Group } from '~/schema';
 
-test.describe('categories', () => {
-    test('creates a category, persists its options, and discards a cancelled draft @critical', async ({ page, db }) => {
-        await page.goto('/categories');
-        await expect(page.getByRole('row', { name: /Uogienės/ })).toBeVisible();
-
-        await page.locator('[data-action="add"]').click();
-        let dialog = page.getByRole('dialog', { name: 'Pridėti naują kategoriją' });
-        await expect(dialog).toBeVisible();
-        await dialog.getByRole('textbox', { name: 'Kategorija' }).fill('Prieskoniai');
-        await dialog.getByRole('button', { name: 'Atšaukti' }).click();
-        await page.getByRole('button', { name: 'Atmesti' }).click();
-        await expect(dialog).toBeHidden();
-        expect(await db.collection<Group>('groups').countDocuments({ group: 'Prieskoniai' })).toBe(0);
-
-        await page.locator('[data-action="add"]').click();
-        dialog = page.getByRole('dialog', { name: 'Pridėti naują kategoriją' });
-        await dialog.getByRole('textbox', { name: 'Kategorija' }).fill('Konservai');
-        await dialog.getByRole('checkbox', { name: 'Metiniai' }).uncheck();
-        await dialog.getByRole('checkbox', { name: 'Peržiūra' }).check();
-        await dialog.getByRole('button', { name: 'Pridėti' }).click();
-        await expect(page.getByRole('row', { name: /Konservai/ })).toBeVisible();
-        await expect.poll(() => db.collection<Group>('groups').countDocuments({ group: 'Konservai' })).toBe(1);
-        await page.reload();
-        await expect(page.getByRole('row', { name: /Konservai/ })).toBeVisible();
-        const category = await db.collection<Group>('groups').findOne({ group: 'Konservai' });
-        expect(category?.annual).toBe(false);
-        expect(category?.review).toBe(true);
-    });
-
+test.describe('categories', { tag: '@critical' }, () => {
     test('keeps an edited category after a failed save and succeeds on retry', async ({ page, db }) => {
         await page.goto('/categories');
         await page.getByRole('row', { name: /Uogienės/ }).click();
