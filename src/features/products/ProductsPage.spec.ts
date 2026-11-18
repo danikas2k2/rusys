@@ -248,39 +248,6 @@ test.describe('products', () => {
             .toBeDefined();
     });
 
-    test('preserves advanced product fields when collapsed and reopened', async ({ page }) => {
-        await page.goto('/');
-        await expect(productTile(page, 'Avietės')).toBeVisible();
-        await page.locator('[data-action="add"]').click();
-        const add = page.getByRole('dialog', { name: 'Pridėti naują produktą' });
-        const details = add.getByRole('button', { name: 'Papildoma informacija' });
-        await details.click();
-        await expect(details).toHaveAttribute('aria-expanded', 'true');
-        const expiry = add.getByRole('textbox', { name: 'Galiojimo paklaida' });
-        await expiry.fill('7');
-
-        await details.click();
-        await expect(details).toHaveAttribute('aria-expanded', 'false');
-        await details.click();
-        await expect(details).toHaveAttribute('aria-expanded', 'true');
-        await expect(expiry).toHaveValue('7');
-    });
-
-    test('expands and collapses a grouped product', async ({ page, db }) => {
-        await db.collection<Product>('products').insertOne({
-            group: 'Uogienės',
-            name: 'Aviečių uogienė be cukraus',
-            parent: 'Avietės',
-            years: [],
-        });
-        await page.goto('/');
-        await expect(productTile(page, 'Avietės')).toBeVisible();
-        await productTile(page, 'Avietės').getByRole('button', { name: 'Išplėsti' }).click();
-        await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeVisible();
-        await productTile(page, 'Avietės').getByRole('button', { name: 'Suskleisti' }).click();
-        await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeHidden();
-    });
-
     test('product amounts wrap when the tile is narrow', async ({ page }) => {
         await page.goto('/');
         const tile = productTile(page, 'Avietės');

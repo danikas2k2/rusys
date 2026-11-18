@@ -27,9 +27,12 @@ function render(ui: React.ReactNode) {
 }
 
 vi.mock(import('~/features/products/MoveVariantsBox'), () => ({
-    MoveVariantsBox: ({ amounts, onMoved }: any) => (
+    MoveVariantsBox: ({ amounts, onCancel, onMoved }: any) => (
         <div aria-label="Move variants">
             <span data-testid="moving-amounts">{JSON.stringify(amounts)}</span>
+            <button type="button" onClick={onCancel}>
+                Cancel move
+            </button>
             <button type="button" onClick={onMoved}>
                 Confirm move
             </button>
@@ -293,6 +296,24 @@ describe('<AmountVariantsTab>', () => {
 
         expect(screen.queryByTestId('moving-amounts')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Move variants' })).toBeInTheDocument();
+    });
+
+    it('leaves selection mode and clears selected rows when a move is cancelled', async () => {
+        renderTab();
+        const move = screen.getByRole('button', { name: 'Move variants' });
+        await user.click(move);
+        const selection = screen.getAllByRole('checkbox', { name: 'Select variant' })[0]!;
+        await user.click(selection);
+
+        expect(selection).toBeChecked();
+
+        await user.click(screen.getByRole('button', { name: 'Cancel move' }));
+
+        expect(screen.queryAllByRole('checkbox', { name: 'Select variant' })).toHaveLength(0);
+
+        await user.click(screen.getByRole('button', { name: 'Move variants' }));
+
+        expect(screen.getAllByRole('checkbox', { name: 'Select variant' })[0]).not.toBeChecked();
     });
 
     it('clicking a row expands it', async () => {

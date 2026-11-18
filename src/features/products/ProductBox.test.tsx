@@ -217,6 +217,27 @@ describe('<ProductBox>', () => {
         await expectNoA11yViolations(screen.getByRole('dialog'));
     });
 
+    it('preserves the expiry draft when advanced fields are collapsed and reopened', async () => {
+        render(
+            <MockThemeData state={state}>
+                <ProductBox opened onClose={onClose} />
+            </MockThemeData>
+        );
+        const details = screen.getByRole('button', { name: 'Additional details' });
+        await getParentProductCombobox();
+        const expiry = screen.getByRole('textbox', { name: 'Expiry tolerance' });
+        await user.clear(expiry);
+        await user.type(expiry, '7');
+
+        await user.click(details);
+
+        expect(details).toHaveAttribute('aria-expanded', 'false');
+
+        await getParentProductCombobox();
+
+        expect(screen.getByRole('textbox', { name: 'Expiry tolerance' })).toHaveValue('7');
+    });
+
     it('saves a changed expiry tolerance when editing a product', async () => {
         const setProductExpiryTolerance = vi.fn().mockResolvedValue(true);
         vi.mocked(useSetProductExpiryTolerance).mockReturnValue(setProductExpiryTolerance);

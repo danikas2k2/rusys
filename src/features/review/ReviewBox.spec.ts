@@ -136,38 +136,22 @@ test.describe('review', () => {
         expect(await closeButton.boundingBox()).toEqual(closeButtonBefore);
     });
 
-    test('review tooltip and untouched selection', async ({ page, db }) => {
+    test('places the review tooltip to the left of its button', async ({ page }) => {
         await page.goto('/');
-        await test.step('review button shows its tooltip to the left', async () => {
-            const button = page.getByRole('button', { name: 'Peržiūra' });
-            const tooltip = page.getByRole('tooltip', { name: 'Peržiūra' });
-            await expect(async () => {
-                await page.mouse.move(0, 0);
-                await button.hover();
-                await expect(tooltip).toBeVisible({ timeout: 1000 });
-            }).toPass({ timeout: 10_000 });
-            await expect
-                .poll(async () => {
-                    const buttonBounds = (await button.boundingBox())!;
-                    const tooltipBounds = (await tooltip.boundingBox())!;
-                    return tooltipBounds.x + tooltipBounds.width - buttonBounds.x;
-                })
-                .toBeLessThanOrEqual(0);
-        });
-
-        await test.step('select-all can return a category to untouched without saving changes', async () => {
-            await page.getByRole('button', { name: 'Peržiūra' }).click();
-            const review = page.getByRole('dialog').last();
-            const master = review.getByRole('row', { name: 'Uogienės' }).getByRole('checkbox');
-            await master.click();
-            await expect(master).toHaveAttribute('data-untouched', 'false');
-            await master.click();
-            await expect(master).toBeChecked();
-            await master.click();
-            await expect(master).toHaveAttribute('data-untouched', 'true');
-            await review.getByRole('button', { name: 'Taikyti' }).click();
-            expect((await db.collection<Product>('products').findOne({ name: 'Avietės' }))?.missing).toBe(true);
-        });
+        const button = page.getByRole('button', { name: 'Peržiūra' });
+        const tooltip = page.getByRole('tooltip', { name: 'Peržiūra' });
+        await expect(async () => {
+            await page.mouse.move(0, 0);
+            await button.hover();
+            await expect(tooltip).toBeVisible({ timeout: 1000 });
+        }).toPass({ timeout: 10_000 });
+        await expect
+            .poll(async () => {
+                const buttonBounds = (await button.boundingBox())!;
+                const tooltipBounds = (await tooltip.boundingBox())!;
+                return tooltipBounds.x + tooltipBounds.width - buttonBounds.x;
+            })
+            .toBeLessThanOrEqual(0);
     });
 
     test('review changes only the touched category and persists missing status @critical', async ({ page, db }) => {

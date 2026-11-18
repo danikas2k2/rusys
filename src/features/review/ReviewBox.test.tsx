@@ -251,6 +251,21 @@ describe('<ReviewBox>', () => {
         expect(screen.queryByRole('button', { name: 'Discard' })).not.toBeInTheDocument();
     });
 
+    it('sends no changes when a selected category is reset before applying', async () => {
+        render(
+            <MockApp state={state}>
+                <ReviewBox opened />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'unselect-all' }));
+        await user.click(screen.getByRole('button', { name: 'select-all' }));
+        await user.click(screen.getByRole('button', { name: 'reset' }));
+        await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+        expect(applyReview).toHaveBeenCalledExactlyOnceWith({ updates: [] });
+    });
+
     it('resets checked items when the dialog is reopened', async () => {
         const onClose = vi.fn();
 

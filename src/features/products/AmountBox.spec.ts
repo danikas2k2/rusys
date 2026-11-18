@@ -30,29 +30,6 @@ test.describe('product amounts', () => {
         await expect(reopened.getByRole('button', { name: 'Naujinti' })).toHaveCount(0);
     });
 
-    test('expands a variant and switches dialog controls', async ({ page }) => {
-        await page.goto('/');
-        const amount = await openProduct(page, 'Avietės');
-        await test.step('variant expansion', async () => {
-            const variant = amount.locator('[data-amount-variant-key="Stiklainis"]');
-            await variant.locator('[aria-expanded="false"]').click();
-            await expect(variant.locator('[aria-expanded="true"]')).toBeVisible();
-            await variant.locator('[aria-expanded="true"]').click();
-            await expect(variant.locator('[aria-expanded="false"]')).toBeVisible();
-        });
-
-        await test.step('tab and variant-selection controls', async () => {
-            await amount.getByRole('tab', { name: 'Istorija' }).click();
-            await expect(amount.getByRole('tabpanel', { name: 'Istorija' })).toBeVisible();
-            await amount.getByRole('tab', { name: 'Kiekiai' }).click();
-            await expect(amount.getByRole('tabpanel', { name: 'Kiekiai' })).toBeVisible();
-            await amount.getByRole('button', { name: 'Perkelti variantus' }).click();
-            await expect(amount.getByRole('checkbox')).toHaveCount(1);
-            await amount.getByRole('button', { name: 'Atšaukti' }).click();
-            await expect(amount.getByRole('checkbox')).toHaveCount(0);
-        });
-    });
-
     test('consumes stock with a comment, then undoes and redoes it @critical', async ({ page, db }) => {
         await page.goto('/');
         let amount = await openProduct(page, 'Avietės');
@@ -265,18 +242,6 @@ test.describe('consumption in the product dialog', () => {
         await dialog.getByRole('tab', { name: 'Kiekiai' }).click();
         await dialog.getByRole('button', { name: /Pakartoti/ }).click();
         await expectHistoryOpacity('1');
-    });
-
-    test('shows both histories without column headers', async ({ page }) => {
-        await page.goto('/');
-        const dialog = await openProduct(page, 'Avietės');
-        for (const name of ['Istorija', 'Suvartota']) {
-            await dialog.getByRole('tab', { name }).click();
-            const panel = dialog.getByRole('tabpanel', { name });
-            await expect(panel.getByRole('table')).toContainText('Suvalgyta su arbata');
-            await expect(panel.locator('thead')).toHaveCount(0);
-            await expect(panel.getByRole('columnheader')).toHaveCount(0);
-        }
     });
 
     test('consumption totals and history survive reload @critical', async ({ page }) => {

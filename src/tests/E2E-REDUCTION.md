@@ -31,11 +31,18 @@ this as a baseline for scope and measure actual CI time separately.
 1. **Cut browser repetitions (done).** Both mobile projects select four `@mobile` scenarios covering touch navigation,
    app and review safe areas, and simulated keyboard viewport. Desktop Chromium still runs the axe scans in the
    functional CI job. Playwright now lists 96 project entries (88 desktop and four per mobile engine).
-2. **Remove low-risk duplicates.** Match assertions, including negative paths, to existing component tests before
-   deletion. Start with toolbar utilities/URL link generation, review selection/discard, amount row expansion, and
-   annual draft state. Useful evidence includes `ToolbarMenu.test.tsx`, `ReviewBox.test.tsx`,
-   `AmountVariantsTab.test.tsx`, and `ProductYearBar.test.tsx`. The latter two already cover drafts across years and
-   nonannual amount aggregation, and the year bar covers the historical-years menu.
+2. **Remove low-risk duplicates (done).** Removed five desktop scenarios and trimmed two others. Playwright lists 91
+   project entries (83 desktop and four per mobile engine).
+    - `ToolbarMenu.test.tsx` covers utilities and generated filter links. Playwright retains actual navigation with
+      filters and Escape dismissal.
+    - `AmountBox.test.tsx` and `AmountVariantsTab.test.tsx` cover tab switching, expansion and cancelling a move. Both
+      history tab tests check populated tables for the absence of column headers.
+    - `ProductBox.test.tsx` covers the expiry draft across collapse and reopen. `ProductsGrid.test.tsx` and
+      `ProductTile.test.tsx` cover parent expansion and collapse.
+    - `ReviewTable.test.tsx` covers selection controls. `ReviewBox.test.tsx` verifies that applying after a reset sends
+      no changes. Playwright retains tooltip geometry and the persisted review flow.
+    - `AmountVariantsTab.test.tsx` and `ProductYearBar.test.tsx` already cover drafts across years, nonannual amount
+      aggregation, and historical-year selection. Use those tests as the starting point for future annual logic changes.
 3. **Move data integrity cases before removing them.** Reuse the temporary replica-set approach in
    `src/tests/playwright/start-server.ts` for a focused Vitest integration suite with no Next process. The existing data
    tests often use `vitest/fakeDb.ts` (Mingo), including parts of the current action integration coverage. Prioritize

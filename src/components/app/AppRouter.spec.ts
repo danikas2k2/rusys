@@ -114,22 +114,12 @@ test.describe('desktop navigation', () => {
         await page.goto(`/?${filters}`);
         await page.getByRole('button', { name: 'Meniu' }).click();
         const menu = page.getByRole('navigation');
-        await expect(menu.getByRole('link', { name: 'Variantai' })).toHaveAttribute('href', `/variants?${filters}`);
         await menu.getByRole('link', { name: 'Variantai' }).click();
         await expect(page).toHaveURL(new RegExp(`/variants\\?${filters}$`));
 
         await page.getByRole('button', { name: 'Meniu' }).click();
         await page.keyboard.press('Escape');
         await expect(page.getByRole('dialog', { name: 'Meniu' })).toBeHidden();
-    });
-
-    test('utilities expands to show import and export actions', async ({ page }) => {
-        await page.goto('/');
-        await page.getByRole('button', { name: 'Meniu' }).click();
-        const menu = page.getByRole('navigation');
-        await menu.getByRole('link', { name: 'Įrankiai' }).click();
-        await expect(menu.getByText('Eksportuoti', { exact: true })).toBeVisible();
-        await expect(menu.getByText('Importuoti', { exact: true })).toBeVisible();
     });
 });
 
