@@ -82,6 +82,8 @@ The six-test critical suite covers creating a category, variant, and product; co
       (`pnpm test:e2e`) and visual tests in an `xcode-27` macOS 27 arm64 job to match the screenshot reference
       environment. References are kept for every device and both themes.
 - [x] Added iPhone 17 and iPad mini WebKit visual scenarios for the main pages and dialogs.
+- [x] Interactive layout checks run with fixture data in Vitest Browser Mode via `pnpm test:layout`. Playwright retains
+      mobile touch navigation in Chromium and WebKit.
 - [ ] Extend accessibility coverage to remaining dialogs and summary flows; check keyboard and assistive technology
       interactions beyond automated scans.
 - [ ] Add targeted Firefox critical scenarios if browser compatibility requires them. There is no need to duplicate the

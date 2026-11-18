@@ -21,6 +21,8 @@ ensureBrowsersInstalled(projects);
 export default defineConfig({
     testDir: './src',
     testMatch: '**/*.spec.ts',
+    testIgnore: '**/layout/**',
+    tag: '@e2e',
     snapshotPathTemplate,
     workers: 1,
     retries: process.env.CI ? 2 : 0,

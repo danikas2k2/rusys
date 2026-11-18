@@ -11,6 +11,12 @@ Read this guide when adding or changing tests. For covered and missing E2E scena
   `pnpm test:e2e`; `pnpm test:e2e:critical` runs the `@critical` subset. Tests live beside their feature.
 - Use Vitest Browser Mode `*.snap.tsx` for visual comparisons. Run `pnpm test:visual` to compare screenshots and
   `pnpm test:visual:update` to update references. Keep visual tests beside the component they cover.
+- Use Vitest Browser Mode `*.spec.ts` in a `layout` folder next to the feature for interactive layout and geometry with
+  fixture data. Tag these tests with `component` and run them with `pnpm test:layout`. Specs directly in `layout` run in
+  desktop Chromium. Use `layout/mobile` for mobile Chromium and WebKit. Both use normal app CSS and stubbed server
+  actions.
+
+Both browser suites share `vitest.visual.config.mts`. Run them together with `pnpm test:browser`.
 
 Choose meaningful assertions that exercise observable behavior and relevant error or cancel paths. Avoid tests that only
 mirror implementation details. For persisted changes, verify the stored result and, when relevant, after reload. When
@@ -46,8 +52,9 @@ Verify page content rather than only navigation URLs. Failed tests retain a trac
 [PLAN.md](PLAN.md) when adding or changing scenario coverage; mark a scenario covered only when a working browser test
 exercises it. Authentication is bypassed in the E2E development server, so these tests do not verify production sign-in.
 
-Tag a Playwright test with `@mobile` when it specifically exercises touch or mobile layout. Tagged tests run in mobile
-Chromium and WebKit. Untagged tests run in desktop Chromium, including the axe scans.
+Playwright automatically marks its specs with `@e2e` and excludes `layout` folders before loading files. Use `@mobile`
+for Playwright tests that exercise touch or mobile behavior. They run in mobile Chromium and WebKit. The other
+Playwright specs run in desktop Chromium, including the axe scans.
 
 ## Visual tests
 

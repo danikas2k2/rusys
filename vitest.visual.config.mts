@@ -2,7 +2,7 @@ import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 
 import react from '@vitejs/plugin-react';
-import { playwright } from '@vitest/browser-playwright';
+import { defineBrowserCommand, playwright } from '@vitest/browser-playwright';
 import { devices } from 'playwright';
 import { defineConfig } from 'vitest/config';
 
@@ -19,6 +19,7 @@ const browsers = [
 const instances = browsers.flatMap(({ name, browser, device }) =>
     (['light', 'dark'] as const).map((theme) => ({
         name: theme === 'dark' ? `${name}-dark` : name,
+        include: ['src/**/*.snap.tsx'],
         browser,
         viewport: device.viewport,
         provider: playwright({
@@ -35,8 +36,16 @@ const instances = browsers.flatMap(({ name, browser, device }) =>
     }))
 );
 
-// Playwright adds one SIGTERM listener per instance; the visual runner reaches four more at startup.
-process.setMaxListeners(Math.max(process.getMaxListeners(), instances.length + 4));
+const componentInstances = instances
+    .filter(({ name }) => name === 'chromium' || name === 'chromium-mobile' || name === 'webkit-mobile')
+    .map((instance) => ({
+        ...instance,
+        name: `component-${instance.name}`,
+        include: [instance.name === 'chromium' ? 'src/**/layout/*.spec.ts' : 'src/**/layout/mobile/*.spec.ts'],
+    }));
+
+// Playwright adds one SIGTERM listener per instance; Vitest adds four more at startup.
+process.setMaxListeners(Math.max(process.getMaxListeners(), instances.length + componentInstances.length + 4));
 
 export default defineConfig({
     plugins: [
@@ -85,7 +94,10 @@ export default defineConfig({
         ],
     },
     test: {
-        include: ['src/**/*.snap.tsx'],
+        include: ['src/**/*.snap.tsx', 'src/**/layout/**/*.spec.ts'],
+        tags: [
+            { name: 'component', description: 'Browser tests mounted with fixture data and stubbed server actions' },
+        ],
         attachmentsDir: 'test-results',
         testTimeout: 30_000,
         fileParallelism: false,
@@ -101,7 +113,29 @@ document.head.append(style);`,
                 },
             ],
             provider: playwright(),
-            instances,
+            instances: [...instances, ...componentInstances],
+            commands: {
+                layoutWheel: defineBrowserCommand(
+                    async ({ page, frame }, delta: number, position?: { x: number; y: number }) => {
+                        if (position) {
+                            const bounds = await (await (await frame()).frameElement()).boundingBox();
+                            if (!bounds) {
+                                throw new Error('The layout test frame is not visible');
+                            }
+                            await page.mouse.move(bounds.x + position.x, bounds.y + position.y);
+                        }
+                        await page.mouse.wheel(0, delta);
+                    }
+                ),
+                layoutTapButton: defineBrowserCommand(async ({ iframe }, name: string) => {
+                    await iframe.getByRole('button', { name, exact: true }).tap();
+                }),
+                layoutReducedMotion: defineBrowserCommand(
+                    async ({ page }, reducedMotion: 'reduce' | 'no-preference') => {
+                        await page.emulateMedia({ reducedMotion });
+                    }
+                ),
+            },
             expect: {
                 toMatchScreenshot: {
                     screenshotOptions: { scale: 'css' },

@@ -6,37 +6,6 @@ const destinations = [
     { label: 'Kategorijos', path: '/categories', content: '[data-table="groups"]' },
 ];
 
-test.describe('reduced motion', () => {
-    test.use({ scenario: 'history' });
-    test.skip(({ isMobile }) => isMobile);
-
-    test('disables CSS motion across the app and startup loader', async ({ page }) => {
-        await page.goto('/');
-        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-        expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
-        await page.addStyleTag({ url: '/assets/loader.css' });
-
-        const movingElements = await page.evaluate(() => {
-            const loader = document.createElement('div');
-            loader.className = 'loader';
-            loader.innerHTML = '<div></div><div></div><div></div>';
-            document.body.append(loader);
-
-            return Array.from(document.querySelectorAll('body *'))
-                .filter((element) => !element.closest('extjs-portal'))
-                .flatMap((element) => {
-                    const style = getComputedStyle(element);
-                    const durations = [style.animationDuration, style.transitionDuration].flatMap((value) =>
-                        value.split(',').map((duration) => Number.parseFloat(duration))
-                    );
-                    return durations.some((duration) => duration > 0) ? [element.outerHTML.slice(0, 120)] : [];
-                });
-        });
-
-        expect(movingElements).toEqual([]);
-    });
-});
-
 test.describe('desktop navigation', () => {
     test.use({ scenario: 'history' });
     test.skip(({ isMobile }) => isMobile);
@@ -124,53 +93,6 @@ test.describe('desktop navigation', () => {
 });
 
 test.describe('mobile navigation', { tag: '@mobile' }, () => {
-    test('page and menu fit within the viewport with iOS safe area insets', async ({ page }) => {
-        await page.goto('/');
-        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-        await expect(page.locator('html')).toHaveCSS('--area-height', '100dvh');
-        await page.addStyleTag({
-            content:
-                ':root { --safe-block-start: 59px; --safe-block-end: 34px; --safe-inline-start: 12px; --safe-inline-end: 12px; }',
-        });
-
-        const shell = page.locator('.ui-AppShell-root');
-        await expect(shell).toHaveCSS('position', 'fixed');
-        const shellBounds = await shell.boundingBox();
-        const headerBounds = await page.locator('.ui-AppShell-header').boundingBox();
-        const footerBounds = await page.locator('.ui-AppShell-footer').boundingBox();
-        const addBounds = await page.getByRole('button', { name: 'Pridėti' }).boundingBox();
-        const viewport = page.viewportSize()!;
-
-        expect(shellBounds).not.toBeNull();
-        expect(headerBounds).not.toBeNull();
-        expect(footerBounds).not.toBeNull();
-        expect(addBounds).not.toBeNull();
-        await expect(page.locator('.ui-AppShell-header')).toHaveCSS('position', 'static');
-        expect(shellBounds!.x).toBeGreaterThanOrEqual(0);
-        expect(shellBounds!.x + shellBounds!.width).toBeLessThanOrEqual(viewport.width);
-        expect(headerBounds!.y).toBeGreaterThanOrEqual(59);
-        expect(shellBounds!.y + shellBounds!.height).toBeCloseTo(viewport.height, 0);
-        expect(footerBounds!.y + footerBounds!.height).toBeCloseTo(viewport.height, 0);
-        expect(viewport.height - (addBounds!.y + addBounds!.height)).toBeCloseTo(42, 0);
-
-        await page.setViewportSize({ width: viewport.height, height: viewport.width });
-        const landscapeHeader = await page.locator('.ui-AppShell-header').boundingBox();
-        const landscapeFooter = await page.locator('.ui-AppShell-footer').boundingBox();
-        expect(landscapeHeader!.y).toBeGreaterThanOrEqual(59);
-        expect(landscapeFooter!.y + landscapeFooter!.height).toBeCloseTo(viewport.width, 0);
-
-        await page.setViewportSize({ width: viewport.width, height: viewport.height + 120 });
-        const resizedFooter = await page.locator('.ui-AppShell-footer').boundingBox();
-        const resizedAdd = await page.getByRole('button', { name: 'Pridėti' }).boundingBox();
-        expect(resizedFooter!.y + resizedFooter!.height).toBeCloseTo(viewport.height + 120, 0);
-        expect(viewport.height + 120 - (resizedAdd!.y + resizedAdd!.height)).toBeCloseTo(42, 0);
-
-        await page.getByRole('button', { name: 'Meniu' }).tap();
-        const menuBounds = await page.getByRole('dialog', { name: 'Meniu' }).boundingBox();
-        expect(menuBounds).not.toBeNull();
-        expect(menuBounds!.y + menuBounds!.height).toBeLessThanOrEqual(viewport.height + 120);
-    });
-
     test('mobile menu and product amounts work with touch', async ({ page }) => {
         await page.goto('/');
         await page.getByRole('button', { name: 'Meniu' }).tap();

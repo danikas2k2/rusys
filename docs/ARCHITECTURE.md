@@ -25,7 +25,7 @@ user profiles, import and export, Google sign-in, and PWA support for viewing pr
 
 Dependencies and scripts are defined in [package.json](../package.json). Framework behavior is configured in
 [next.config.ts](../next.config.ts), Playwright E2E tests in [playwright.config.ts](../playwright.config.ts), and Vitest
-Browser Mode screenshots in [vitest.visual.config.mts](../vitest.visual.config.mts).
+Browser Mode layout and screenshot tests in [vitest.visual.config.mts](../vitest.visual.config.mts).
 
 ## System context
 

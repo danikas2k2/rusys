@@ -1,27 +1,13 @@
 import { Locator } from '@vitest/browser/locators';
-import React from 'react';
-import { render } from 'vitest-browser-react';
 import { page } from 'vitest/browser';
 
-import { NextApp } from '~/components/app/NextApp';
 import type { Scenario } from '~/tests/fixtures/data';
-import { getVisualAppData } from '~/tests/fixtures/visualData';
-import { setVisualServerData } from './server-actions';
+import { renderFixtureApp } from './app';
 
-import '@fontsource-variable/noto-sans/wght.css';
-import '@fontsource-variable/noto-sans-display/wght.css';
-import '@fontsource-variable/noto-sans-mono/wght.css';
-import '~/app/globals.css';
 import '~/tests/visual.css';
-import './visual-fonts.css';
 
 export async function renderVisualApp(pathname: string, scenario: Scenario = 'basic') {
-    window.history.replaceState({}, '', pathname);
-    document.documentElement.lang = 'lt';
-    const { data, resource, initialGroup } = getVisualAppData(pathname, scenario);
-    setVisualServerData(data);
-    await render(<NextApp initialData={data} initialResource={resource} initialGroup={initialGroup} locale="lt-LT" />);
-    await document.fonts.ready;
+    await renderFixtureApp(pathname, scenario);
     return page;
 }
 

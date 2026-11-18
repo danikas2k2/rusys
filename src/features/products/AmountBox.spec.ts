@@ -4,32 +4,6 @@ import { openProduct, productTile } from '@tests/helpers/ui';
 import type { Product } from '~/schema';
 
 test.describe('product amounts', () => {
-    test('keeps the dialog and content width stable while saving', async ({ page }) => {
-        await page.goto('/');
-        const dialog = await openProduct(page, 'Avietės');
-        await dialog.locator('[data-amount-variant-key="Stiklainis"] [aria-expanded="false"]').click();
-        await dialog.getByRole('textbox', { name: 'updated' }).fill('2');
-        const content = dialog.locator('.amount-box-content');
-        const dialogWidth = await dialog.evaluate((element) => element.clientWidth);
-        const contentWidth = await content.evaluate((element) => element.clientWidth);
-        await page.route('**/*', async (route) => {
-            if (route.request().headers()['next-action']) {
-                await new Promise((resolve) => setTimeout(resolve, 500));
-            }
-            await route.continue();
-        });
-
-        await dialog.getByRole('button', { name: 'Naujinti' }).click();
-        await expect(dialog.getByRole('button', { name: 'Uždaryti' })).toBeDisabled();
-
-        expect(await dialog.evaluate((element) => element.clientWidth)).toBe(dialogWidth);
-        expect(await content.evaluate((element) => element.clientWidth)).toBe(contentWidth);
-        await expect(dialog).toBeHidden();
-        const reopened = await openProduct(page, 'Avietės');
-        await expect(reopened.getByRole('button', { name: 'Uždaryti' })).toBeEnabled();
-        await expect(reopened.getByRole('button', { name: 'Naujinti' })).toHaveCount(0);
-    });
-
     test('consumes stock with a comment, then undoes and redoes it @critical', async ({ page, db }) => {
         await page.goto('/');
         let amount = await openProduct(page, 'Avietės');

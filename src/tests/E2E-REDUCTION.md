@@ -50,10 +50,11 @@ this as a baseline for scope and measure actual CI time separately.
    leaving every catalog collection intact. Existing component tests cover the form and year controls, and the remaining
    variant editor journey checks initial focus. Playwright retains live cache behavior and the archive round trip with
    an image. Removing the 13 duplicates leaves 78 project entries.
-4. **Move layout checks to a real browser with fixture data.** Use the existing Vitest browser setup and add a focused
-   browser project for interaction or geometry assertions if needed. Keep screenshot comparisons in the visual project
-   and avoid moving CSS layout assertions to jsdom. Keep the existing Playwright case until the replacement reproduces
-   the critical state.
+4. **Move layout checks to a real browser with fixture data (done).** `pnpm test:layout` covers 15 desktop layout
+   scenarios and three mobile layout scenarios per engine. The suite mounts the app and its CSS with fixture data and
+   runs in CI. It covers native scroll containment, category transitions, product and review geometry, saving without a
+   width change, reduced motion, and mobile safe areas and keyboard layout. Playwright now lists 57 entries. Both mobile
+   engines still run the touch navigation journey in the full app.
 5. **Rebalance the smoke suite.** Aim for roughly 8–12 desktop journeys and 2–4 explicitly selected journeys per mobile
    engine, outside the separate axe and visual runs. Retag `@critical` around the remaining journeys rather than
    carrying over the present CRUD tags. Compare listed counts, pass/fail results and CI duration before and after, with
