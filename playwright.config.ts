@@ -4,23 +4,15 @@ import { defineConfig, devices, type PlaywrightTestProject } from '@playwright/t
 
 const snapshotPathTemplate = '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}';
 
-const mobileInteractionTests = [
-    '**/AppRouter.spec.ts',
-    '**/AmountBox.spec.ts',
-    '**/ProductYearBar.spec.ts',
-    '**/ProductsPage.spec.ts',
-    '**/ReviewBoxSafeArea.spec.ts',
-    '**/ImageDropzone.spec.ts',
-    '**/Accessibility.spec.ts',
-];
+const mobileTests = /(?:^|\s)@mobile(?:\s|$)/;
 
 const projects = [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'chromium-mobile', use: { ...devices['Pixel 7'] }, testMatch: mobileInteractionTests },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, grepInvert: mobileTests },
+    { name: 'chromium-mobile', use: { ...devices['Pixel 7'] }, grep: mobileTests },
     {
         name: 'webkit-mobile',
         use: { ...devices['iPhone 17'] },
-        testMatch: mobileInteractionTests,
+        grep: mobileTests,
     },
 ] satisfies PlaywrightTestProject[];
 
@@ -29,6 +21,8 @@ ensureBrowsersInstalled(projects);
 export default defineConfig({
     testDir: './src',
     testMatch: '**/*.spec.ts',
+    testIgnore: '**/layout/**',
+    tag: '@e2e',
     snapshotPathTemplate,
     workers: 1,
     retries: process.env.CI ? 2 : 0,

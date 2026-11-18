@@ -31,9 +31,11 @@ out of Git.
 | `pnpm test:coverage` | Run Vitest with coverage                   |
 | `pnpm test:e2e`      | Run Playwright `*.spec.ts` tests           |
 | `pnpm test:a11y`     | Run Playwright axe accessibility scans     |
+| `pnpm test:browser`  | Run layout and visual tests together       |
+| `pnpm test:layout`   | Run fixture-based browser layout tests     |
 | `pnpm test:visual`   | Run Vitest Browser Mode `*.snap.tsx` tests |
 | `pnpm check`         | Run lint and unit tests                    |
-| `pnpm check:all`     | Run lint, coverage, visual, and E2E tests  |
+| `pnpm check:all`     | Run lint, coverage, browser, and E2E tests |
 | `pnpm assets`        | Generate and optimize PWA assets           |
 
 The four Noto families are loaded through `next/font/google` in `src/app/layout.tsx`. A production build downloads and
@@ -42,11 +44,11 @@ from this app. Next.js supplies immutable cache headers, and the service worker 
 offline use.
 
 Browser tests require installed browsers. E2E tests use a temporary MongoDB instance and one worker so database resets
-cannot overlap. Visual tests use scenario fixtures instead of MongoDB and mount the app in Vitest Browser Mode. The
-Playwright provider supplies Chromium and WebKit; configuration lives in `playwright.config.ts` for E2E and
-`vitest.visual.config.mts` for visual tests. Unit and server tests use `vitest.config.mts`. Accessibility scans are
-Playwright tests colocated with their feature; they share the axe assertion in `src/tests/playwright/accessibility.ts`
-and run through `pnpm test:a11y`.
+cannot overlap. Layout and visual tests use scenario fixtures and mount the app in Vitest Browser Mode. The Playwright
+provider supplies Chromium and WebKit; configuration lives in `playwright.config.ts` for E2E and
+`vitest.visual.config.mts` for both Vitest browser suites. Unit and server tests use `vitest.config.mts`. Accessibility
+scans are Playwright tests colocated with their feature; they share the axe assertion in
+`src/tests/playwright/accessibility.ts` and run through `pnpm test:a11y`.
 
 Run `pnpm config` after installing dependencies to enable the repository's Git hooks. The pre-commit hook runs Gitleaks
 on staged changes, followed by `pnpm lint`. Prettier, ESLint, and Stylelint cache results for unchanged files;

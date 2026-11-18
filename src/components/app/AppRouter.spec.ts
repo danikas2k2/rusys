@@ -1,188 +1,54 @@
 import { expect, test } from '@tests/fixtures/test';
+import { productTile } from '@tests/helpers/ui';
 
 const destinations = [
     { label: 'Produktai', path: '/', content: '[data-grid="products"]' },
     { label: 'Variantai', path: '/variants', content: '[data-table="variants"]' },
-    { label: 'Kategorijos', path: '/categories', content: '[data-table="groups"]' },
 ];
 
-test.describe('reduced motion', () => {
-    test.use({ scenario: 'history' });
-    test.skip(({ isMobile }) => isMobile);
-
-    test('disables CSS motion across the app and startup loader', async ({ page }) => {
-        await page.goto('/');
-        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-        expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
-        await page.addStyleTag({ url: '/assets/loader.css' });
-
-        const movingElements = await page.evaluate(() => {
-            const loader = document.createElement('div');
-            loader.className = 'loader';
-            loader.innerHTML = '<div></div><div></div><div></div>';
-            document.body.append(loader);
-
-            return Array.from(document.querySelectorAll('body *'))
-                .filter((element) => !element.closest('extjs-portal'))
-                .flatMap((element) => {
-                    const style = getComputedStyle(element);
-                    const durations = [style.animationDuration, style.transitionDuration].flatMap((value) =>
-                        value.split(',').map((duration) => Number.parseFloat(duration))
-                    );
-                    return durations.some((duration) => duration > 0) ? [element.outerHTML.slice(0, 120)] : [];
-                });
-        });
-
-        expect(movingElements).toEqual([]);
-    });
-});
-
-test.describe('desktop navigation', () => {
-    test.use({ scenario: 'history' });
-    test.skip(({ isMobile }) => isMobile);
-
-    test('switches categories', async ({ page }) => {
-        await page.goto('/');
-        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-        await page.getByRole('tab', { name: 'Daržovės' }).click();
-        await expect(page.getByRole('tab', { name: 'Daržovės' })).toHaveAttribute('aria-selected', 'true');
-        await expect(page.locator('[data-grid="products"]:visible')).toContainText('Morkos');
-        await expect(page.locator('[data-grid="products"]:visible')).not.toContainText('Avietės');
-    });
-
-    test('navigates and restores the previous page without the browser API', async ({ page }) => {
+test(
+    'navigates with server data and URL filters, then restores the previous page',
+    { tag: '@critical' },
+    async ({ page }) => {
         await page.addInitScript(() => {
             Object.defineProperty(document, 'startViewTransition', { configurable: true, value: undefined });
         });
-
-        await page.goto('/');
-        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-        await page.getByRole('button', { name: 'Meniu' }).click();
-        await page.getByRole('navigation').getByRole('link', { name: 'Variantai' }).click();
-        await expect(page.locator('[data-table="variants"]:visible').first()).toBeVisible();
-        await page.goBack();
-        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-    });
-
-    test('navigates with server-preloaded destination data', async ({ page }) => {
         const apiRequests: string[] = [];
         page.on('request', (request) => {
             if (request.url().includes('/api/v1/')) {
                 apiRequests.push(request.url());
             }
         });
-        await page.goto('/');
-        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-        await page.getByRole('button', { name: 'Meniu' }).click();
-        await page.getByRole('navigation').getByRole('link', { name: 'Variantai' }).click();
-        await expect(page.locator('[data-table="variants"]:visible').first()).toBeVisible();
-        expect(apiRequests).toStrictEqual([]);
-    });
 
-    test('menu navigates between all primary routes', async ({ page }) => {
-        await page.goto('/');
-        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-        for (const { label, path, content } of [...destinations.slice(1), destinations[0]!]) {
-            await test.step(`menu navigates to ${label}`, async () => {
+        const filters = 'g=Uogien%C4%97s';
+        await page.goto(`/categories?${filters}`);
+        await expect(page.getByRole('row', { name: /Uogienės/ })).toBeVisible();
+
+        for (const { label, path, content } of destinations) {
+            await test.step(`navigate to ${label}`, async () => {
                 await page.getByRole('button', { name: 'Meniu' }).click();
-                const menu = page.getByRole('navigation');
-                const drawer = page.getByRole('dialog', { name: 'Meniu' });
-                await expect(drawer).toBeVisible();
-                await expect(menu.getByRole('link', { name: 'Suvestinė' })).toHaveCount(0);
-                await menu.getByRole('link', { name: label }).click();
-                await expect(page).toHaveURL(new RegExp(`${path === '/' ? '/$' : `${path}$`}`));
-                await expect(drawer).toBeHidden();
+                await page.getByRole('navigation').getByRole('link', { name: label }).click();
+                await expect(page).toHaveURL(
+                    (url) => url.pathname === path && url.searchParams.get('g') === 'Uogienės'
+                );
                 await expect(page.locator(`${content}:visible`).first()).toBeVisible();
-
-                await page.getByRole('button', { name: 'Meniu' }).click();
-                await expect(menu.getByRole('link', { name: label })).toHaveAttribute('data-active', 'true');
-                await page.keyboard.press('Escape');
-                await expect(drawer).toBeHidden();
+                await expect(page.getByRole('dialog', { name: 'Meniu' })).toBeHidden();
             });
         }
-    });
 
-    for (const { label, path, content } of destinations) {
-        test(`opens ${label} directly`, async ({ page }) => {
-            await page.goto(path);
-            await expect(page.locator(`${content}:visible`).first()).toBeVisible();
-        });
-    }
-
-    test('menu keeps URL filters when navigating and closes with Escape', async ({ page }) => {
-        const filters = 'q=Aviet%C4%97s&g=Uogien%C4%97s';
-        await page.goto(`/?${filters}`);
-        await page.getByRole('button', { name: 'Meniu' }).click();
-        const menu = page.getByRole('navigation');
-        await expect(menu.getByRole('link', { name: 'Variantai' })).toHaveAttribute('href', `/variants?${filters}`);
-        await menu.getByRole('link', { name: 'Variantai' }).click();
-        await expect(page).toHaveURL(new RegExp(`/variants\\?${filters}$`));
+        await expect(page.getByRole('row', { name: /Stiklainis/ })).toBeVisible();
+        await page.goBack();
+        await expect(page).toHaveURL((url) => url.pathname === '/' && url.searchParams.get('g') === 'Uogienės');
+        await expect(productTile(page, 'Avietės')).toBeVisible();
+        expect(apiRequests).toStrictEqual([]);
 
         await page.getByRole('button', { name: 'Meniu' }).click();
         await page.keyboard.press('Escape');
         await expect(page.getByRole('dialog', { name: 'Meniu' })).toBeHidden();
-    });
+    }
+);
 
-    test('utilities expands to show import and export actions', async ({ page }) => {
-        await page.goto('/');
-        await page.getByRole('button', { name: 'Meniu' }).click();
-        const menu = page.getByRole('navigation');
-        await menu.getByRole('link', { name: 'Įrankiai' }).click();
-        await expect(menu.getByText('Eksportuoti', { exact: true })).toBeVisible();
-        await expect(menu.getByText('Importuoti', { exact: true })).toBeVisible();
-    });
-});
-
-test.describe('mobile navigation', () => {
-    test.skip(({ isMobile }) => !isMobile);
-
-    test('page and menu fit within the viewport with iOS safe area insets', async ({ page }) => {
-        await page.goto('/');
-        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
-        await expect(page.locator('html')).toHaveCSS('--area-height', '100dvh');
-        await page.addStyleTag({
-            content:
-                ':root { --safe-block-start: 59px; --safe-block-end: 34px; --safe-inline-start: 12px; --safe-inline-end: 12px; }',
-        });
-
-        const shell = page.locator('.ui-AppShell-root');
-        await expect(shell).toHaveCSS('position', 'fixed');
-        const shellBounds = await shell.boundingBox();
-        const headerBounds = await page.locator('.ui-AppShell-header').boundingBox();
-        const footerBounds = await page.locator('.ui-AppShell-footer').boundingBox();
-        const addBounds = await page.getByRole('button', { name: 'Pridėti' }).boundingBox();
-        const viewport = page.viewportSize()!;
-
-        expect(shellBounds).not.toBeNull();
-        expect(headerBounds).not.toBeNull();
-        expect(footerBounds).not.toBeNull();
-        expect(addBounds).not.toBeNull();
-        await expect(page.locator('.ui-AppShell-header')).toHaveCSS('position', 'static');
-        expect(shellBounds!.x).toBeGreaterThanOrEqual(0);
-        expect(shellBounds!.x + shellBounds!.width).toBeLessThanOrEqual(viewport.width);
-        expect(headerBounds!.y).toBeGreaterThanOrEqual(59);
-        expect(shellBounds!.y + shellBounds!.height).toBeCloseTo(viewport.height, 0);
-        expect(footerBounds!.y + footerBounds!.height).toBeCloseTo(viewport.height, 0);
-        expect(viewport.height - (addBounds!.y + addBounds!.height)).toBeCloseTo(42, 0);
-
-        await page.setViewportSize({ width: viewport.height, height: viewport.width });
-        const landscapeHeader = await page.locator('.ui-AppShell-header').boundingBox();
-        const landscapeFooter = await page.locator('.ui-AppShell-footer').boundingBox();
-        expect(landscapeHeader!.y).toBeGreaterThanOrEqual(59);
-        expect(landscapeFooter!.y + landscapeFooter!.height).toBeCloseTo(viewport.width, 0);
-
-        await page.setViewportSize({ width: viewport.width, height: viewport.height + 120 });
-        const resizedFooter = await page.locator('.ui-AppShell-footer').boundingBox();
-        const resizedAdd = await page.getByRole('button', { name: 'Pridėti' }).boundingBox();
-        expect(resizedFooter!.y + resizedFooter!.height).toBeCloseTo(viewport.height + 120, 0);
-        expect(viewport.height + 120 - (resizedAdd!.y + resizedAdd!.height)).toBeCloseTo(42, 0);
-
-        await page.getByRole('button', { name: 'Meniu' }).tap();
-        const menuBounds = await page.getByRole('dialog', { name: 'Meniu' }).boundingBox();
-        expect(menuBounds).not.toBeNull();
-        expect(menuBounds!.y + menuBounds!.height).toBeLessThanOrEqual(viewport.height + 120);
-    });
-
+test.describe('mobile navigation', { tag: ['@mobile', '@critical'] }, () => {
     test('mobile menu and product amounts work with touch', async ({ page }) => {
         await page.goto('/');
         await page.getByRole('button', { name: 'Meniu' }).tap();

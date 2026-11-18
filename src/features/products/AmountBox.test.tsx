@@ -154,6 +154,22 @@ describe('<AmountBox>', () => {
         expect(screen.getByText('Consumption history')).toBeVisible();
     });
 
+    it('switches from history back to quantities', async () => {
+        render(
+            <MockTheme>
+                <AmountBox opened />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('tab', { name: 'History' }));
+
+        expect(screen.getByRole('tabpanel', { name: 'History' })).toBeVisible();
+
+        await user.click(screen.getByRole('tab', { name: 'Quantities' }));
+
+        expect(screen.getByRole('tabpanel', { name: 'Quantities' })).toBeVisible();
+    });
+
     it('opens the history tab when the year bar requests it', async () => {
         render(
             <MockTheme>

@@ -169,7 +169,7 @@ describe('<AmountHistoryTab>', () => {
         expect(screen.getAllByRole('row')).toHaveLength(3); // 2 undates + divider
     });
 
-    it('renders amounts and comments from the product-year cache', () => {
+    it('renders cached history amounts and comments without column headers', () => {
         setHistory([
             {
                 group: 'Uogienės',
@@ -185,5 +185,7 @@ describe('<AmountHistoryTab>', () => {
 
         expect(screen.getByLabelText('Amount count')).toHaveTextContent('1');
         expect(screen.getByText('Special batch')).toBeInTheDocument();
+        expect(screen.queryByRole('columnheader')).not.toBeInTheDocument();
+        expect(screen.getByRole('table').querySelector('thead')).toBeNull();
     });
 });

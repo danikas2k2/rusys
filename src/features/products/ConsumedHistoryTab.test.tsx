@@ -226,7 +226,7 @@ describe('<ConsumedHistoryTab>', () => {
         expect(screen.queryByText('history 2026')).not.toBeInTheDocument();
     });
 
-    it('renders a row for each update entry', () => {
+    it('renders a row for each update entry without column headers', () => {
         const entries: History[] = [
             { group: 'Vaisiai', name: 'Obuoliai', time: 1000, year: 2026, amounts: [{ variant: 'p', amount: 1 }] },
             { group: 'Vaisiai', name: 'Obuoliai', time: 2000, year: 2026, amounts: [{ variant: 'd', amount: 2 }] },
@@ -237,6 +237,8 @@ describe('<ConsumedHistoryTab>', () => {
 
         // 2 data rows
         expect(screen.getAllByRole('row')).toHaveLength(2);
+        expect(screen.queryByRole('columnheader')).not.toBeInTheDocument();
+        expect(screen.getByRole('table').querySelector('thead')).toBeNull();
     });
 
     it('treats a missing amounts field as empty instead of crashing', () => {
