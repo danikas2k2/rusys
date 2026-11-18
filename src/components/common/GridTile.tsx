@@ -94,8 +94,8 @@ export function GridTile({
                             data-product-thumbnail
                             src={thumbnail}
                             alt=""
-                            width={48}
-                            height={48}
+                            width={26}
+                            height={26}
                             loading={imageLoading}
                             loader={thumbnail.startsWith('/images/') ? localImageLoader : undefined}
                             unoptimized={thumbnail.includes('://') || thumbnail.startsWith('data:')}

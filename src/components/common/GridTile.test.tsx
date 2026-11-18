@@ -140,8 +140,8 @@ describe('<GridTile>', () => {
 
         expect(photo).toHaveAttribute('loading', 'eager');
         expect(photo?.getAttribute('src')).toContain('%2Fphoto.jpg');
-        expect(photo).toHaveAttribute('width', '48');
-        expect(photo).toHaveAttribute('height', '48');
+        expect(photo).toHaveAttribute('width', '26');
+        expect(photo).toHaveAttribute('height', '26');
         expect(container.querySelector('[data-product-icon], [data-photo-bg], [data-scrim]')).not.toBeInTheDocument();
         expect(container.querySelector('[data-product-avatar]')).not.toBeInTheDocument();
     });
