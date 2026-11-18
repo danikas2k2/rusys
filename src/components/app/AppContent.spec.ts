@@ -1,5 +1,5 @@
 import { expect, test } from '@tests/fixtures/test';
-import { productTile } from '@tests/helpers/ui';
+import { productTile, waitForImages } from '@tests/helpers/ui';
 
 test.describe('app states and filters', () => {
     test.describe('isolated empty state', () => {
@@ -9,6 +9,30 @@ test.describe('app states and filters', () => {
             for (const route of ['/', '/variants', '/categories']) {
                 await page.goto(route);
                 await expect(page.locator('[data-error]').first()).toContainText('Duomenų nėra');
+            }
+        });
+    });
+
+    test.describe('seeded images', () => {
+        test.use({ scenario: 'images' });
+
+        test('loads product and category images from the image fixture', async ({ page }) => {
+            await page.goto('/');
+            for (const name of ['Avietės', 'Braškės']) {
+                await waitForImages(productTile(page, name), 1);
+            }
+            await page.getByRole('tab', { name: 'Daržovės' }).click();
+            await waitForImages(productTile(page, 'Morkos'), 1);
+
+            await page.goto('/categories');
+            for (const name of ['Uogienės', 'Daržovės']) {
+                const image = page.getByRole('row', { name: new RegExp(name) }).locator('img');
+                await expect(image).toBeVisible();
+                await expect
+                    .poll(() =>
+                        image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0)
+                    )
+                    .toBe(true);
             }
         });
     });

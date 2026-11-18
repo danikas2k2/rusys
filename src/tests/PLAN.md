@@ -20,8 +20,8 @@ need coverage.
       used.
 - [x] Menu navigation and direct entry for all four pages verify content, not just the URL; an empty-database scenario
       is included. Failures retain a `trace` and screenshot.
-- [ ] Exercise the `images` scenario in a functional browser test and verify that its seeded images load. The fixture
-      already copies image files into the temporary image directory, but this behavior has not been verified here.
+- [x] The `images` scenario copies image files into the temporary image directory; a functional browser test verifies
+      that seeded product and category images load.
 - [ ] If parallel E2E execution becomes necessary, isolate the database and Next process per Playwright worker. The E2E
       `workers: 1` limit is intentional.
 
