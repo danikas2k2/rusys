@@ -10,15 +10,8 @@ checks.
 The four dashboards link to each other and preserve the selected time range. Queries select production Rusys telemetry;
 cAdvisor additionally selects `name=~"rusys-.*"` because its `project` label also covers unrelated NAS containers.
 
-Dashboard and panel titles remain in English. The overview remains a separate dashboard. Other dashboards group panels
-into expandable source rows: Synology NAS, Docker, Alloy collection, NGINX, application logs, MongoDB, Tempo traces and
-Faro browser telemetry. Presentation is defined in [grafana-presentation.ts](../../scripts/grafana-presentation.ts);
-query expressions, dashboard UIDs, panel IDs and alert links remain unchanged. Technical instance, device and container
-identifiers remain visible for diagnosis.
-
-These rows organize dashboards, not the **Drilldown > Metrics** catalog. That catalog displays original Prometheus
-metric names (such as `cadvisor_build_info`). To browse by source there, use **Group by labels** with `job`, or filter
-by metric prefixes such as `node_`, `container_` and `mongodb_`. Dashboard display names do not rename stored metrics.
+Panels are grouped by telemetry source. In **Drilldown > Metrics**, group by the `job` label or filter by prefixes such
+as `node_`, `container_`, and `mongodb_`.
 
 | Dashboard                                                                  | Signals                                                                                                                                                                                                      |
 | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -32,11 +25,8 @@ zero errors. Frontend session history is deliberately disabled; the random memor
 unique visitors. See [frontend observability](FRONTEND-OBSERVABILITY.md). The dashboard uses Faro app ID `8029`,
 configurable in its app selector. LCP and INP are milliseconds; CLS is dimensionless.
 
-The running-slot panel uses fresh cAdvisor observations. Startup logs identify the observed release of each slot,
-including historical inactive slots. Neither signal independently proves which upstream NGINX currently routes to. There
-is no authoritative active-release metric in the supplied collector; compare the deployment state when diagnosing a
-rollout. The start-time change panel aggregates by container name before counting changes, so container IDs do not split
-the history. Short-lived restarts between scrapes can still be missed.
+The running-slot panel uses cAdvisor samples. Startup logs identify the slot's image version. Check deployment state for
+the active Nginx upstream.
 
 ## Baseline alert conditions
 
@@ -60,48 +50,8 @@ after 4 hours, except the filesystem warning, which repeats after 24 hours.
 | MongoDB monitoring unavailable  | Exporter `up` or database `mongodb_up` is zero or absent for 5m                                                                          | Check private discovery/connectivity and monitoring permissions                        |
 | Backup stale, failed or missing | Last success older than 2h, latest run failed, or either required status metric absent, for 15m                                          | Inspect scheduler, exit status, destination and the backup metrics integration         |
 
-Public check windows accommodate the currently configured five-minute check interval. The sample count is a metric
-coverage guard, not a guarantee of distinct probe executions; compare check history during validation. Missing either
-check is independently detected. Uptime percentages average available probe samples and must be interpreted alongside
-coverage alerts.
-
-API queries use NGINX's numeric `request_time`, aggregate parsed request fields away and exclude `/api/health` from both
-numerators and denominators. Synthetic health traffic cannot satisfy the API alert gate. With real requests and no 5xx,
-the error panel shows zero; without requests it remains empty. Rate alerts intentionally stay quiet below 20 requests
-per 5m. External availability and gateway-coverage alerts provide separate coverage at low traffic. This traffic gate is
-an initial operating choice, not a measured service-level objective.
-
-Explicit absence expressions detect missing public-check, gateway, MongoDB and backup telemetry; these rules use a
-normal missing-data state because their healthy expression may return an empty result. Public failure windows also use a
-normal missing-data state while awaiting enough samples; the separate coverage rule detects missing checks. Host RAM and
-disk use an alerting missing-data state. Empty container-limit/API windows are normal because containers may be
-unlimited and API traffic can be absent; their missing-data state is normal. Evaluation errors use Grafana's error state
-and should be investigated separately from threshold breaches.
-
-On 2026-10-26, read-only destination queries found roughly 32% NAS RAM use, `/` at 20.55% used, and `/volume1` at 94.87%
-used. The disk threshold remains 80%: raising it to hide existing pressure would defeat the alert. Only `rusys-traces`
-had a configured memory limit (256 MiB); other observed Rusys containers reported zero/unlimited limits and are excluded
-from the percentage alert. Non-health API traffic was 323 requests in 24h with p95 about 0.156s and no 5xx. These
-readings justify a conservative 1s latency threshold and a traffic guard, but are not a full peak-load baseline. Revisit
-thresholds after representative traffic and releases; preserve explicit traffic and duration guards.
-
-Destination validation on 2026-10-26 accepted all 53 dashboard query requests and all 10 baseline alert expressions.
-Seven synthetic-input checks against the live Loki query engine confirmed the API traffic gate, zero-error behavior, and
-exact error/latency threshold boundaries. All four dashboards and ten baseline rules were provisioned and read back. All
-ten evaluators reported healthy execution; disk capacity and missing backup telemetry entered their expected pending
-states. The existing global notification policy was preserved.
-
-The modern contact-point API test reported `status: success`. A disposable rule then exercised the Prometheus query,
-Grafana threshold evaluator and automatic routing to the existing email contact. It reached `firing`, and Grafana
-recorded a successful notification attempt at **2026-10-26 21:30:21 UTC**, without a delivery error. The disposable rule
-was deleted afterward. Independent inbox receipt remains unconfirmed; provider-reported delivery does not prove inbox
-arrival. Query acceptance also does not prove that every optional signal has data or establish visual/accessibility
-behavior in the Grafana UI.
-
-Repository validation passed: 3,088 tests (including 17 monitoring regressions), with four existing skips; project lint,
-application typechecking and explicit strict typechecking of the provisioning scripts. Lint retained one existing
-warning in the backend telemetry test. Independent code, security and accessibility reviews completed, with their
-actionable findings corrected and re-reviewed.
+Public checks use five-minute probe intervals. API alerts use numeric NGINX `request_time` and exclude `/api/health`.
+Dedicated rules detect missing probe, gateway, MongoDB, and backup telemetry.
 
 ## Backup telemetry contract
 
@@ -150,15 +100,9 @@ is sequential and can partially succeed; fix the reported failure and rerun. Rev
 disk pressure and missing backup telemetry can immediately become actionable alerts after their pending durations.
 Manual dashboard imports use the data-source selectors; the CLI resolves the actual UIDs automatically.
 
-`verify` checks persisted dashboard identity/folder and alert condition/routing; it does not establish live ingestion,
-healthy evaluations or inbox receipt. Execute representative panel queries at the destination, inspect evaluated rules,
-and open a backend trace. Test the contact point using the modern Grafana notification API (namespace and receiver
-resource name are discovered). A successful API test means Grafana reported provider delivery; independently confirm the
-message at the configured destination. Record the timestamp and result in the environment's operations record without
-copying addresses or tokens into this repository. Exercise a disposable Grafana rule routed to the same contact to
-verify evaluation and automatic routing, then remove it; never induce a production outage for an alert test.
+After provisioning, run representative panel queries and inspect alert evaluation. Use `pnpm grafana:test-contact` to
+test the configured destination. Use a disposable rule to verify automatic routing.
 
 References:
 [Grafana alert provisioning API](https://grafana.com/docs/grafana/latest/developer-resources/api-reference/http-api/alerting_provisioning/),
-[notification API migration](https://grafana.com/whats-new/2026-04-07-legacy-alertmanager-configuration-api-endpoints-changed/),
 [Loki metric queries](https://grafana.com/docs/loki/latest/query/metric_queries/).

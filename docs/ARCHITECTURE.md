@@ -1,13 +1,5 @@
 # RUSYS architecture and structure
 
-This guide covers the system boundary, main technologies, source layout, and application routes.
-[Project README](../README.md).
-
-## Purpose
-
-RUSYS manages groups, products, their variants, quantities, and change history. It also provides reviews, summaries,
-user profiles, import and export, Google sign-in, and PWA support for viewing previously cached data offline.
-
 ## Technology stack
 
 | Area                      | Technology                                    |
@@ -116,11 +108,15 @@ flowchart TB
     API --> ProductUploads[Product and variant image uploads]
     API --> Archives[Archive import]
     API --> Identity["offline/identity"]
+    Other --> StagedImages["/api/images"]
+    Other --> Health["/api/health"]
     Other --> ImageRoute["/images/[...path]"]
     Other --> Worker["/sw.js"]
 ```
 
 `src/components/app/AppRouter.tsx` selects a client page using paths from `src/lib/links.ts`. REST route files live
-under `src/app/api/v1`; shared URL builders are defined in `src/common/api/v1.ts`. The remaining REST methods support
-uploads with progress and offline identity checks. Other catalog reads and changes, authentication, and archive export
-use Server Actions or server-rendered data loading. Server Actions live in `src/server/actions`.
+under `src/app/api/v1`; shared URL builders are defined in `src/common/api/v1.ts`. The v1 routes handle multipart
+catalog updates, archive imports, and offline identity checks. Image editors stage uploads through `/api/images` and
+pass the returned token to Server Actions when saving. `/api/health` provides a lightweight HTTP check. Other catalog
+reads and changes, authentication, and archive export use Server Actions or server-rendered data loading. Server Actions
+live in `src/server/actions`.
