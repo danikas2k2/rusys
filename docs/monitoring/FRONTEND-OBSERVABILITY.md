@@ -1,18 +1,16 @@
 # Frontend observability
 
 Rusys uses Grafana Faro for privacy-filtered browser diagnostics. The Grafana Cloud application is `rusys-web` (ID
-`8029`). This implements section 9 of the [monitoring roadmap](MONITORING-ROADMAP.lt.md) with a narrower privacy
-configuration.
+`8029`).
 
 ## Collection and browser privacy
 
 Collection starts automatically in production on an exact allowed origin with a valid collector URL. The SDK is loaded
-by `src/instrumentation-client.ts`; no preference control or stored consent is used. Existing values of the former
-`rusys-observability-consent-v1` key are ignored. Diagnostics do not read or write browser storage. Do Not Track and
-Global Privacy Control do not disable collection. Configuration is rechecked after asynchronous SDK loading and before
-every outgoing item. Focus and visibility changes recheck configuration, pausing Faro and aborting pending transport
-requests when the collector configuration is invalid or the origin is no longer allowed. Requests already received by
-Grafana cannot be recalled. Local development and preview origins do not collect.
+by `src/instrumentation-client.ts`; collection has no stored consent setting. Diagnostics do not read or write browser
+storage. Do Not Track and Global Privacy Control do not disable collection. Configuration is rechecked after
+asynchronous SDK loading and before every outgoing item. Focus and visibility changes recheck configuration, pausing
+Faro and aborting pending transport requests when the collector configuration is invalid or the origin is no longer
+allowed. Requests already received by Grafana cannot be recalled. Local development and preview origins do not collect.
 
 The outgoing allowlist reconstructs telemetry rather than editing arbitrary SDK payloads:
 
@@ -132,24 +130,10 @@ authentication: a nonbrowser client can forge an Origin header. Apply Cloud quot
    telemetry. Repeat on an unrelated origin: collection must remain disabled. Verify Grafana rejects an unrelated
    browser origin and permits only the production origin in its CORS response.
 
-Repository tests validate default initialization, collection with DNT/GPC enabled, privacy filtering and configuration.
-They cannot establish that a deployed release is actually delivering measurements; the deployment checks above remain
-required.
+## Source maps and tracing
 
-## Source maps and trace correlation
-
-Public production browser source maps remain disabled. Error stack details are currently discarded, so private map
-uploads alone would not improve these redacted exceptions. If richer stack diagnostics are approved later, allowlist
-only release-owned static chunk filenames and numeric positions, assess the privacy impact, and use Grafana's private
-source-map upload flow. Current Grafana Next.js guidance uses bundle ID injection plus the Faro CLI uploader. Generate
-maps in a protected build artifact step, upload with a scoped token, match the deployed application version/bundle IDs,
-and remove maps from public images. No source-map token belongs in `NEXT_PUBLIC_*` variables. This repository does not
-yet implement that upload pipeline or bundle ID injection.
-
-Backend OpenTelemetry remains separate. Frontend tracing is intentionally disabled: no extra tracing dependency,
-fetch/XHR instrumentation, trace headers or trace IDs are sent. Future correlation requires an explicit privacy and
-security review, same-origin API allowlisting, sanitized span attributes/URLs and propagation aligned with backend
-tracing. Do not enable blanket cross-origin trace-header propagation or log request/response bodies.
+Production browser source maps, exception stack details, and browser trace instrumentation are disabled. Backend traces
+use the separate [OpenTelemetry integration](BACKEND-TRACING.md).
 
 References: [Grafana Faro SDK](https://github.com/grafana/faro-web-sdk),
 [Grafana Frontend Observability](https://grafana.com/docs/grafana-cloud/observe-and-act/monitor-applications/frontend-observability/),

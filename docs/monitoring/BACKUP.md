@@ -27,10 +27,3 @@ is missing, inspect `docker logs rusys-backup`, the service mounts, and the job 
 check the Alloy host mount and filesystem permissions. The Alloy textfile directory must match the path visible inside
 the monitoring container; an overridden `BACKUP_METRICS_DIR` requires an equivalent Alloy configuration change. After
 changing Alloy configuration, validate it and restart the monitoring service.
-
-In Grafana Explore, select the Prometheus data source and query the two series above. The timestamp should match the
-file and the latest run should be `1`. The `host` label must match the backup alert selector; no results can indicate
-missing scrape, forwarding, or a label mismatch. Check the Alloy scrape and remote-write health and logs if the file is
-correct but the series are absent. Check the Overview backup-age panel and the backup alert evaluation state. To verify
-notifications, exercise the rule with an isolated test series for each failed, stale and absent condition and confirm
-actual receipt at the contact point; a successful API evaluation alone does not establish delivery.

@@ -43,11 +43,7 @@ Build and start from the deployed checkout, using the same Compose environment f
 docker compose -f docker/compose.yaml --profile backup up -d --build backup
 ```
 
-The container starts a job immediately. During migration, disable the NAS scheduled backup task before starting the
-container, and ensure no old job is running; re-enable it if the container deployment fails. Verify the container logs,
-a new snapshot, the two metrics and an isolated restore before relying on the new scheduler. The backup image is built
-separately during deployment; ordinary application deployments do not update it automatically. After updates to backup
-scripts or image, rebuild and recreate the service with the command above.
+The service runs a backup at startup. Rebuild and recreate it with the same command after changing its image or scripts.
 
 ```sh
 docker logs rusys-backup

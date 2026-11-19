@@ -3,17 +3,12 @@
 Accessibility checks run with the regular `pnpm lint` and `pnpm test` commands. The JSX accessibility rules are errors
 for application JSX. Vitest uses `expectNoA11yViolations` from `src/tests/accessibility.ts` for rendered component
 states. Playwright uses the shared axe assertion in `src/tests/playwright/accessibility.ts`; each browser scan lives
-beside the feature it covers. `pnpm test:a11y` runs those scans by themselves across desktop Chromium, mobile Chromium,
-and mobile WebKit.
+beside the feature it covers. `pnpm test:a11y` runs those scans in desktop Chromium. The mobile Chromium and WebKit
+projects select tests tagged `@mobile`.
 
 `pnpm exec playwright install chromium`, then `pnpm build && pnpm exec lhci autorun` runs Lighthouse CI against the
 built production app. CI enforces an accessibility score of at least 0.90 on every configured route and keeps the
 HTML/JSON reports as an artifact. Playwright scans fail on any WCAG 2.0/2.1 A or AA axe violation.
-
-The only current exception is **A11Y-EXC-001** at `ProductPhotoPreview.tsx`:
-`jsx-a11y/no-noninteractive-element-interactions` treats the image's `onError` load-failure callback as an interaction.
-It only triggers the image fallback and does not handle user input. Follow-up: recheck and remove this suppression when
-`eslint-plugin-jsx-a11y` is upgraded; this entry tracks that work.
 
 When adding a route, add a Playwright axe scan to the feature's `Accessibility.spec.ts` and add the URL to
 `.lighthouserc.cjs`. Use the shared `expectNoA11yViolations()` helper and cover important open menus, dialogs,

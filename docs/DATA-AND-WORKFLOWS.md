@@ -1,8 +1,5 @@
 # RUSYS data and workflows
 
-This guide covers the data model, authentication, application updates, import and export, and offline caching.
-[Project README](../README.md).
-
 ## Data and security
 
 `src/server/db.ts` manages MongoDB connections and creates missing indexes when a database is first opened. The main
@@ -20,8 +17,9 @@ Some stock changes use MongoDB transactions. The session token is stored in an `
 SHA-256 hash. Access is limited to configured Google accounts. Development mode uses a development profile.
 
 Configuration is passed through environment variables. Docker Compose uses `LOCALE`, `TZ`, `GOOGLE_CLIENT_ID`,
-`GOOGLE_ALLOWED_USERS`, `DB`, optional `IMAGES_DIR`, and `PORT`. The database code also accepts `DB_NAME`. Local
-development reads `.env.local`.
+`GOOGLE_ALLOWED_USERS`, `DB`, and optional `IMAGES_DIR` for the application. Compose uses `PORT` for the gateway's
+published port and sets the application container's internal port to `3000`. The database code also accepts `DB_NAME`.
+Local development reads `.env.local`.
 
 ### MongoDB document model
 
@@ -39,6 +37,7 @@ erDiagram
         string name PK
         string parent
         boolean missing
+        number expiryToleranceDays
         number archivedAt
     }
     VARIANT {
@@ -54,6 +53,8 @@ erDiagram
         string variant
         number amount
         boolean recycled
+        boolean suspicious
+        boolean home
         number expiresAt
     }
     UPDATE {
@@ -70,8 +71,8 @@ erDiagram
         date expiresAt
     }
 
-    GROUP ||--o{ PRODUCT : contains
-    GROUP ||--o{ VARIANT : defines
+    GROUP ||..o{ PRODUCT : contains
+    GROUP ||..o{ VARIANT : defines
     PRODUCT ||--o{ YEAR_AMOUNTS : has
     YEAR_AMOUNTS ||--o{ VARIANT_AMOUNT : contains
     VARIANT ||..o{ VARIANT_AMOUNT : referenced_by
@@ -80,8 +81,9 @@ erDiagram
 ```
 
 `YEAR_AMOUNTS`, `VARIANT_AMOUNT`, and `UPDATE` are embedded in product documents; they are not separate collections.
-Dotted relationships are logical links, not MongoDB foreign keys. Data model schemas and their inferred types are
-defined by domain in `src/schema/` and exported through `~/schema`.
+Dotted lines show logical relationships. The `PK` markers show indexed application identities, with composite keys for
+products and variants. Data model schemas and their inferred types are defined by domain in `src/schema/` and exported
+through `~/schema`.
 
 ### Sign-in sequence
 
@@ -118,33 +120,21 @@ Server Components load the initial page data. The client seeds TanStack Query wi
 render without an immediate second request. The UI calls Server Actions for changes and authenticated reads during
 refresh. The server checks the session and input before calling the data layer.
 
-```mermaid
-sequenceDiagram
-    actor U as User
-    participant UI as Feature component
-    participant H as Query cache and feature hook
-    participant E as Server Action
-    participant D as server/data
-    participant M as MongoDB
-    U->>UI: Change product or quantity
-    UI->>H: Update cached value when appropriate
-    H->>E: Send change
-    E->>E: Check session and input
-    E->>D: Call domain operation
-    D->>M: Read or update documents
-    M-->>D: Database result
-    D-->>E: Domain result
-    E-->>H: Response
-    H-->>UI: Refreshed data or rollback after an error
-    UI-->>U: Show result
-```
-
 REST route files are in `src/app/api/v1/**/route.ts`, with handlers in `src/server/api/v1`. Shared API paths are defined
 in `src/common/api/v1.ts`. The remaining REST methods handle group image uploads with updates or renames, product and
 variant image uploads, archive imports, and offline identity checks. Catalog reads and other changes use Server Actions
 or server-rendered data loading. Product data operations are exposed through `src/server/data/products.ts`. Product
 missing and removing changes update the Query cache immediately and restore the previous value if the Server Action
 fails.
+
+## Image uploads
+
+The group and product editors and the product variant image picker upload image data to `POST /api/images` with progress
+feedback. The route validates the image and returns a short-lived token bound to the signed-in account. Staged uploads
+live in `.pending` under the image directory. The save action claims the token and persists the image. The client
+attempts to discard unused uploads when the editor closes or the page is left. If the token is unavailable at save time,
+the action can apply the other submitted changes and report that the image was unavailable. See
+[staged image handling](../src/server/data/stagedImages.ts).
 
 ## Import and export
 
@@ -155,14 +145,17 @@ flowchart LR
     Data --> Zip[ZIP archive]
     ImageFiles --> Zip
     Zip --> Parse[Read imported archive]
-    Parse --> Temp[Temporary MongoDB database]
+    Parse --> Validate[Validate catalog data]
+    Validate --> WriteImages[Write image files]
+    WriteImages --> Temp[Load catalog into temporary MongoDB database]
     Temp --> Backup[Backup of current database]
     Backup --> Replace[Move temporary data into main database]
-    Parse --> WriteImages[Write image files]
 ```
 
-`src/server/data/exportArchive.ts` defines the ZIP structure. `src/server/data/common.ts` moves collections through
-temporary and backup databases during import.
+`src/server/data/exportArchive.ts` defines the ZIP structure. Import validates the catalog data before writing image
+files, then replaces the catalog collections through temporary and backup databases. The filesystem writes and MongoDB
+collection replacement are separate operations. See [the import handler](../src/server/api/v1/imports/handleImport.ts)
+and [the collection replacement](../src/server/data/common.ts).
 
 ## PWA and offline viewing
 
@@ -177,7 +170,7 @@ flowchart TD
     Public --> PublicHit{Cached?}
     PublicHit -->|Yes| CachedPublic[Return cached asset]
     PublicHit -->|No| FetchPublic[Fetch and cache]
-    Kind -->|Page, RSC, API, image| Private[Network first]
+    Kind -->|Page, RSC, selected API GET, image| Private[Network first]
     Private --> Online{Network available?}
     Online -->|Yes| Identity[Check offline/identity]
     Identity --> UserCache[Cache for current user when allowed]
