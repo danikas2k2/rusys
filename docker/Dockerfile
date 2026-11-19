@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM node:26-slim AS builder
 
 WORKDIR /app
@@ -5,7 +7,8 @@ WORKDIR /app
 RUN npm install --global pnpm@11.24.0
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=rusys-pnpm-store,target=/pnpm/store,sharing=locked \
+    pnpm install --frozen-lockfile --store-dir=/pnpm/store
 
 COPY next.config.ts postcss.config.mjs tsconfig.json ./
 COPY scripts/postcss ./scripts/postcss
@@ -15,7 +18,8 @@ ARG APP_VERSION
 ARG NEXT_PUBLIC_FARO_URL
 ENV APP_VERSION=${APP_VERSION}
 ENV NEXT_PUBLIC_FARO_URL=${NEXT_PUBLIC_FARO_URL}
-RUN pnpm exec next build
+RUN --mount=type=cache,id=rusys-turbopack,target=/app/.next/cache/turbopack,sharing=locked \
+    pnpm exec next build
 
 FROM node:26-slim
 
