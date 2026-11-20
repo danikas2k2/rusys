@@ -134,7 +134,7 @@ describe('product actions', () => {
         expect(getGroups).not.toHaveBeenCalled();
         expect(getVariants).not.toHaveBeenCalled();
 
-        products.resolve({ products: [], years: [2026] });
+        products.resolve({ products: [], summary: [], years: [2026] });
         await vi.waitFor(() => expect(getGroups).toHaveBeenCalledExactlyOnceWith(transactionSession));
 
         expect(getVariants).not.toHaveBeenCalled();
@@ -143,7 +143,13 @@ describe('product actions', () => {
         await vi.waitFor(() => expect(getVariants).toHaveBeenCalledExactlyOnceWith(transactionSession));
         variants.resolve([]);
 
-        await expect(result).resolves.toStrictEqual({ products: [], years: [2026], groups: [], variants: [] });
+        await expect(result).resolves.toStrictEqual({
+            products: [],
+            summary: [],
+            years: [2026],
+            groups: [],
+            variants: [],
+        });
     });
 
     it('does not start remaining catalog reads after the product read fails', async () => {
@@ -158,7 +164,7 @@ describe('product actions', () => {
 
     it('does not start the variants read after the group read fails', async () => {
         const cause = new Error('Group read failed');
-        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products: [], years: [] });
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products: [], summary: [], years: [] });
         vi.mocked(getGroups).mockRejectedValueOnce(cause);
 
         await expect(getProductsAction()).rejects.toBe(cause);
@@ -528,11 +534,17 @@ describe('product actions', () => {
         const products = [{ group: 'A', name: 'P' }];
         const groups = [{ group: 'A', order: 0 }];
         const variants = [{ group: 'A', variant: 'v', order: 0 }];
-        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products, years: [2026] });
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products, summary: [], years: [2026] });
         vi.mocked(getGroups).mockResolvedValueOnce(groups);
         vi.mocked(getVariants).mockResolvedValueOnce(variants);
 
-        await expect(getProductsAction()).resolves.toStrictEqual({ products, years: [2026], groups, variants });
+        await expect(getProductsAction()).resolves.toStrictEqual({
+            products,
+            summary: [],
+            years: [2026],
+            groups,
+            variants,
+        });
         expect(requireSession).toHaveBeenCalledExactlyOnceWith();
     });
 

@@ -113,6 +113,20 @@
         }
     }
 
+    /* With the keyboard open, let the form and its actions share the same scroll area. */
+    .ui-Modal-content[data-keyboard-viewport] {
+        .ui-Modal-body {
+            display: block;
+            overflow-y: auto;
+            overflow-anchor: none;
+        }
+
+        .ui-Tabs-panel.amount-box-quantities-panel,
+        .amount-variants-list {
+            overflow: visible;
+        }
+    }
+
     .ui-Accordion-item {
         transition: none;
         border-bottom-color: var(--mantine-color-neutral-1);

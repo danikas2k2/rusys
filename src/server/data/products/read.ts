@@ -1,6 +1,7 @@
 import type { ClientSession, Filter } from 'mongodb';
 
-import type { Product } from '~/schema';
+import type { Product, Summary } from '~/schema';
+import { summarizeCatalogProduct } from '~/server/data/summary';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
 import { withSpan } from '~/server/tracing';
@@ -71,7 +72,9 @@ export async function getProducts(years: readonly number[], session: ClientSessi
     });
 }
 
-export async function getProductsWithYears(session: ClientSession): Promise<{ products: Product[]; years: number[] }> {
+export async function getProductsWithYears(
+    session: ClientSession
+): Promise<{ products: Product[]; years: number[]; summary: Summary[] }> {
     const years = getYears();
     const products = await getProducts([], session);
     const availableYears = new Set(years);
@@ -82,7 +85,11 @@ export async function getProductsWithYears(session: ClientSession): Promise<{ pr
             }
         }
     }
-    return { products, years: Array.from(availableYears).toSorted((a, b) => b - a) };
+    return {
+        products,
+        years: Array.from(availableYears).toSorted((a, b) => b - a),
+        summary: products.map(summarizeCatalogProduct),
+    };
 }
 
 export async function getProductVariants(

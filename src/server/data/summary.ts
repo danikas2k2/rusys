@@ -1,6 +1,10 @@
 import type { ClientSession, WithId } from 'mongodb';
 
 import { addTypedVariantAmount } from '~/common/utils/amounts';
+import {
+    RECENT_CONSUMPTION_YEARS as MAX_YEARS,
+    CONSUMPTION_START_MONTH as START_MONTH,
+} from '~/common/utils/consumptionYear';
 import type {
     Group,
     History,
@@ -17,8 +21,6 @@ import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
 
-const MAX_YEARS = 3;
-const START_MONTH = 9; // September
 const SWITCH_MONTH = START_MONTH - 1; // Date#getMonth is zero-based
 
 // Corrections that move a consumed line back to discarded are recorded as a fresh update entry
@@ -26,6 +28,43 @@ const SWITCH_MONTH = START_MONTH - 1; // Date#getMonth is zero-based
 // Only entries from this date onward count positive amounts against the consumed total — older
 // corrections predate that change and mutated history directly, so there's nothing to add here.
 const POSITIVE_CONSUMPTION_CUTOFF = new Date('2026-08-01T00:00:00.000Z');
+
+/** Build the card totals from the stock and history already loaded for the catalog. */
+export function summarizeCatalogProduct({ group, name, years, updates }: Product): Summary {
+    const amountsByYear = new Map<number, readonly VariantAmount[]>();
+    const add = (year: number, amount: VariantAmount) => {
+        amountsByYear.set(year, addTypedVariantAmount(amountsByYear.get(year) ?? [], amount));
+    };
+
+    for (const update of updates ?? []) {
+        for (const { amounts } of update.years) {
+            for (const { variant, amount, recycled } of amounts ?? []) {
+                if (recycled == null) {
+                    continue;
+                }
+                // A reclassification reverses consumption in the source period and records
+                // discarded stock in the period of the correction.
+                const source = recycled === false ? update.recycleSource : undefined;
+                const date = new Date(source?.time ?? update.time);
+                if (!source && amount >= 0 && date < POSITIVE_CONSUMPTION_CUTOFF) {
+                    continue;
+                }
+                const year = date.getUTCFullYear() - 2000 - (date.getUTCMonth() < SWITCH_MONTH ? 1 : 0);
+                if (Number.isFinite(year)) {
+                    add(year, { variant, amount: -amount, recycled });
+                }
+            }
+        }
+    }
+    for (const { year, amounts } of years ?? []) {
+        for (const { variant, amount, home } of amounts ?? []) {
+            if (home && amount > 0) {
+                add(year, { variant, amount, home });
+            }
+        }
+    }
+    return { group, name, years: Array.from(amountsByYear, ([year, amounts]) => ({ year, amounts })) };
+}
 
 export const getSummary = async (
     years: number[],

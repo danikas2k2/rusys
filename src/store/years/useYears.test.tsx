@@ -46,7 +46,13 @@ describe('useYears query', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('loads years and applies the requested limit', async () => {
-        vi.mocked(getProductsAction).mockResolvedValue({ products: [], years: [2026, 2025], groups: [], variants: [] });
+        vi.mocked(getProductsAction).mockResolvedValue({
+            products: [],
+            summary: [],
+            years: [2026, 2025],
+            groups: [],
+            variants: [],
+        });
         const { client, wrapper } = mockQuery();
         const { result } = renderHook(() => useYears(1), { wrapper });
 

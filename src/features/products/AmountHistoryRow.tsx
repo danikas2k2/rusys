@@ -9,7 +9,6 @@ import { RecycleRefreshError } from '~/features/products/hooks/RecycleRefreshErr
 import { useMoveConsumedToRecycled } from '~/features/products/hooks/useMoveConsumedToRecycled';
 import { MoveConsumedForm } from '~/features/products/MoveConsumedForm';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { getRoundedDate } from '~/lib/utils/time';
 import type { History, VariantAmount } from '~/schema';
 
 export function AmountHistoryRow({
@@ -136,7 +135,7 @@ export function AmountHistoryRow({
                 <Group wrap="nowrap" gap="xs">
                     <EmailAvatar email={h.user} />
                     <Text size="sm" c={dimmed ? 'dimmed' : undefined}>
-                        <FormatDate date={getRoundedDate(h.time)} />
+                        <FormatDate date={new Date(h.time)} />
                     </Text>
                 </Group>
                 {refreshFailed && (
@@ -154,7 +153,7 @@ export function AmountHistoryRow({
     );
     const hiddenDate = (
         <VisuallyHidden>
-            {h.user} <FormatDate date={getRoundedDate(h.time)} />
+            {h.user} <FormatDate date={new Date(h.time)} />
         </VisuallyHidden>
     );
 

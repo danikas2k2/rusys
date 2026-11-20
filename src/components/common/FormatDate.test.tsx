@@ -93,15 +93,16 @@ describe('<FormatDate>', () => {
         expect(dateEl!.textContent).toMatch(/10/);
     });
 
-    it('does not render time when date is older than 3 months', () => {
-        const old = new Date('2024-01-01T10:30:00.000Z'); // > 90 days before NOW (2024-06-15)
+    it('renders only the date when an entry is exactly 30 days old', () => {
+        const old = new Date('2024-05-16T12:00:00.000Z');
         const container = renderDate(old);
 
+        expect(container.querySelector('[data-date]')).toBeInTheDocument();
         expect(container.querySelector('[data-time]')).not.toBeInTheDocument();
     });
 
-    it('renders time when date is within 3 months', () => {
-        const recent = new Date('2024-06-14T09:30:00.000Z');
+    it('renders time immediately before the 30-day cutoff', () => {
+        const recent = new Date('2024-05-16T12:00:00.001Z');
         const container = renderDate(recent);
 
         expect(container.querySelector('[data-time]')).toBeInTheDocument();

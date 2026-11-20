@@ -1,13 +1,13 @@
-import { HOUR_MS, QUARTER_HOUR_MS, THREE_MONTHS_MS, WEEK_MS } from '~/common/utils/time';
+import { DAY_MS, HOUR_MS, QUARTER_HOUR_MS, WEEK_MS } from '~/common/utils/time';
 
-export { THREE_MONTHS_MS };
+const TIME_DISPLAY_MAX_AGE = 30 * DAY_MS;
 
 export function getRoundedDate(time: string | number): Date {
     const t = +time;
     const now = Date.now();
     const age = now - t;
 
-    if (age >= THREE_MONTHS_MS) {
+    if (age >= TIME_DISPLAY_MAX_AGE) {
         const d = new Date(t);
         d.setHours(0, 0, 0, 0);
         return d;
@@ -21,11 +21,15 @@ export function getRoundedDate(time: string | number): Date {
 }
 
 export function formatTime(date: Date, locale?: string): string | null {
-    if (Date.now() - date.getTime() >= THREE_MONTHS_MS) {
+    if (Date.now() - date.getTime() >= TIME_DISPLAY_MAX_AGE) {
         return null;
     }
 
-    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
+    return getRoundedDate(date.getTime()).toLocaleTimeString(locale, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    });
 }
 
 export function formatDate(date: Date, locale = 'en', label: (s: string) => string = (s) => s): string {

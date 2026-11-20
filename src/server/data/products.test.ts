@@ -61,6 +61,49 @@ describe('products', () => {
     });
 
     describe('getProducts', () => {
+        it('includes catalog totals by consumption date independently of the stock year', async () => {
+            const group = 'Daržovės';
+            const name = 'Consumption boundary';
+            const entry = (time: string, amount: number, recycled?: boolean) => ({
+                time: Date.parse(time),
+                years: [{ year: 23, amounts: [{ variant: 'd', amount, recycled }] }],
+            });
+            const source = entry('2025-09-01T00:00:00.000Z', -5, false);
+            const correction = entry('2026-09-01T00:00:00.000Z', 2, false);
+            correction.years[0].amounts.push({ variant: 'd', amount: -2, recycled: true });
+            await (await db()).collection('products').insertOne({
+                group,
+                name,
+                years: [{ year: 23, amounts: [{ variant: 'd', amount: 8 }] }],
+                updates: [
+                    entry('2025-08-31T23:59:59.999Z', -1, false),
+                    source,
+                    entry('2026-08-31T23:59:59.999Z', -3, false),
+                    entry('2026-09-01T00:00:00.000Z', -4, false),
+                    entry('2026-09-01T00:00:00.000Z', -10),
+                    { ...correction, recycleSource: { time: source.time } },
+                ],
+                undates: [entry('2026-09-01T00:00:00.000Z', -20, false)],
+            });
+
+            const { products: catalogProducts, summary } = await withinTransaction(getProductsWithYears);
+
+            expect(catalogProducts.find((product) => product.name === name)?.years).toStrictEqual([
+                { year: 23, amounts: [{ variant: 'd', amount: 8 }] },
+            ]);
+            expect(summary.find((product) => product.name === name)?.years).toStrictEqual([
+                { year: 24, amounts: [{ variant: 'd', amount: 1, recycled: false }] },
+                { year: 25, amounts: [{ variant: 'd', amount: 6, recycled: false }] },
+                {
+                    year: 26,
+                    amounts: [
+                        { variant: 'd', amount: 4, recycled: false },
+                        { variant: 'd', amount: 2, recycled: true },
+                    ],
+                },
+            ]);
+        });
+
         it('ignores zero and absent years when collecting the available years', async () => {
             await (await db()).collection('products').insertMany([
                 { group: 'Daržovės', name: 'No years' },

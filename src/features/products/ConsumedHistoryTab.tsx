@@ -1,7 +1,6 @@
 import { Divider, Flex, Loader, Table } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
 
-import { getConsumptionYear } from '~/common/utils/consumptionYear';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { ConsumedHistoryRow } from '~/features/products/ConsumedHistoryRow';
@@ -17,7 +16,7 @@ export function ConsumedHistoryTab() {
     const activeData = active?.data;
     const group = activeData?.group ?? '';
     const name = activeData?.name ?? '';
-    const year = activeData?.year === 0 ? getConsumptionYear(0) : (activeData?.year ?? 0);
+    const year = activeData?.year ?? 0;
     const [failedKey, setFailedKey] = useState<string>();
     const key = JSON.stringify([group, name, year]);
 
@@ -47,7 +46,7 @@ export function ConsumedHistoryTab() {
         };
     }, [loader, summary?.years, group, name, year, key, revision]);
 
-    if (!group || !name) {
+    if (!group || !name || !year) {
         return <HistoryTable updates={[]} undates={[]} />;
     }
 

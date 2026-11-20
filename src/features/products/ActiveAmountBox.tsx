@@ -12,12 +12,14 @@ import { AmountBox } from '~/features/products/AmountBox';
 import { useDeleteProduct } from '~/features/products/hooks/useDeleteProduct';
 import { ProductBox } from '~/features/products/ProductBox';
 import type { ProductAmounts } from '~/schema';
+import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
 
 export function ActiveAmountBox(): React.ReactElement {
     const [active, setActive] = useActiveContent<ProductAmounts>();
     const deleteProduct = useDeleteProduct();
     const products = useProducts();
+    const groups = useGroups();
 
     const activeData = active?.data;
 
@@ -101,6 +103,7 @@ export function ActiveAmountBox(): React.ReactElement {
         <>
             <AmountBox
                 opened={opened}
+                annual={groups.find(({ group }) => group === activeData?.group)?.annual}
                 photo={currentData?.photo}
                 closeOnEscape={!editing && !removing}
                 closeOnClickOutside={!editing && !removing}

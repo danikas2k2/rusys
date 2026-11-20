@@ -10,7 +10,7 @@ export function useGetConsumedHistory(request: ProductYearIdentity): () => Promi
     const client = useQueryClient();
     const { group, name, year } = request;
     return useCallback(async (): Promise<ProductHistory | undefined> => {
-        if (!group || !name) {
+        if (!group || !name || !year) {
             return;
         }
         const requestRevision = getHistoryRevision(client, { group, name });
