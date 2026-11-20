@@ -86,6 +86,7 @@ describe('amount dialog layout', { tags: ['component'] }, () => {
         await renderFixtureApp('/', 'basic', (data) => {
             vi.mocked(getProductsAction).mockResolvedValueOnce({
                 products: [...data.products!],
+                summary: [...data.summary!],
                 years: [...data.years!],
                 groups: data.groups!,
                 variants: data.variants!,
@@ -163,5 +164,27 @@ describe('amount dialog layout', { tags: ['component'] }, () => {
         expect(summary.alignment).toBe('baseline');
         expect(stock.unitSize).toBe(summary.unitSize);
         expect(Math.abs(stock.unitOffset - summary.unitOffset)).toBeLessThan(1);
+    });
+
+    test('centers stock and hides consumption and year controls for non-annual products', async () => {
+        await renderFixtureApp('/', 'consumed-recycled', (data) => ({
+            ...data,
+            groups: data.groups!.map((group) => (group.group === 'Uogienės' ? { ...group, annual: false } : group)),
+        }));
+        const dialog = await openAmounts();
+
+        await expect.element(dialog.getByRole('radio')).not.toBeInTheDocument();
+        await expect.element(dialog.getByRole('tab', { name: 'Suvartota' })).not.toBeInTheDocument();
+        await expect.element(dialog.getByRole('tab', { name: 'Istorija' })).toBeVisible();
+        expect(dialog.element().querySelector('[data-product-summary-total]')).toBeNull();
+
+        const total = element('[data-product-stock-total] [data-number]', dialog.element());
+        const totals = element('[data-product-year-totals]', dialog.element());
+        const centerX = (node: Element) => {
+            const { left, width } = node.getBoundingClientRect();
+            return left + width / 2;
+        };
+        expect(total).toHaveTextContent('3');
+        expect(Math.abs(centerX(total) - centerX(totals))).toBeLessThan(1);
     });
 });

@@ -19,6 +19,7 @@ import './AmountBox.css';
 
 export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
     opened?: boolean;
+    annual?: boolean;
     photo?: string;
     // Mantine's own Escape/click-outside handling is per-instance and unaware of other open
     // modals - when Edit/Delete opens right on top of this one (see ActiveAmountBox), both would
@@ -34,6 +35,7 @@ export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
 
 export function AmountBox({
     opened = false,
+    annual = false,
     title,
     photo,
     closeOnEscape = true,
@@ -89,6 +91,7 @@ export function AmountBox({
     return (
         <ConfirmableModal
             fullScreen
+            centerInputWithKeyboard
             opened={opened}
             withCloseButton
             isDirty={() => hasChanges}
@@ -144,7 +147,7 @@ export function AmountBox({
                             className="amount-box-tabs"
                             variant="outline"
                             radius="sm"
-                            value={activeTab}
+                            value={!annual && activeTab === 'consumed' ? 'quantities' : activeTab}
                             onChange={changeTab}
                         >
                             <Tabs.List>
@@ -154,9 +157,11 @@ export function AmountBox({
                                 <Tabs.Tab fz="md" value="history" leftSection={<HistoryTabIcon size={18} />}>
                                     <Label>History</Label>
                                 </Tabs.Tab>
-                                <Tabs.Tab fz="md" value="consumed" leftSection={<ConsumedIcon size={18} />}>
-                                    <Label>Consumption</Label>
-                                </Tabs.Tab>
+                                {annual && (
+                                    <Tabs.Tab fz="md" value="consumed" leftSection={<ConsumedIcon size={18} />}>
+                                        <Label>Consumption</Label>
+                                    </Tabs.Tab>
+                                )}
                             </Tabs.List>
 
                             <Tabs.Panel
@@ -189,9 +194,16 @@ export function AmountBox({
                                     <AmountHistoryTab />
                                 </ViewTransition>
                             </Tabs.Panel>
-                            <Tabs.Panel className="amount-box-tab-panel" value="consumed" pt="sm" keepMounted={false}>
-                                <ConsumedHistoryTab />
-                            </Tabs.Panel>
+                            {annual && (
+                                <Tabs.Panel
+                                    className="amount-box-tab-panel"
+                                    value="consumed"
+                                    pt="sm"
+                                    keepMounted={false}
+                                >
+                                    <ConsumedHistoryTab />
+                                </Tabs.Panel>
+                            )}
                         </Tabs>
                     </Stack>
                 </>

@@ -16,6 +16,7 @@ describe('server-loaded product page', () => {
         vi.mocked(getProductsWithYears).mockResolvedValue({
             products: [{ group: 'Produce', name: 'Apples' }],
             years: [26],
+            summary: [],
         });
         vi.mocked(getVariants).mockResolvedValue([{ group: 'Produce', variant: 'kg', order: 0 }]);
 
@@ -63,7 +64,7 @@ describe('server-loaded page resources', () => {
 
     it('loads product data for the removed summary route', async () => {
         vi.mocked(getGroups).mockResolvedValueOnce([{ group: 'First', order: 0 }]);
-        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products: [], years: [] });
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products: [], summary: [], years: [] });
         vi.mocked(getVariants).mockResolvedValueOnce([]);
 
         await expect(getInitialAppData('/summary')).resolves.toMatchObject({
@@ -74,7 +75,7 @@ describe('server-loaded page resources', () => {
 
     it('has no selected category when product data and categories are empty', async () => {
         vi.mocked(getGroups).mockResolvedValueOnce([]);
-        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products: [], years: [] });
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products: [], summary: [], years: [] });
         vi.mocked(getVariants).mockResolvedValueOnce([]);
 
         await expect(getInitialAppData('/products')).resolves.toMatchObject({

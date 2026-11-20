@@ -282,6 +282,78 @@ describe('<ConfirmableModal>', () => {
         }
     });
 
+    it('centers the active input and keeps the keyboard layout while switching fields', async () => {
+        const originalViewport = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+        const viewport = Object.assign(new EventTarget(), { offsetTop: 0, height: window.innerHeight, scale: 1 });
+        Object.defineProperty(window, 'visualViewport', { configurable: true, value: viewport });
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+
+        try {
+            render(
+                <MockTheme>
+                    <ConfirmableModal opened centerInputWithKeyboard isDirty={() => false} onClose={onClose}>
+                        {() => (
+                            <>
+                                <input aria-label="Quantity" />
+                                <textarea aria-label="Comment" />
+                                <button type="button">Done</button>
+                            </>
+                        )}
+                    </ConfirmableModal>
+                </MockTheme>
+            );
+            const content = screen.getByRole('dialog');
+            const quantity = screen.getByRole('textbox', { name: 'Quantity' });
+            const comment = screen.getByRole('textbox', { name: 'Comment' });
+            content.style.overflowY = 'auto';
+            Object.defineProperties(content, { clientHeight: { value: 300 }, scrollHeight: { value: 700 } });
+            vi.spyOn(content, 'getBoundingClientRect').mockImplementation(
+                () => ({ top: viewport.offsetTop, bottom: viewport.offsetTop + 300 }) as DOMRect
+            );
+            vi.spyOn(quantity, 'getBoundingClientRect').mockImplementation(
+                () => ({ top: 340 - content.scrollTop, bottom: 360 - content.scrollTop }) as DOMRect
+            );
+            vi.spyOn(comment, 'getBoundingClientRect').mockImplementation(
+                () => ({ top: 440 - content.scrollTop, bottom: 460 - content.scrollTop }) as DOMRect
+            );
+            await user.click(quantity);
+            viewport.height = 300;
+            viewport.dispatchEvent(new Event('resize'));
+            vi.advanceTimersByTime(300);
+
+            expect(quantity).toHaveFocus();
+            expect(content).toHaveAttribute('data-keyboard-viewport');
+            expect(content.scrollTop).toBe(200);
+
+            viewport.offsetTop = 20;
+            viewport.dispatchEvent(new Event('scroll'));
+            vi.advanceTimersByTime(20);
+
+            expect(content.scrollTop).toBe(200);
+
+            await user.tab();
+
+            expect(comment).toHaveFocus();
+            expect(content).toHaveAttribute('data-keyboard-viewport');
+
+            vi.advanceTimersByTime(300);
+
+            expect(content.scrollTop).toBe(280);
+
+            await user.tab();
+
+            expect(screen.getByRole('button', { name: 'Done' })).toHaveFocus();
+            expect(content).not.toHaveAttribute('data-keyboard-viewport');
+        } finally {
+            if (originalViewport) {
+                Object.defineProperty(window, 'visualViewport', originalViewport);
+            } else {
+                Reflect.deleteProperty(window, 'visualViewport');
+            }
+            vi.useRealTimers();
+        }
+    });
+
     it('passes remaining scroll to the outer dialog when an inner panel reaches its limit', async () => {
         vi.useFakeTimers({ shouldAdvanceTime: true });
 

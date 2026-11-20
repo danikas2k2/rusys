@@ -68,7 +68,8 @@ test.describe('annual products', { tag: '@critical' }, () => {
                 .filter({ hasText: new RegExp(`^${consumptionYear}$`) })
                 .click();
             await expect.poll(() => requests).toBeGreaterThan(0);
-            // Cached history must render while every background request is still blocked.
+            await expect(dialog.locator('[data-product-summary-total]')).toContainText('2');
+            // Cached history and totals remain visible with background requests blocked.
             await expect(dialog.getByRole('table')).toContainText('Consumption without stock');
             await expect(dialog.getByRole('tabpanel', { name: 'Suvartota' }).locator('.ui-Loader-root')).toHaveCount(0);
         } finally {

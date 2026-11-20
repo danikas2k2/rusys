@@ -5,7 +5,6 @@ import type { InitialAppData } from '~/components/app/initialData';
 import { NextApp } from '~/components/app/NextApp';
 import type { Scenario } from '~/tests/fixtures/data';
 import { getVisualAppData } from '~/tests/fixtures/visualData';
-import { setVisualServerData } from './server-actions';
 
 import '@fontsource-variable/noto-sans/wght.css';
 import '@fontsource-variable/noto-sans-display/wght.css';
@@ -22,7 +21,6 @@ export async function renderFixtureApp(
     document.documentElement.lang = 'lt';
     const { data, resource, initialGroup } = getVisualAppData(pathname, scenario);
     const initialData = customize?.(data) ?? data;
-    setVisualServerData(initialData);
     await render(
         <NextApp initialData={initialData} initialResource={resource} initialGroup={initialGroup} locale="lt-LT" />
     );

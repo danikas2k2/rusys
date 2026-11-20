@@ -235,6 +235,10 @@ export function AmountVariantsTab({
             return;
         }
         const scrollExpandedVariantIntoView = () => {
+            const focused = document.activeElement;
+            if (focused?.matches('input, textarea') && container.contains(focused)) {
+                return;
+            }
             const item = container.querySelector<HTMLElement>(`[data-amount-variant-key="${CSS.escape(expandedKey)}"]`);
             if (!item) {
                 return;
@@ -254,13 +258,15 @@ export function AmountVariantsTab({
             }
         };
 
-        const frame = requestAnimationFrame(() => requestAnimationFrame(scrollExpandedVariantIntoView));
+        let frame = requestAnimationFrame(() => {
+            frame = requestAnimationFrame(scrollExpandedVariantIntoView);
+        });
         const timeout = window.setTimeout(scrollExpandedVariantIntoView, 250);
         return () => {
             cancelAnimationFrame(frame);
             window.clearTimeout(timeout);
         };
-    }, [expandedKey, scrollContainerRef, visibleKeys]);
+    }, [expandedKey, scrollContainerRef]);
 
     const [addingVariant, setAddingVariant] = useState(false);
     const handleAddVariantOpen = useCallback(() => setAddingVariant(true), []);

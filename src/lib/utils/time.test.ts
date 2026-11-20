@@ -1,3 +1,4 @@
+import { DAY_MS } from '~/common/utils/time';
 import { formatDate, formatTime, getRoundedDate } from '~/lib/utils/time';
 
 describe('getRoundedDate', () => {
@@ -50,9 +51,9 @@ describe('getRoundedDate', () => {
         });
     });
 
-    describe('last 3 months (7 days – 90 days) — 1 hour precision', () => {
+    describe('at least 7 days and less than 30 days old — 1 hour precision', () => {
         it('rounds to the start of the hour', () => {
-            const result = getRoundedDate(new Date('2024-05-01T10:44:59.999Z').getTime());
+            const result = getRoundedDate(new Date('2024-06-01T10:44:59.999Z').getTime());
 
             expect(result.getMinutes()).toBe(0);
             expect(result.getSeconds()).toBe(0);
@@ -60,15 +61,15 @@ describe('getRoundedDate', () => {
         });
 
         it('preserves the hour', () => {
-            const result = getRoundedDate(new Date('2024-05-01T14:59:00.000Z').getTime());
+            const result = getRoundedDate(new Date('2024-06-01T14:59:00.000Z').getTime());
 
             expect(result.getUTCHours()).toBe(14);
         });
     });
 
-    describe('older than 3 months — 1 day precision', () => {
+    describe('30 days or older — 1 day precision', () => {
         it('rounds to midnight (start of day)', () => {
-            const result = getRoundedDate(new Date('2024-01-01T14:44:59.999Z').getTime());
+            const result = getRoundedDate(NOW - 30 * DAY_MS);
 
             expect(result.getHours()).toBe(0);
             expect(result.getMinutes()).toBe(0);
@@ -112,15 +113,15 @@ describe('formatTime', () => {
         expect(result).toBe('14:30');
     });
 
-    it('returns null for a date older than 3 months', () => {
-        const old = new Date('2024-01-01T10:00:00.000Z');
+    it('returns null at exactly 30 days', () => {
+        const old = new Date(NOW - 30 * DAY_MS);
         const result = formatTime(old);
 
         expect(result).toBeNull();
     });
 
-    it('returns a string for a date within 3 months', () => {
-        const recent = new Date('2024-05-01T10:00:00.000Z');
+    it('shows the rounded hour immediately before the 30-day cutoff', () => {
+        const recent = new Date(NOW - 30 * DAY_MS + 1);
         const result = formatTime(recent);
 
         expect(result).not.toBeNull();

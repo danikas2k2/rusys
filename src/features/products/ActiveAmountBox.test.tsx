@@ -56,6 +56,10 @@ vi.mock(import('~/features/products/ProductBox'), (): any => ({
 vi.mock(import('~/store/products/useProducts'), () => ({
     useProducts: vi.fn().mockReturnValue([]),
 }));
+
+vi.mock(import('~/store/groups/useGroups'), () => ({
+    useGroups: vi.fn().mockReturnValue([]),
+}));
 vi.mock(import('~/features/products/hooks/useDeleteProduct'), () => ({
     useDeleteProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));

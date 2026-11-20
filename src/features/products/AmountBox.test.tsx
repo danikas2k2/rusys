@@ -145,13 +145,24 @@ describe('<AmountBox>', () => {
     it('opens the consumption history in its own tab', async () => {
         render(
             <MockTheme>
-                <AmountBox opened />
+                <AmountBox opened annual />
             </MockTheme>
         );
         await user.click(screen.getByRole('tab', { name: 'Consumption' }));
 
         expect(screen.getByRole('tab', { name: 'Consumption' })).toHaveAttribute('aria-selected', 'true');
         expect(screen.getByText('Consumption history')).toBeVisible();
+    });
+
+    it('keeps stock history available without a consumption tab for non-annual products', () => {
+        render(
+            <MockTheme>
+                <AmountBox opened />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('tab', { name: 'History' })).toBeVisible();
+        expect(screen.queryByRole('tab', { name: 'Consumption' })).not.toBeInTheDocument();
     });
 
     it('switches from history back to quantities', async () => {

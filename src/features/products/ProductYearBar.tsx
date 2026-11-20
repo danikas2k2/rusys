@@ -4,13 +4,10 @@ import React, { startTransition, useCallback, useMemo } from 'react';
 import { HistoryTabIcon, PencilIcon, RecycledIcon } from '@icons';
 
 import { getCombinedAmounts } from '~/common/utils/amounts';
-import { getConsumptionYear } from '~/common/utils/consumptionYear';
+import { getCurrentConsumptionYear, RECENT_CONSUMPTION_YEARS } from '~/common/utils/consumptionYear';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
-import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
-import { useProductConsumptionYears } from '~/features/products/hooks/useProductConsumptionYears';
-import { useProductSummaryAmounts } from '~/features/products/hooks/useProductSummaryAmounts';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { SummaryAmounts } from '~/features/products/SummaryAmounts';
 import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext';
@@ -18,6 +15,7 @@ import { useLabels } from '~/lib/hooks/useLabels';
 import type { ProductAmounts, RemovingYearAmounts } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
+import { useSummary } from '~/store/summary';
 
 import './ProductYearBar.css';
 
@@ -77,15 +75,24 @@ export function ProductYearBar({
         [activeData, products]
     );
 
-    const { data: consumptionYears = [], isError: consumptionYearsFailed } = useProductConsumptionYears({
-        group,
-        name,
-    });
-    const { data: summaryAmounts, isError: summaryFailed } = useProductSummaryAmounts({
-        group,
-        name,
-        year: getConsumptionYear(year),
-    });
+    const summary = useSummary().find((item) => item.group === group && item.name === name);
+    const currentConsumptionYear = getCurrentConsumptionYear();
+    const summaryAmounts = year ? summary?.years?.find((entry) => entry.year === year)?.amounts : undefined;
+    const consumptionYears = useMemo(
+        () =>
+            (summary?.years ?? [])
+                .filter(({ amounts }) => amounts.some(({ amount, recycled }) => recycled != null && amount > 0))
+                .map((entry) => entry.year),
+        [summary?.years]
+    );
+    const recentConsumptionYears = useMemo(
+        () =>
+            consumptionYears.filter(
+                (period) =>
+                    period <= currentConsumptionYear && period > currentConsumptionYear - RECENT_CONSUMPTION_YEARS
+            ),
+        [consumptionYears, currentConsumptionYear]
+    );
 
     const isAnnual = groups.find((g) => g.group === group)?.annual;
 
@@ -94,26 +101,23 @@ export function ProductYearBar({
     const yearOptions = useMemo(() => {
         const set = new Set([
             ...(activeProduct?.years?.map((y) => y.year) ?? []),
-            ...consumptionYears,
+            ...recentConsumptionYears,
             ...dirtyYears,
             thisYear,
             year,
         ]);
         return Array.from(set).toSorted((a, b) => b - a);
-    }, [activeProduct, consumptionYears, dirtyYears, thisYear, year]);
+    }, [activeProduct, recentConsumptionYears, dirtyYears, thisYear, year]);
 
     // The product list includes compact update/undo metadata specifically so archived history
     // years can be discovered without loading each year's history. Keep them in a menu rather
     // than expanding the always-visible year control with a potentially long archive.
     const historyOnlyYears = useMemo(() => {
-        const amountYears = new Set(activeProduct?.years?.map(({ year: amountYear }) => amountYear) ?? []);
-        return Array.from(new Set(activeProduct?.historyYears ?? []))
-            .filter(
-                (historyYear) =>
-                    historyYear > 0 && !amountYears.has(historyYear) && !consumptionYears.includes(historyYear)
-            )
+        const visibleYears = new Set(yearOptions);
+        return Array.from(new Set([...(activeProduct?.historyYears ?? []), ...consumptionYears]))
+            .filter((historyYear) => historyYear > 0 && !visibleYears.has(historyYear))
             .toSorted((a, b) => b - a);
-    }, [activeProduct, consumptionYears]);
+    }, [activeProduct, consumptionYears, yearOptions]);
 
     const liveAmounts = useMemo(
         () =>
@@ -264,15 +268,11 @@ export function ProductYearBar({
                         />
                     )}
                 </div>
-                <div data-year-total data-dialog-year-total data-product-summary-total>
-                    {summaryFailed || consumptionYearsFailed ? (
-                        <span role="alert">
-                            <Label>Failed to load data</Label>
-                        </span>
-                    ) : summaryAmounts?.length ? (
-                        <SummaryAmounts group={group} amounts={summaryAmounts} />
-                    ) : null}
-                </div>
+                {isAnnual && (
+                    <div data-year-total data-dialog-year-total data-product-summary-total>
+                        {summaryAmounts?.length ? <SummaryAmounts group={group} amounts={summaryAmounts} /> : null}
+                    </div>
+                )}
             </div>
         </Stack>
     );

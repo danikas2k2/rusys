@@ -1,8 +1,12 @@
 import { css, dialogScreenshotOptions, openProduct, renderVisualApp, settleVisual } from '@tests/browser/visual';
 import { currentYear } from '@tests/fixtures/data';
-import { expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import { page } from 'vitest/browser';
+
+// Keep the September history fixture in the date-only range throughout the year.
+beforeEach(() => vi.setSystemTime(new Date(2000 + currentYear, 10, 20, 12)));
+afterEach(() => vi.useRealTimers());
 
 test('product amounts, editable variant and history', async () => {
     await renderVisualApp('/', 'history');

@@ -146,8 +146,9 @@
 
 [data-product-year-totals] {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
+    text-align: center;
     gap: 0 var(--mantine-spacing-md);
     padding-block-start: 16px;
     padding-inline: 24px;
@@ -167,14 +168,18 @@
         gap: 0;
     }
 
-    [data-product-stock-total] {
-        text-align: start;
+    &:where(:has(> [data-product-summary-total])) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
 
-        [data-amounts-rows],
-        [data-amounts-row],
-        [data-value],
-        [data-sources] {
-            justify-content: flex-start;
+        [data-product-stock-total] {
+            text-align: start;
+
+            [data-amounts-rows],
+            [data-amounts-row],
+            [data-value],
+            [data-sources] {
+                justify-content: flex-start;
+            }
         }
     }
 

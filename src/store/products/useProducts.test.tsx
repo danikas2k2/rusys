@@ -34,7 +34,7 @@ describe('useProducts query', () => {
 
     it('loads products when the registered query is explicitly fetched', async () => {
         const products = [{ group: 'Food', name: 'Rice', years: [] }];
-        vi.mocked(getProductsAction).mockResolvedValue({ products, years: [], groups: [], variants: [] });
+        vi.mocked(getProductsAction).mockResolvedValue({ products, summary: [], years: [], groups: [], variants: [] });
         const { client, wrapper } = mockQuery();
         const { result } = renderHook(useProducts, { wrapper });
 

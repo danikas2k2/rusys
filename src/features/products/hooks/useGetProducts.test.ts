@@ -15,7 +15,7 @@ describe('useGetProducts', () => {
         const years = [26];
         const groups = [{ group: 'Food', order: 0 }];
         const variants = [{ group: 'Food', variant: 'Box', order: 0 }];
-        vi.mocked(getProductsAction).mockResolvedValue({ products, years, groups, variants });
+        vi.mocked(getProductsAction).mockResolvedValue({ products, summary: [], years, groups, variants });
         const { result } = renderHook(useGetProducts, { wrapper });
         await result.current();
 

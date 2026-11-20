@@ -75,4 +75,43 @@ describe('mobile application layout', { tags: ['component'] }, () => {
         await expect.poll(() => getComputedStyle(panel).height).toBe('300px');
         expect(panel.getBoundingClientRect().top).toBeCloseTo(0, 0);
     });
+
+    test('keeps an edited quantity centered above the keyboard while typing', async () => {
+        await renderFixtureApp('/');
+        await page.getByText('Avietės', { exact: true }).click();
+        const dialog = page.getByRole('dialog', { name: /Avietės Uogienės/ });
+        await expect.element(dialog).toBeVisible();
+        await dialog.getByRole('button', { expanded: false }).filter({ hasText: 'Stiklainis' }).click();
+
+        const originalViewport = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+        const viewport = Object.assign(new EventTarget(), { height: window.innerHeight, offsetTop: 0, scale: 1 });
+        Object.defineProperty(window, 'visualViewport', { configurable: true, value: viewport });
+        try {
+            const input = dialog.getByRole('textbox', { name: 'updated' });
+            const scroller = element('.ui-Modal-body', dialog.element());
+            await input.click();
+            viewport.height = 300;
+            viewport.dispatchEvent(new Event('resize'));
+
+            const center = (node: Element) => {
+                const { top, height } = node.getBoundingClientRect();
+                return top + height / 2;
+            };
+            await expect.poll(() => Math.abs(center(input.element()) - center(scroller))).toBeLessThan(2);
+            const position = scroller.scrollTop;
+            await input.fill('12');
+            viewport.dispatchEvent(new Event('scroll'));
+
+            await expect.element(input).toHaveValue('12');
+            await expect.element(input).toHaveFocus();
+            expect(scroller.scrollTop).toBeCloseTo(position, 0);
+            expect(Math.abs(center(input.element()) - center(scroller))).toBeLessThan(2);
+        } finally {
+            if (originalViewport) {
+                Object.defineProperty(window, 'visualViewport', originalViewport);
+            } else {
+                Reflect.deleteProperty(window, 'visualViewport');
+            }
+        }
+    });
 });
