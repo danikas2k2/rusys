@@ -168,7 +168,7 @@
         "pwa-asset-generator": "^8.1.7",
         "rolldown": "^1.3.2",
         "stylelint": "^18.0.0",
-        "stylelint-config-recommended": "^19.0.0",
+        "stylelint-config-recommended": "^19.1.0",
         "stylelint-config-standard": "^41.0.0",
         "syncpack": "^15.3.3",
         "tsx": "^4.23.15",
