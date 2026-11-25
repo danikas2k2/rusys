@@ -204,10 +204,16 @@ describe('deploy previous slot cleanup', () => {
 
         const probe = scripts.find((script) => script.includes("docker exec 'rusys-app-green' node -e"))!;
         const command = probe.slice(probe.indexOf('node -e '), probe.indexOf(' >/dev/null'));
-        const bootstrap = `globalThis.fetch = async () => new Response(${JSON.stringify(body)}, { status: ${status} });`;
+        const bootstrap =
+            'globalThis.fetch = async () => new Response(process.env.RUSYS_TEST_PROBE_BODY, { status: Number(process.env.RUSYS_TEST_PROBE_STATUS) });';
         const { spawnSync } = await vi.importActual<typeof childProcess>('node:child_process');
         const result = spawnSync('sh', ['-c', command], {
-            env: { ...process.env, NODE_OPTIONS: `--import=data:text/javascript,${encodeURIComponent(bootstrap)}` },
+            env: {
+                ...process.env,
+                NODE_OPTIONS: `--import=data:text/javascript,${encodeURIComponent(bootstrap)}`,
+                RUSYS_TEST_PROBE_BODY: body,
+                RUSYS_TEST_PROBE_STATUS: String(status),
+            },
         });
 
         expect(result.status).toBe(exitCode);
