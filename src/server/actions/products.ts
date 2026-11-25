@@ -175,7 +175,7 @@ export async function setAmountsBatchAction(requests: SetAmounts[]): Promise<voi
     }
     await withinTransaction(async (session) => {
         for (const [index, request] of parsed.entries()) {
-            assertSuccess(await setAmounts(request, user, session, index > 0));
+            await assertSuccess(await setAmounts(request, user, session, index > 0));
         }
         return true;
     });

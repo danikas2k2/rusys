@@ -2872,18 +2872,24 @@ describe('products', () => {
 
     describe('updateProduct with suspicious amounts', () => {
         it('stores suspicious flag in history amounts', async () => {
-            await withinTransaction((session) =>
-                setAmounts(
-                    {
-                        group: 'Daržovės',
-                        name: 'Morkos',
-                        year: 22,
-                        amounts: [{ variant: 'd', amount: -1, recycled: false, suspicious: true }],
-                    },
-                    user,
-                    session
+            const product = { group: 'Daržovės', name: 'Morkos' };
+            await (await db()).collection('products').updateOne(product, {
+                $set: { years: [{ year: 22, amounts: [{ variant: 'd', amount: 2, suspicious: true }] }] },
+            });
+
+            await expect(
+                withinTransaction((session) =>
+                    setAmounts(
+                        {
+                            ...product,
+                            year: 22,
+                            amounts: [{ variant: 'd', amount: -1, recycled: false, suspicious: true }],
+                        },
+                        user,
+                        session
+                    )
                 )
-            );
+            ).resolves.toBe(true);
 
             const all = (await $all('products')) as {
                 updates?: {
