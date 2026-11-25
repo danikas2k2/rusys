@@ -177,7 +177,7 @@ export function addVariantAmount(
                   amount,
                   ...(suspicious ? { suspicious } : {}),
                   ...(home ? { home } : {}),
-                  ...(expiresAt ? { expiresAt } : {}),
+                  ...(expiresAt != null ? { expiresAt } : {}),
               },
           ];
 }

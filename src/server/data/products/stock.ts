@@ -29,6 +29,21 @@ export const cleanupRecycled = ({ recycled, suspicious, home, expiresAt, ...v }:
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;
 
+function combineStockRows(rows: readonly VariantAmount[]): VariantAmount[] {
+    const combined = new Map<string, VariantAmount>();
+    for (const row of rows) {
+        const key = JSON.stringify([
+            row.variant,
+            !!row.suspicious,
+            !!row.home,
+            row.expiresAt === undefined ? '' : row.expiresAt,
+        ]);
+        const previous = combined.get(key);
+        combined.set(key, previous ? { ...previous, amount: previous.amount + row.amount } : row);
+    }
+    return [...combined.values()];
+}
+
 export async function setAmounts(
     { group, name, year, amounts: changes, comment }: SetAmounts,
     user: string | undefined,
@@ -46,30 +61,52 @@ export async function setAmounts(
         projection: { years: 1, missing: 1, updates: 1 },
         session,
     });
-    const amounts =
-        (year ? product?.years?.find((y) => y.year === year)?.amounts : getCombinedAmounts(product?.years)) ?? [];
+    const amounts = year
+        ? combineStockRows(product?.years?.find((y) => y.year === year)?.amounts ?? [])
+        : (getCombinedAmounts(product?.years) ?? []);
 
-    // auto-consume home balance when pantry consumption starts for that variant
-    const autoHomeConsumes: VariantAmount[] = [];
+    // Additions in the same edit are available to all its removals. Competing removals
+    // use the remaining balance in request order so each history line records what it took.
+    let balances = changes.filter(hasAmount).reduce(addVariantAmount, amounts);
+    const historyAmounts: VariantAmount[] = [];
+    const pantryConsumed = new Set<string>();
     for (const change of changes) {
-        if (!change.home && change.recycled === false && change.amount < 0) {
-            const homeBalance = getVariantAmount(amounts, change.variant, false, true);
-            if (homeBalance > 0) {
-                autoHomeConsumes.push({
-                    variant: change.variant,
-                    amount: -homeBalance,
-                    recycled: false,
-                    home: true,
-                });
+        const { variant, suspicious, home, expiresAt } = change;
+        const amount =
+            change.amount < 0
+                ? -Math.min(
+                      -change.amount,
+                      Math.max(0, getVariantAmount(balances, variant, suspicious, home, expiresAt))
+                  )
+                : change.amount;
+        if (!amount) {
+            continue;
+        }
+        const applied = cleanupRecycled({ ...change, amount });
+        historyAmounts.push(applied);
+        if (amount < 0) {
+            balances = addVariantAmount(balances, applied);
+            if (!home && change.recycled === false) {
+                pantryConsumed.add(variant);
             }
         }
     }
-    const allChanges = autoHomeConsumes.length ? [...changes, ...autoHomeConsumes] : changes;
+    for (const variant of pantryConsumed) {
+        const homeBalance = Math.min(
+            getVariantAmount(amounts, variant, false, true),
+            getVariantAmount(balances, variant, false, true)
+        );
+        if (homeBalance > 0) {
+            const applied = { variant, amount: -homeBalance, recycled: false, home: true };
+            historyAmounts.push(applied);
+            balances = addVariantAmount(balances, applied);
+        }
+    }
+    const updates = balances.filter(hasAmount).map(cleanupRecycled);
+    if (!historyAmounts.length || (!amounts.length && !updates.length)) {
+        return false;
+    }
 
-    const updates = allChanges.reduce(addVariantAmount, amounts).filter(hasAmount).map(cleanupRecycled);
-
-    // save all change types (consumed=recycled:false, recycled=recycled:true, updated=no recycled field)
-    const historyAmounts = allChanges.map(cleanupRecycled);
     const newEntry = {
         time: Date.now(),
         user,
@@ -88,11 +125,8 @@ export async function setAmounts(
     // clear undates on new update
     operations.push({ updateOne: { filter, update: { $set: { updates: newUpdates }, $unset: { undates: 1 } } } });
 
-    // no updates
+    // Drop empty stock years while keeping the applied changes in history.
     if (!updates.length) {
-        if (!amounts.length) {
-            return false;
-        }
         operations.push({
             updateOne: {
                 filter,
@@ -117,7 +151,7 @@ export async function setAmounts(
     }
 
     // remove missing flag if amount decreased but not recycled
-    if (product?.missing && changes.some((a) => !a.recycled && a.amount < 0)) {
+    if (product?.missing && historyAmounts.some((a) => !a.recycled && a.amount < 0)) {
         operations.push({ updateOne: { filter, update: { $unset: { missing: 1 } } } });
     }
 

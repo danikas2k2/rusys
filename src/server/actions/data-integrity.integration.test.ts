@@ -15,9 +15,12 @@ import {
     getProductHistory,
     getProductsAction,
     moveConsumedToRecycledAction,
+    redoProductAction,
     setAmountsAction,
+    setAmountsBatchAction,
     setProductRemovingAction,
     transferAmountsAction,
+    undoProductAction,
 } from '~/server/actions/products';
 import { getSummaryHistory, readProductConsumptionYears, readProductSummary } from '~/server/actions/summary';
 import {
@@ -147,6 +150,113 @@ describe('catalog integrity with MongoDB', () => {
             await expect(variantCollection().countDocuments({ group: source.group, variant: jar })).resolves.toBe(1);
         }
     );
+
+    it.each([
+        {
+            title: 'one removal exceeds the balance',
+            requested: [{ variant: jar, amount: -5, recycled: false }],
+            applied: [{ variant: jar, amount: -3, recycled: false }],
+        },
+        {
+            title: 'several removals share the available balance and a same-edit addition',
+            requested: [
+                { variant: jar, amount: -2, recycled: false },
+                { variant: jar, amount: -5, recycled: true },
+                { variant: jar, amount: 1 },
+                { variant: jar, amount: -1 },
+            ],
+            applied: [
+                { variant: jar, amount: -2, recycled: false },
+                { variant: jar, amount: -2, recycled: true },
+                { variant: jar, amount: 1 },
+            ],
+        },
+    ])('records the actual stock changes when $title', async ({ requested, applied }) => {
+        const products = productCollection();
+        const original = await products.findOne(source);
+        const remainingYears = original?.years?.filter(({ year }) => year !== stock.year);
+
+        await setAmountsAction({ ...stock, amounts: requested });
+
+        const saved = await products.findOne(source);
+
+        expect(saved?.years).toStrictEqual(remainingYears);
+        expect(saved?.updates).toHaveLength(1);
+        expect(saved?.updates?.[0].years).toStrictEqual([{ year: stock.year, amounts: applied }]);
+
+        await undoProductAction(stock);
+
+        const undone = await products.findOne(source);
+
+        expect(undone?.years).toStrictEqual(original?.years);
+        expect(undone?.updates).toStrictEqual([]);
+        expect(undone?.undates).toStrictEqual(saved?.updates);
+
+        await redoProductAction(stock);
+
+        await expect(products.findOne(source)).resolves.toStrictEqual(saved);
+    });
+
+    it.each([0, Date.UTC(2027, 0, 1)])('consumes duplicate rows for expiry %s as one batch', async (expiresAt) => {
+        const products = productCollection();
+        const otherBatch = { variant: jar, amount: 4, expiresAt: expiresAt + 1000 };
+        await products.updateOne(source, {
+            $set: {
+                years: [
+                    {
+                        year: stock.year,
+                        amounts: [
+                            { variant: jar, amount: 1, expiresAt },
+                            { variant: jar, amount: 2, expiresAt },
+                            otherBatch,
+                        ],
+                    },
+                ],
+            },
+        });
+
+        await setAmountsAction({ ...stock, amounts: [{ variant: jar, amount: -5, expiresAt }] });
+
+        const saved = await products.findOne(source);
+
+        expect(saved?.years).toStrictEqual([{ year: stock.year, amounts: [otherBatch] }]);
+        expect(saved?.updates?.[0].years).toStrictEqual([
+            { year: stock.year, amounts: [{ variant: jar, amount: -3, expiresAt }] },
+        ]);
+
+        await undoProductAction(stock);
+
+        const undone = await products.findOne(source);
+
+        expect(undone?.years).toStrictEqual([
+            { year: stock.year, amounts: [otherBatch, { variant: jar, amount: 3, expiresAt }] },
+        ]);
+
+        await redoProductAction(stock);
+
+        await expect(products.findOne(source)).resolves.toStrictEqual(saved);
+    });
+
+    it('keeps the stock and history intact when there is nothing to remove from a batch', async () => {
+        const before = await catalog();
+
+        await expect(
+            setAmountsAction({ ...stock, amounts: [{ variant: jar, amount: -5, home: true, recycled: false }] })
+        ).rejects.toThrow(SchemaError.RequestFailed);
+        await expect(catalog()).resolves.toStrictEqual(before);
+    });
+
+    it('rolls back a multi-year edit when a later change cannot remove any stock', async () => {
+        const before = await catalog();
+
+        await expect(
+            setAmountsBatchAction([
+                { ...stock, amounts: [{ variant: jar, amount: -5 }] },
+                { ...stock, year: stock.year - 1, amounts: [{ variant: largeJar, amount: -5 }] },
+            ])
+        ).rejects.toThrow(SchemaError.RequestFailed);
+        await expect(catalog()).resolves.toStrictEqual(before);
+    });
 
     it('leaves stock and variants untouched when a transfer exceeds the balance', async () => {
         const before = await catalog();

@@ -367,10 +367,10 @@ describe('amounts', () => {
             ]);
         });
 
-        it('does not store expiresAt:0 on a new entry (falsy)', () => {
+        it('preserves expiresAt:0 on a new entry to keep its batch identity', () => {
             const result = addVariantAmount([], { variant: 'p', amount: 1, expiresAt: 0 });
 
-            expect(result[0]).not.toHaveProperty('expiresAt');
+            expect(result[0]).toHaveProperty('expiresAt', 0);
         });
     });
 
