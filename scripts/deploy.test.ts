@@ -118,7 +118,8 @@ describe('deploy previous slot cleanup', () => {
         failAlloyValidation = false,
         failNginxValidation = false,
         failMongoAuthorizationCheck = 0,
-        missingMongoSecret = false
+        missingMongoSecret = false,
+        failCatalogReadiness = false
     ) {
         const scripts: string[] = [];
         vi.mocked(execFileSync).mockImplementation((file, _args, options) => {
@@ -151,6 +152,9 @@ describe('deploy previous slot cleanup', () => {
             if (script.includes('.State.Health.Status')) {
                 return 'healthy';
             }
+            if (script.includes('/api/health/ready') && failCatalogReadiness) {
+                throw new Error('Candidate could not read groups');
+            }
             if (script.includes('printf blue') && script.includes('printf green')) {
                 return 'blue';
             }
@@ -171,6 +175,65 @@ describe('deploy previous slot cleanup', () => {
     function deployment() {
         return deploy({ serverUser: 'deploy', serverHost: 'example.test', remotePath: '/srv/rusys' }).closeBundle();
     }
+
+    it('checks the candidate catalog over loopback before switching traffic', async () => {
+        const scripts = mockRemote();
+
+        await deployment();
+
+        const start = scripts.findIndex((script) => script.includes('--force-recreate rusys-app-green'));
+        const probe = scripts.findIndex((script) => script.includes('/api/health/ready'));
+        const switchConfig = scripts.findIndex((script) => script.includes('default.conf.next'));
+
+        expect(start).toBeGreaterThanOrEqual(0);
+        expect(probe).toBeGreaterThan(start);
+        expect(switchConfig).toBeGreaterThan(probe);
+        expect(scripts[probe]).toContain("docker exec 'rusys-app-green' node -e");
+        expect(scripts[probe]).toContain('127.0.0.1:3000/api/health/ready');
+    });
+
+    it.each([
+        { body: '{"status":"ready"}', status: 200, exitCode: 0 },
+        { body: '<html>Guest page</html>', status: 200, exitCode: 1 },
+        { body: '{"status":"ok"}', status: 200, exitCode: 1 },
+        { body: '{"status":"ready"}', status: 503, exitCode: 1 },
+    ])('uses readiness response $status $body as exit code $exitCode', async ({ body, status, exitCode }) => {
+        const scripts = mockRemote();
+
+        await deployment();
+
+        const probe = scripts.find((script) => script.includes("docker exec 'rusys-app-green' node -e"))!;
+        const command = probe.slice(probe.indexOf('node -e '), probe.indexOf(' >/dev/null'));
+        const bootstrap =
+            'globalThis.fetch = async () => new Response(process.env.RUSYS_TEST_PROBE_BODY, { status: Number(process.env.RUSYS_TEST_PROBE_STATUS) });';
+        const { spawnSync } = await vi.importActual<typeof childProcess>('node:child_process');
+        const result = spawnSync('sh', ['-c', command], {
+            env: {
+                ...process.env,
+                NODE_OPTIONS: `--import=data:text/javascript,${encodeURIComponent(bootstrap)}`,
+                RUSYS_TEST_PROBE_BODY: body,
+                RUSYS_TEST_PROBE_STATUS: String(status),
+            },
+        });
+
+        expect(result.status).toBe(exitCode);
+    });
+
+    it('leaves the active slot serving when the candidate cannot read the catalog', async () => {
+        const scripts = mockRemote('17\n19\n', false, 'green', true, false, false, 0, false, true);
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        vi.spyOn(process, 'exit').mockImplementation(() => {
+            throw new Error('Deployment exited');
+        });
+
+        await expect(deployment()).rejects.toThrow('Deployment exited');
+
+        expect(scripts.some((script) => script.includes('/api/health/ready'))).toBe(true);
+        expect(scripts.some((script) => script.includes('default.conf.next'))).toBe(false);
+        expect(scripts.some((script) => script.includes('nginx -s reload'))).toBe(false);
+        expect(scripts.some((script) => script.includes('stop rusys-app-blue'))).toBe(false);
+        expect(scripts.some((script) => script.includes('rmdir .deploy/deploy.lock'))).toBe(true);
+    });
 
     it('waits for pre-reload workers to exit before stopping the old slot', async () => {
         const scripts = mockRemote();

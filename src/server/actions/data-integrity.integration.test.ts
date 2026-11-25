@@ -8,6 +8,7 @@ import JSZip from 'jszip';
 import type { Db } from 'mongodb';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
 
+import { GET as readCatalogReadiness } from '~/app/api/health/ready/route';
 import { SchemaError, type Product, type Variant } from '~/schema';
 import { exportArchive, importArchive } from '~/server/actions/archive';
 import { renameGroupAction, updateGroupAction } from '~/server/actions/groups';
@@ -123,6 +124,19 @@ describe('catalog integrity with MongoDB', () => {
             )
         );
     }
+
+    it('reports readiness through the application connection with a populated or empty groups collection', async () => {
+        const populated = await readCatalogReadiness();
+
+        expect(populated.status).toBe(200);
+        await expect(populated.json()).resolves.toStrictEqual({ status: 'ready' });
+
+        await database.collection('groups').deleteMany({});
+        const empty = await readCatalogReadiness();
+
+        expect(empty.status).toBe(200);
+        await expect(empty.json()).resolves.toStrictEqual({ status: 'ready' });
+    });
 
     it.each([
         { targetGroup: source.group, targetName: 'Braškės', original: [] },
