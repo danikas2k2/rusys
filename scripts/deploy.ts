@@ -178,6 +178,28 @@ exit 1
     console.log(`✅ ${name} is healthy.`);
 }
 
+function waitCatalogReady(connection: Connection, slot: Slot) {
+    const container = `rusys-app-${slot}`;
+    const probe = `async function check() {
+    const response = await fetch('http://127.0.0.1:3000/api/health/ready', {
+        redirect: 'error',
+        signal: AbortSignal.timeout(5000)
+    });
+    process.exit(response.ok && (await response.json()).status === 'ready' ? 0 : 1);
+}
+check().catch(() => process.exit(1));`;
+
+    connection.remote(`attempt=0
+while test "$attempt" -lt 12; do
+    if docker exec ${shellQuote(container)} node -e ${shellQuote(probe)} >/dev/null 2>&1; then exit 0; fi
+    attempt=$((attempt + 1))
+    sleep 2
+done
+echo ${shellQuote(`${container} could not read the groups collection through the application.`)} >&2
+exit 1
+`);
+}
+
 function waitGateway(connection: Connection) {
     connection.remote(`attempt=0
 while test "$attempt" -lt 15; do
@@ -382,6 +404,7 @@ fi
                     `docker compose --env-file .env -f docker/compose.yaml up -d --no-deps --no-build --force-recreate rusys-app-${candidate}\n`
                 );
                 waitHealthy(connection, `rusys-app-${candidate}`);
+                waitCatalogReady(connection, candidate);
                 const previousWorkers = gatewayWorkerPids(connection);
                 switchTo(connection, candidate);
                 waitForGatewayWorkers(connection, previousWorkers);

@@ -91,9 +91,13 @@ the Compose `.env`, and a running `rusys-gateway`.
 pnpm deploy
 ```
 
-The command runs `pnpm check`, uploads the build sources, and builds the inactive slot. Nginx switches traffic after the
-candidate passes its health check. The previous container stops after the old Nginx workers exit. The drain timeout is
-six minutes. At timeout the deploy command reports failure and leaves the previous container running.
+The command runs `pnpm check`, uploads the build sources, and builds the inactive slot. Before switching traffic, it
+waits for the candidate's health check and calls its loopback readiness endpoint. The endpoint verifies that the
+application's MongoDB connection can read the `groups` collection. An empty collection passes the check. If readiness
+fails, traffic stays on the active slot. The gateway blocks access to the readiness endpoint.
+
+The previous container stops after the old Nginx workers exit. The drain timeout is six minutes. At timeout the deploy
+command reports failure and leaves the previous container running.
 
 ### Monitoring integrations
 

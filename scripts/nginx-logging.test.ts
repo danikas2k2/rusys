@@ -124,6 +124,12 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('real NGINX access logs', 
                 expect(gatewayPattern.test(value)).toBe(true);
                 expect(value).not.toMatch(/secret|token|session|cookie|Authorization|\?/i);
             }
+
+            for (const readinessPath of ['/api/health/ready', '/api/health/ready/']) {
+                const response = await fetch(`http://127.0.0.1:${port}${readinessPath}`);
+
+                expect(response.status).toBe(404);
+            }
         } finally {
             try {
                 docker('rm', '-f', name);
