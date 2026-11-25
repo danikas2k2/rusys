@@ -145,17 +145,24 @@ flowchart LR
     Data --> Zip[ZIP archive]
     ImageFiles --> Zip
     Zip --> Parse[Read imported archive]
-    Parse --> Validate[Validate catalog data]
-    Validate --> WriteImages[Write image files]
-    WriteImages --> Temp[Load catalog into temporary MongoDB database]
-    Temp --> Backup[Backup of current database]
-    Backup --> Replace[Move temporary data into main database]
+    Parse --> Validate[Validate and normalize catalog data]
+    Validate --> Replace[Replace catalog records in a MongoDB transaction]
+    Replace --> RestoreImages[Publish archive images at new paths]
+    RestoreImages --> Commit[Commit catalog replacement]
 ```
 
-`src/server/data/exportArchive.ts` defines the ZIP structure. Import validates the catalog data before writing image
-files, then replaces the catalog collections through temporary and backup databases. The filesystem writes and MongoDB
-collection replacement are separate operations. See [the import handler](../src/server/api/v1/imports/handleImport.ts)
-and [the collection replacement](../src/server/data/common.ts).
+The ZIP replaces records in the catalog collections `products`, `variants`, and `groups`. The transaction preserves
+their indexes along with sessions and user profiles. An empty list clears the corresponding catalog collection. If a
+collection write or image restore fails, MongoDB keeps the previous catalog. The upload and its decoded catalog and
+image entries each have a 200 MiB size limit.
+
+An import writes referenced images from the ZIP to new paths and updates their catalog references. Previous image files
+remain on disk, so repeated imports can increase storage usage. A failed import can leave unreferenced files if cleanup
+fails or the transaction fails after image publication.
+
+Concurrent imports are serialized. Schedule imports when users are not editing the catalog to avoid overlapping writes
+to related records. For operational recovery after a committed import, use a [Restic backup](BACKUP.md). The ZIP
+contains catalog data and available images. Restic covers the database and image directory.
 
 ## PWA and offline viewing
 

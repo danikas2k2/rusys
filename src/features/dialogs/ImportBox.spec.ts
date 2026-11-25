@@ -61,7 +61,7 @@ test.describe('import and export', { tag: '@critical' }, () => {
         );
         expect(await zip.file(`images/${imageUrl.slice('/images/'.length)}`)?.async('nodebuffer')).toEqual(png);
 
-        await db.dropDatabase();
+        await db.collection<Product>('products').deleteOne({ name: 'Avietės' });
         await rm(imagePath);
         await page.reload();
         await expect(productTile(page, 'Avietės')).toHaveCount(0);
@@ -75,9 +75,11 @@ test.describe('import and export', { tag: '@critical' }, () => {
         await page.reload();
         await expect(productTile(page, 'Avietės')).toBeVisible();
         expect(await db.collection<Product>('products').countDocuments({ name: 'Avietės' })).toBe(1);
-        expect((await db.collection<Product>('products').findOne({ name: 'Avietės' }))?.image).toBe(imageUrl);
-        expect(await readFile(imagePath)).toEqual(png);
-        const response = await page.request.get(imageUrl);
+        const restoredUrl = (await db.collection<Product>('products').findOne({ name: 'Avietės' }))!.image!;
+        expect(restoredUrl).toMatch(/^\/images\/[0-9a-f]{2}\/[0-9a-f]{2}\/[0-9a-f]{32}\.png$/);
+        expect(restoredUrl).not.toBe(imageUrl);
+        expect(await readFile(path.join(imagesDir, restoredUrl.slice('/images/'.length)))).toEqual(png);
+        const response = await page.request.get(restoredUrl);
         expect(response.status()).toBe(200);
         expect(await response.body()).toEqual(png);
     });

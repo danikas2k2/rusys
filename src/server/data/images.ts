@@ -22,7 +22,7 @@ const ICON_MAX_ASPECT = 1.33;
 
 // Shards files across 256*256 sub-directories by uid prefix (like a content-addressable store),
 // so a single directory never accumulates a huge, unbrowsable number of files.
-function shardedPath(uid: string, extension: string): string {
+export function shardedPath(uid: string, extension: string): string {
     return path.join(/*turbopackIgnore: true*/ uid.slice(0, 2), uid.slice(2, 4), `${uid}.${extension}`);
 }
 
@@ -66,7 +66,13 @@ export function resolveImagePath(url?: string): string | undefined {
     if (!url?.startsWith(`${IMAGES_URL_PATH}/`)) {
         return undefined;
     }
-    return path.join(/*turbopackIgnore: true*/ IMAGES_DIR, url.slice(IMAGES_URL_PATH.length + 1));
+    const relativePath = url.slice(IMAGES_URL_PATH.length + 1);
+    if (relativePath.includes('\\') || relativePath.split('/').some((part) => part.startsWith('.'))) {
+        return undefined;
+    }
+
+    const filePath = path.resolve(/*turbopackIgnore: true*/ IMAGES_DIR, relativePath);
+    return filePath.startsWith(IMAGES_DIR + path.sep) ? filePath : undefined;
 }
 
 export async function deleteImage(url?: string): Promise<void> {

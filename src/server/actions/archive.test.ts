@@ -3,11 +3,14 @@ import { SchemaError } from '~/schema';
 import { exportArchive, importArchive } from '~/server/actions/archive';
 import { runServerHandler } from '~/server/api/next';
 import { requireSession } from '~/server/auth/session';
-import { buildExportArchive } from '~/server/data/exportArchive';
+import { buildExportArchive } from '~/server/data/export';
 
 vi.mock(import('~/server/auth/session'));
 vi.mock(import('~/server/api/next'));
-vi.mock(import('~/server/data/exportArchive'));
+vi.mock(import('~/server/data/export'), async (original) => ({
+    ...(await original()),
+    buildExportArchive: vi.fn(),
+}));
 
 describe('importArchive', () => {
     afterEach(() => vi.clearAllMocks());
