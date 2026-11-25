@@ -8,8 +8,6 @@ import { SchemaError } from '~/schema';
 import {
     deleteGroupOccurrences,
     deleteVariantOccurrences,
-    exportEverything,
-    importEverything,
     moveProductOccurrences,
     renameGroupOccurrences,
     renameVariantOccurrences,
@@ -36,7 +34,6 @@ import {
     renameVariantsGroup,
 } from '~/server/data/variants';
 import { db, withinTransaction } from '~/server/db';
-import { fakeMethods } from '../../../vitest/fakeDb';
 
 vi.mock(import('~/server/db'));
 
@@ -797,98 +794,6 @@ describe('common', () => {
                 archivedAt: expect.any(Number),
             });
             await expect($all('products')).resolves.toStrictEqual(products);
-        });
-    });
-
-    describe('exportEverything', () => {
-        it('retrieves all products, groups, and variants', async () => {
-            const result = await withinTransaction((transactionSession) => exportEverything(transactionSession));
-
-            expect(result.products).toStrictEqual(products);
-            expect(result.groups).toStrictEqual(groups);
-            expect(result.variants).toStrictEqual(variants);
-        });
-
-        it('handles an empty database', async () => {
-            const d = await db();
-            await d.collection('products').deleteMany({});
-            await d.collection('variants').deleteMany({});
-            await d.collection('groups').deleteMany({});
-
-            const result = await withinTransaction((transactionSession) => exportEverything(transactionSession));
-
-            expect(result.products).toStrictEqual([]);
-            expect(result.groups).toStrictEqual([]);
-            expect(result.variants).toStrictEqual([]);
-        });
-    });
-
-    describe('importEverything', () => {
-        beforeEach(() =>
-            vi.useFakeTimers({ shouldAdvanceTime: true }).setSystemTime(Date.parse('2025-05-05T12:11:10.123Z'))
-        );
-
-        afterEach(() => vi.useRealTimers());
-
-        it('inserts data into the database and returns true', async () => {
-            await expect(importEverything(products, variants, groups)).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(products);
-            await expect($all('groups')).resolves.toStrictEqual(groups);
-            await expect($all('variants')).resolves.toStrictEqual(variants);
-        });
-
-        it('rejects if inserting fails', async () => {
-            vi.spyOn(fakeMethods, 'insertMany').mockRejectedValueOnce('Failed to insert many');
-
-            await expect(importEverything(products, variants, groups)).rejects.toBe('Failed to insert many');
-        });
-
-        it('rejects if inserting does nothing', async () => {
-            vi.spyOn(fakeMethods, 'insertMany').mockResolvedValueOnce({
-                acknowledged: true,
-                insertedCount: 0,
-                insertedIds: [],
-            });
-
-            await expect(importEverything(products, variants, groups)).rejects.toThrow(
-                'Failed to insert data into temporary database'
-            );
-        });
-
-        it('rejects if copying fails', async () => {
-            vi.spyOn(fakeMethods, 'aggregateToArray').mockRejectedValueOnce('Failed to aggregate');
-
-            await expect(importEverything(products, variants, groups)).rejects.toBe('Failed to aggregate');
-        });
-
-        it('rejects if copying does nothing', async () => {
-            vi.spyOn(fakeMethods, 'countDocuments').mockResolvedValueOnce(0);
-
-            await expect(importEverything(products, variants, groups)).rejects.toThrow(
-                'Failed to move original data to backup database'
-            );
-        });
-
-        it('rejects if drop database fails', async () => {
-            vi.spyOn(fakeMethods, 'dropDatabase').mockRejectedValueOnce('Failed to drop database');
-
-            await expect(importEverything(products, variants, groups)).rejects.toBe('Failed to drop database');
-        });
-
-        it('rejects if drop database does nothing', async () => {
-            vi.spyOn(fakeMethods, 'dropDatabase').mockResolvedValueOnce(false);
-
-            await expect(importEverything(products, variants, groups)).rejects.toThrow(
-                'Failed to move original data to backup database'
-            );
-        });
-
-        it('rejects if second drop database does nothing', async () => {
-            vi.spyOn(fakeMethods, 'dropDatabase').mockResolvedValueOnce(true).mockResolvedValueOnce(false);
-
-            await expect(importEverything(products, variants, groups)).rejects.toThrow(
-                'Failed to move data from temporary database to original database'
-            );
         });
     });
 });

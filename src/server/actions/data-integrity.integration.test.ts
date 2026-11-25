@@ -1,3 +1,7 @@
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import { createScenarioData, currentYear } from '@tests/fixtures/data';
 
 import JSZip from 'jszip';
@@ -5,10 +9,11 @@ import type { Db } from 'mongodb';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
 
 import { SchemaError, type Product, type Variant } from '~/schema';
-import { importArchive } from '~/server/actions/archive';
+import { exportArchive, importArchive } from '~/server/actions/archive';
 import { renameGroupAction, updateGroupAction } from '~/server/actions/groups';
 import {
     getProductHistory,
+    getProductsAction,
     moveConsumedToRecycledAction,
     setAmountsAction,
     setProductRemovingAction,
@@ -23,10 +28,19 @@ import {
     reorderVariantsAction,
     updateVariantAction,
 } from '~/server/actions/variants';
+import { importEverything } from '~/server/data/import';
 import { $clients, $dbs, db } from '~/server/db';
 
 vi.mock(import('~/server/auth/session'), () => ({
     requireSession: async () => ({ email: 'integration@example.test' }),
+}));
+
+const { imageDirectory } = vi.hoisted(() => ({ imageDirectory: { path: '' } }));
+vi.mock(import('~/server/data/images'), async (original) => ({
+    ...(await original()),
+    get IMAGES_DIR() {
+        return imageDirectory.path;
+    },
 }));
 
 const source = { group: 'Uogienės', name: 'Avietės' };
@@ -49,6 +63,7 @@ describe('catalog integrity with MongoDB', () => {
         vi.stubEnv('DB', uri);
         vi.stubEnv('DB_NAME', dbName);
         database = await db();
+        imageDirectory.path = await mkdtemp(path.join(tmpdir(), 'rusys-import-test-'));
     }, 120_000);
 
     beforeEach(async () => {
@@ -79,6 +94,9 @@ describe('catalog integrity with MongoDB', () => {
         } finally {
             vi.unstubAllEnvs();
             await mongo?.stop();
+            if (imageDirectory.path) {
+                await rm(imageDirectory.path, { recursive: true, force: true });
+            }
         }
     });
 
@@ -341,6 +359,223 @@ describe('catalog integrity with MongoDB', () => {
                 { variant: jar, amount, recycled: false },
             ]);
             expect((await getSummaryHistory(identity)).updates.map((entry) => entry.comment)).toStrictEqual([comment]);
+        }
+    });
+
+    function uploadArchive(bytes: Uint8Array) {
+        const data = new FormData();
+        data.set('import', new File([Uint8Array.from(bytes)], 'catalog.zip', { type: 'application/zip' }));
+        return importArchive(data);
+    }
+
+    async function importCatalog(documents: unknown, images: Record<string, string> = {}) {
+        const zip = new JSZip().file('data.json', JSON.stringify(documents));
+        for (const [relativePath, content] of Object.entries(images)) {
+            zip.file(`images/${relativePath}`, content);
+        }
+        return uploadArchive(await zip.generateAsync({ type: 'uint8array' }));
+    }
+
+    it('restores an export over existing data and preserves sessions, profiles, and catalog indexes', async () => {
+        const indexes = await Promise.all(
+            ['products', 'variants', 'groups'].map((name) => database.collection(name).indexes())
+        );
+        const profile = { email: 'archive-preserved@example.test' };
+        const activeSession = { tokenHash: 'archive-preserved', expiresAt: new Date(Date.now() + 60_000) };
+        await database.collection('user_profiles').insertOne(profile);
+        await database.collection('sessions').insertOne(activeSession);
+        try {
+            await productCollection().updateOne(source, {
+                $set: {
+                    expiryToleranceDays: 14,
+                    years: [{ year: currentYear, amounts: [{ variant: jar, amount: 2.5 }] }],
+                },
+            });
+            const exported = Buffer.from(await exportArchive(), 'base64');
+            await productCollection().insertOne({ group: source.group, name: 'Added after export' });
+
+            await expect(uploadArchive(exported)).resolves.toBeUndefined();
+            expect((await getProductsAction()).products).toContainEqual(
+                expect.objectContaining({
+                    ...source,
+                    expiryToleranceDays: 14,
+                    years: [{ year: currentYear, amounts: [{ variant: jar, amount: 2.5 }] }],
+                })
+            );
+            await expect(productCollection().countDocuments({ name: 'Added after export' })).resolves.toBe(0);
+            await expect(
+                database.collection('sessions').findOne({ tokenHash: activeSession.tokenHash })
+            ).resolves.toStrictEqual(expect.objectContaining(activeSession));
+            await expect(database.collection('user_profiles').findOne({ email: profile.email })).resolves.toStrictEqual(
+                expect.objectContaining(profile)
+            );
+            await expect(
+                Promise.all(['products', 'variants', 'groups'].map((name) => database.collection(name).indexes()))
+            ).resolves.toStrictEqual(indexes);
+        } finally {
+            await database.collection('sessions').deleteOne({ tokenHash: activeSession.tokenHash });
+            await database.collection('user_profiles').deleteOne({ email: profile.email });
+        }
+    });
+
+    it('can replace the catalog with empty collections', async () => {
+        await expect(importCatalog({ products: [], variants: [], groups: [] })).resolves.toBeUndefined();
+
+        await expect(catalog()).resolves.toStrictEqual([[], [], []]);
+    });
+
+    it('keeps concurrent imports separate even when starting from an empty catalog', async () => {
+        await importEverything({ products: [], variants: [], groups: [] }, async () => {});
+        const firstReady = Promise.withResolvers<void>();
+        const releaseFirst = Promise.withResolvers<void>();
+        const documents = (group: string) => ({
+            products: [{ group, name: 'Product' }],
+            variants: [{ group, variant: 'Variant', order: 0 }],
+            groups: [{ group, order: 0 }],
+        });
+        const first = importEverything(documents('First'), async () => {
+            firstReady.resolve();
+            await releaseFirst.promise;
+        });
+        try {
+            await Promise.race([firstReady.promise, first]);
+
+            await expect(catalog()).resolves.toStrictEqual([[], [], []]);
+
+            const second = importEverything(documents('Second'), async () => {});
+            releaseFirst.resolve();
+            await Promise.all([first, second]);
+
+            await expect(catalog()).resolves.toStrictEqual([
+                [expect.objectContaining({ group: 'Second', order: 0 })],
+                [expect.objectContaining({ group: 'Second', variant: 'Variant', order: 0 })],
+                [expect.objectContaining({ group: 'Second', name: 'Product' })],
+            ]);
+        } finally {
+            releaseFirst.resolve();
+            await first;
+        }
+    });
+
+    it('reads an imported legacy product with null history years and stock amounts', async () => {
+        const time = '2026-09-01T00:00:00Z';
+
+        await expect(
+            importCatalog({
+                groups: [{ group: source.group, order: 0 }],
+                variants: [],
+                products: [
+                    {
+                        ...source,
+                        years: [{ year: currentYear, amounts: null }],
+                        updates: [{ time, years: null }],
+                        undates: [{ time, years: null }],
+                    },
+                ],
+            })
+        ).resolves.toBeUndefined();
+
+        expect((await getProductsAction()).products).toStrictEqual([
+            expect.objectContaining({
+                ...source,
+                years: [{ year: currentYear, amounts: [] }],
+                updates: [{ time: Date.parse(time), years: [] }],
+                undates: [{ time: Date.parse(time), years: [] }],
+            }),
+        ]);
+    });
+
+    it('rolls back earlier collection writes when the last collection violates a unique index', async () => {
+        const before = await catalog();
+        const image = 'ab/cd/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png';
+        const filesBefore = await readdir(imageDirectory.path, { recursive: true });
+
+        await expect(
+            importCatalog(
+                {
+                    products: [{ group: 'New', name: 'New product', image: `/images/${image}` }],
+                    variants: [{ group: 'New', variant: 'New variant', order: 0 }],
+                    groups: [
+                        { group: 'New', order: 0 },
+                        { group: 'New', order: 1 },
+                    ],
+                },
+                { [image]: 'not published' }
+            )
+        ).resolves.toBe(SchemaError.ImportFailed);
+
+        await expect(catalog()).resolves.toStrictEqual(before);
+        await expect(readdir(imageDirectory.path, { recursive: true })).resolves.toStrictEqual(filesBefore);
+    });
+
+    it('restores images at new paths and rewrites every catalog reference to the same archived image', async () => {
+        const image = 'ab/cd/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.png';
+        const unreferenced = 'ab/cd/dddddddddddddddddddddddddddddddd.png';
+        const archiveUrl = `/images/${image}`;
+        const oldPath = path.join(imageDirectory.path, image);
+        await mkdir(path.dirname(oldPath), { recursive: true });
+        await writeFile(oldPath, 'existing image');
+        const archived = {
+            products: [
+                {
+                    ...source,
+                    image: archiveUrl,
+                    photo: archiveUrl,
+                    variantImages: { [jar]: archiveUrl },
+                    variantPhotos: { [jar]: archiveUrl },
+                },
+            ],
+            groups: [{ group: source.group, order: 0, image: archiveUrl, photo: archiveUrl }],
+            variants: [],
+        };
+
+        const filesBefore = (await readdir(imageDirectory.path, { recursive: true })).filter((file) =>
+            file.endsWith('.png')
+        );
+
+        await expect(
+            importCatalog(archived, { [image]: 'archive image', [unreferenced]: 'unused' })
+        ).resolves.toBeUndefined();
+
+        const restored = await productCollection().findOne(source);
+        const url = restored?.image;
+
+        expect(url).toMatch(/^\/images\/[0-9a-f]{2}\/[0-9a-f]{2}\/[0-9a-f]{32}\.png$/);
+        expect(url).not.toBe(archiveUrl);
+        expect(restored).toMatchObject({ photo: url, variantImages: { [jar]: url }, variantPhotos: { [jar]: url } });
+        await expect(database.collection('groups').findOne({ group: source.group })).resolves.toMatchObject({
+            image: url,
+            photo: url,
+        });
+        await expect(readFile(path.join(imageDirectory.path, url!.slice('/images/'.length)), 'utf8')).resolves.toBe(
+            'archive image'
+        );
+        await expect(readFile(oldPath, 'utf8')).resolves.toBe('existing image');
+
+        const filesAfter = (await readdir(imageDirectory.path, { recursive: true })).filter((file) =>
+            file.endsWith('.png')
+        );
+
+        expect(filesAfter).toHaveLength(filesBefore.length + 1);
+    });
+
+    it('keeps the catalog intact when image storage cannot be written', async () => {
+        const before = await catalog();
+        const root = imageDirectory.path;
+        imageDirectory.path = path.join(root, 'blocked');
+        await writeFile(imageDirectory.path, 'blocks image writes');
+        const image = 'ab/cd/cccccccccccccccccccccccccccccccc.png';
+        try {
+            await expect(
+                importCatalog(
+                    { products: [{ ...source, image: `/images/${image}` }], groups: [], variants: [] },
+                    { [image]: 'archive image' }
+                )
+            ).resolves.toBe(SchemaError.ImportFailed);
+
+            await expect(catalog()).resolves.toStrictEqual(before);
+        } finally {
+            imageDirectory.path = root;
         }
     });
 

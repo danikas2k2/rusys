@@ -1,12 +1,16 @@
+import { MongoServerError } from 'mongodb';
 import { NextRequest } from 'next/server';
 
 import { runApiHandler } from '~/server/api/next';
 import { handleImport } from '~/server/api/v1/imports/handleImport';
-import { importEverything } from '~/server/data/common';
-import { readImportArchive, writeImportImages } from '~/server/data/exportArchive';
+import { importEverything, readImportArchive, writeImportImages } from '~/server/data/import';
 
-vi.mock(import('~/server/data/common'), () => ({ importEverything: vi.fn() }));
-vi.mock(import('~/server/data/exportArchive'), () => ({ readImportArchive: vi.fn(), writeImportImages: vi.fn() }));
+vi.mock(import('~/server/data/import'), async (original) => ({
+    ...(await original()),
+    importEverything: vi.fn(),
+    readImportArchive: vi.fn(),
+    writeImportImages: vi.fn(),
+}));
 
 async function upload(withFile = true) {
     const form = new FormData();
@@ -18,18 +22,26 @@ async function upload(withFile = true) {
 }
 
 describe('handleImport', () => {
+    const image = 'ab/cd/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png';
     const data = {
-        products: [{ group: 'Uogienės', name: 'Avietės', updates: [{ time: '2026-09-01T00:00:00.000Z', years: [] }] }],
+        products: [
+            {
+                group: 'Uogienės',
+                name: 'Avietės',
+                image: `/images/${image}`,
+                updates: [{ time: '2026-09-01T00:00:00.000Z', years: [] }],
+            },
+        ],
         variants: [],
         groups: [],
     };
-    const images = [{ relativePath: 'ab/cd/image.png', content: Buffer.from('image') }];
+    const images = [{ relativePath: image, content: Buffer.from('image') }];
 
     beforeEach(() => {
         vi.clearAllMocks();
         vi.mocked(readImportArchive).mockResolvedValue({ data, images });
         vi.mocked(writeImportImages).mockResolvedValue(undefined);
-        vi.mocked(importEverything).mockResolvedValue(true);
+        vi.mocked(importEverything).mockImplementation(async (_data, restoreImages) => restoreImages());
     });
 
     it('requires an import file', async () => {
@@ -43,7 +55,7 @@ describe('handleImport', () => {
         { ...data, products: [{ group: 'A', name: 'P', updates: [{ time: 0 }] }] },
         {
             ...data,
-            products: [{ group: 'A', name: 'P', years: [{ year: 0, amounts: [{ variant: 'v', amount: 0.5 }] }] }],
+            products: [{ group: 'A', name: 'P', years: [{ year: 0, amounts: [{ variant: 'v', amount: '0.5' }] }] }],
         },
     ])('validates real archive content before writing any images or data: %j', async (invalidData) => {
         vi.mocked(readImportArchive).mockResolvedValueOnce({ data: invalidData, images });
@@ -70,7 +82,7 @@ describe('handleImport', () => {
         }
     );
 
-    it('preserves legacy nulls, image-check metadata, and undo timestamp strings while converting update times', async () => {
+    it('normalizes legacy history while preserving image-check metadata and names', async () => {
         const legacyProduct = {
             group: ' A: ',
             name: '',
@@ -93,12 +105,20 @@ describe('handleImport', () => {
 
         expect((await upload()).status).toBe(204);
         expect(importEverything).toHaveBeenCalledWith(
-            [
-                { ...legacyProduct, updates: [{ time: Date.parse('2026-09-01T00:00:00Z'), years: null }] },
-                { group: '', name: '', updates: undefined, undates: null },
-            ],
-            variants,
-            []
+            {
+                products: [
+                    {
+                        ...legacyProduct,
+                        years: undefined,
+                        updates: [{ time: Date.parse('2026-09-01T00:00:00Z'), years: [] }],
+                        undates: [{ time: Date.parse('2026-08-01T00:00:00Z'), years: [] }],
+                    },
+                    { group: '', name: '', updates: undefined, undates: undefined },
+                ],
+                variants,
+                groups: [],
+            },
+            expect.any(Function)
         );
     });
 
@@ -107,24 +127,32 @@ describe('handleImport', () => {
 
         expect(response.status).toBe(204);
         expect(readImportArchive).toHaveBeenCalledWith(Buffer.from('archive'));
-        expect(writeImportImages).toHaveBeenCalledWith(images);
+        expect(writeImportImages).toHaveBeenCalledWith([expect.objectContaining({ content: images[0].content })]);
         expect(importEverything).toHaveBeenCalledWith(
-            [
-                {
-                    group: 'Uogienės',
-                    name: 'Avietės',
-                    updates: [{ time: Date.parse('2026-09-01T00:00:00.000Z'), years: [] }],
-                },
-            ],
-            [],
-            []
+            {
+                products: [
+                    {
+                        group: 'Uogien\u0117s',
+                        name: 'Aviet\u0117s',
+                        image: expect.stringMatching(/^\/images\//),
+                        updates: [{ time: Date.parse('2026-09-01T00:00:00.000Z'), years: [] }],
+                    },
+                ],
+                variants: [],
+                groups: [],
+            },
+            expect.any(Function)
         );
     });
 
-    it('reports a rejected import and an unreadable archive', async () => {
-        vi.mocked(importEverything).mockResolvedValueOnce(false);
+    it('distinguishes duplicate records, storage failures, and unreadable ZIPs', async () => {
+        vi.mocked(importEverything).mockRejectedValueOnce(new MongoServerError({ code: 11000, message: 'duplicate' }));
 
         expect((await upload()).status).toBe(422);
+
+        vi.mocked(importEverything).mockRejectedValueOnce(new Error('Transaction failed'));
+
+        expect((await upload()).status).toBe(500);
 
         vi.mocked(readImportArchive).mockRejectedValueOnce(new Error('Invalid ZIP'));
         const response = await upload();

@@ -38,7 +38,7 @@ describe('serializedArchiveDataSchema', () => {
         }
     });
 
-    it('preserves legacy fields while converting product update times', () => {
+    it('preserves legacy metadata while normalizing nullable fields and timestamps', () => {
         const data = {
             products: [
                 {
@@ -70,23 +70,39 @@ describe('serializedArchiveDataSchema', () => {
             products: [
                 {
                     ...data.products[0],
-                    updates: [
-                        { ...update, time: Date.parse(update.time) },
-                        { time: -1, years: null, user: '', comment: '' },
+                    years: [
+                        {
+                            ...stockYear,
+                            amounts: [{ ...row, suspicious: undefined, home: undefined, expiresAt: undefined }],
+                        },
+                        { year: 0, amounts: [] },
+                        { year: 1, amounts: [] },
                     ],
+                    updates: [
+                        {
+                            time: Date.parse(update.time),
+                            years: [
+                                {
+                                    ...historyYear,
+                                    amounts: [{ ...row, suspicious: undefined, home: undefined, expiresAt: undefined }],
+                                },
+                            ],
+                        },
+                        { time: -1, years: [], user: '', comment: '' },
+                    ],
+                    undates: [{ time: Date.parse(update.time), years: [] }],
                 },
-                { ...data.products[1], updates: undefined },
+                { ...data.products[1], years: undefined, updates: undefined, undates: undefined },
             ],
         });
         expect(serializedArchiveDataSchema.parse(emptyArchive)).toStrictEqual(emptyArchive);
     });
 
-    it('converts ISO and numeric update times without mutating input or converting undo entries', () => {
+    it('converts ISO and numeric update times and undo times without mutating input', () => {
         const data = withProduct({
             updates: [
                 { time: '2026-09-01T00:00:00Z', years: null },
                 { time: 123, years: [] },
-                { time: '2026-99-99T99:99:99Z', years: null },
             ],
             undates: [{ time: '2026-08-01T00:00:00Z', years: null }],
         });
@@ -94,11 +110,10 @@ describe('serializedArchiveDataSchema', () => {
         const parsed = serializedArchiveDataSchema.parse(data);
 
         expect(parsed.products[0].updates).toStrictEqual([
-            { time: Date.parse('2026-09-01T00:00:00Z'), years: null },
+            { time: Date.parse('2026-09-01T00:00:00Z'), years: [] },
             { time: 123, years: [] },
-            { time: NaN, years: null },
         ]);
-        expect(parsed.products[0].undates).toStrictEqual([{ time: '2026-08-01T00:00:00Z', years: null }]);
+        expect(parsed.products[0].undates).toStrictEqual([{ time: Date.parse('2026-08-01T00:00:00Z'), years: [] }]);
         expect(data).toStrictEqual(original);
     });
 
@@ -110,7 +125,6 @@ describe('serializedArchiveDataSchema', () => {
     ])('returns the prior importer update shape for %j', (fields, expected) => {
         const parsed = serializedArchiveDataSchema.parse(withProduct(fields));
 
-        expect(Object.hasOwn(parsed.products[0], 'updates')).toBe(true);
         expect(parsed.products[0].updates).toStrictEqual(expected);
     });
 
@@ -160,8 +174,7 @@ describe('serializedArchiveDataSchema', () => {
 
     it.each([
         withProduct({ years: [{ year: 0.5 }] }),
-        withProduct({ years: [{ year: 0, amounts: [{ variant: 'v', amount: 0.5 }] }] }),
-        withProduct({ years: [{ year: 0, amounts: [{ ...row, expiresAt: 0.5 }] }] }),
+        withProduct({ years: [{ year: 0, amounts: [{ variant: 'v', amount: '0.5' }] }] }),
         withProduct({ archivedAt: 0.5 }),
         withProduct({ updates: [{ time: 0.5, years: null }] }),
         { ...emptyArchive, groups: [{ group: 'A', order: 0.5 }] },
@@ -186,7 +199,7 @@ describe('serializedArchiveDataSchema', () => {
                         archivedAt: value,
                         updates: [
                             {
-                                time: value,
+                                time: 0,
                                 years: [{ year: value, amounts: [{ variant: '', amount: value, expiresAt: value }] }],
                             },
                         ],
@@ -200,25 +213,27 @@ describe('serializedArchiveDataSchema', () => {
         }
     );
 
-    it.each([
-        '2026-09-01T00:00:00Z',
-        '2026-09-01T00:00:00.123+02:00',
-        '2026-09-01T00:00:00-05:30',
-        '2026-99-99T99:99:99Z',
-    ])('preserves the ISO-shaped timestamp acceptance rule: %s', (time) => {
-        expect(serializedArchiveDataSchema.safeParse(withProduct({ updates: [{ time, years: null }] })).success).toBe(
-            true
-        );
-    });
-
-    it.each(['2026-09-01', '2026-09-01T00:00:00', '2026-09-01t00:00:00z', '2026-09-01T00:00Z', 'yesterday'])(
-        'rejects timestamps outside the legacy ISO regex: %s',
+    it.each(['2026-09-01T00:00:00Z', '2026-09-01T00:00:00.123+02:00', '2026-09-01T00:00:00-05:30'])(
+        'accepts legacy ISO timestamps: %s',
         (time) => {
             expect(
-                serializedArchiveDataSchema.safeParse(withProduct({ undates: [{ time, years: null }] })).success
-            ).toBe(false);
+                serializedArchiveDataSchema.safeParse(withProduct({ updates: [{ time, years: null }] })).success
+            ).toBe(true);
         }
     );
+
+    it.each([
+        '2026-09-01',
+        '2026-09-01T00:00:00',
+        '2026-09-01t00:00:00z',
+        '2026-09-01T00:00Z',
+        '2026-99-99T99:99:99Z',
+        'yesterday',
+    ])('rejects unsupported or invalid legacy timestamp strings: %s', (time) => {
+        expect(serializedArchiveDataSchema.safeParse(withProduct({ undates: [{ time, years: null }] })).success).toBe(
+            false
+        );
+    });
 
     it.each([
         withProduct({ parent: null }),
@@ -229,9 +244,9 @@ describe('serializedArchiveDataSchema', () => {
         withProduct({ variantImagesChecked: { v: 1 } }),
         withProduct({ years: [{ year: 0, amounts: [{ ...row, recycled: null }] }] }),
         withProduct({ years: [{ year: 0, amounts: [{ ...row, home: 1 }] }] }),
-        withProduct({ expiryToleranceDays: 0 }),
+        withProduct({ expiryToleranceDays: '14' }),
         { ...emptyArchive, variants: [{ group: '', variant: '', order: 0, used: true }] },
-    ])('rejects invalid legacy flags/maps and modern-only fields: %j', (data) => {
+    ])('rejects invalid legacy flags, maps, and known fields: %j', (data) => {
         expect(serializedArchiveDataSchema.safeParse(data).success).toBe(false);
     });
 });

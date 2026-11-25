@@ -165,6 +165,13 @@ describe('images', () => {
         it('returns undefined for an empty string', () => {
             expect(resolveImagePath('')).toBeUndefined();
         });
+
+        it.each(['/images/../outside.png', '/images/.pending/hidden.png', '/images//outside.png', '/images/'])(
+            'does not resolve %s as an image file',
+            (url) => {
+                expect(resolveImagePath(url)).toBeUndefined();
+            }
+        );
     });
 
     describe('classifyImage', () => {

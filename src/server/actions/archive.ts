@@ -6,8 +6,7 @@ import { importArchiveSchema, SchemaError, type ImportArchive } from '~/schema';
 import { runServerHandler } from '~/server/api/next';
 import { handleImport } from '~/server/api/v1/imports/handleImport';
 import { requireSession } from '~/server/auth/session';
-import { exportEverything } from '~/server/data/common';
-import { buildExportArchive } from '~/server/data/exportArchive';
+import { buildExportArchive, exportEverything } from '~/server/data/export';
 import { withinTransaction } from '~/server/db';
 
 export async function importArchive(data: ImportArchive): Promise<string | undefined> {

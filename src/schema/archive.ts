@@ -20,26 +20,35 @@ export type ExportArchiveData = z.infer<typeof exportArchiveDataSchema>;
 /** Legacy JSON integers may exceed the safe-integer range; preserve the former JSON Schema integer semantics. */
 const archiveInteger = z.number().refine(Number.isInteger);
 
-/** Legacy audit time accepts integer milliseconds or the original ISO-shaped string, without calendar validation. */
-const archiveTime = z.union([
-    archiveInteger,
-    z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/),
-]);
+/** Accept legacy ISO timestamps and normalize both history lists to epoch milliseconds. */
+const archiveTime = z
+    .union([archiveInteger, z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/)])
+    .transform((time) => new Date(time).getTime())
+    .pipe(z.number());
 
-/** Legacy stock row: quantities are integers; older exports may contain explicit null metadata flags. */
+function optionalLegacyValue<T extends z.ZodType>(
+    schema: T
+): z.ZodType<z.output<T> | undefined, z.input<T> | null | undefined> {
+    return schema.nullish().transform((value) => value ?? undefined);
+}
+
+/** Older exports may contain explicit null metadata flags. */
 const archiveAmount = z.strictObject({
     variant: z.string(),
-    amount: archiveInteger,
+    amount: z.number(),
     recycled: z.boolean().optional(),
-    suspicious: z.boolean().nullable().optional(),
-    home: z.boolean().nullable().optional(),
-    expiresAt: archiveInteger.nullable().optional(),
+    suspicious: optionalLegacyValue(z.boolean()),
+    home: optionalLegacyValue(z.boolean()),
+    expiresAt: optionalLegacyValue(z.number()),
 });
 
 /** History year with optional/nullable amount rows; year values have no calendar-year lower bound. */
 const archiveHistoryYear = z.strictObject({
     year: archiveInteger,
-    amounts: z.array(archiveAmount).nullable().optional(),
+    amounts: z
+        .array(archiveAmount)
+        .nullish()
+        .transform((value) => value ?? []),
 });
 
 /** Current stock years additionally permit the optional removing flag, which history year rows do not accept. */
@@ -50,8 +59,11 @@ const archiveUpdate = z.strictObject({
     time: archiveTime,
     user: z.string().optional(),
     comment: z.string().optional(),
-    recycleSource: z.strictObject({ time: archiveInteger, user: z.string().optional() }).optional(),
-    years: z.array(archiveHistoryYear).nullable(),
+    recycleSource: z.strictObject({ time: archiveTime, user: z.string().optional() }).optional(),
+    years: z
+        .array(archiveHistoryYear)
+        .nullable()
+        .transform((value) => value ?? []),
 });
 
 /** Validate every own JSON map value, including __proto__, without dropping keys or transforming the map. */
@@ -77,9 +89,10 @@ const archiveProduct = z.strictObject({
     group: z.string(),
     name: z.string(),
     parent: z.string().optional(),
-    years: z.array(archiveStockYear).nullable().optional(),
-    updates: z.array(archiveUpdate).nullable().optional(),
-    undates: z.array(archiveUpdate).nullable().optional(),
+    expiryToleranceDays: archiveInteger.optional(),
+    years: optionalLegacyValue(z.array(archiveStockYear)),
+    updates: optionalLegacyValue(z.array(archiveUpdate)),
+    undates: optionalLegacyValue(z.array(archiveUpdate)),
     missing: z.boolean().optional(),
     image: z.string().optional(),
     photo: z.string().optional(),
@@ -113,30 +126,15 @@ const archiveVariant = z.strictObject({
 });
 
 /**
- * Legacy data.json import contract: all three arrays are required, empty arrays are valid, and unknown fields
- * are rejected at every fixed-shape object level. Names and legacy metadata remain verbatim.
- * After validation, product update times become milliseconds; missing/null updates become undefined.
- * Undo history is preserved. ISO-shaped invalid dates retain the importer's previous NaN conversion behavior.
+ * Accepts current exports and legacy data.json archives. Names and legacy metadata remain verbatim.
+ * History dates and nullable lists are normalized for current catalog readers.
  */
-export const serializedArchiveDataSchema = z
-    .strictObject({
-        products: z.array(archiveProduct),
-        groups: z.array(archiveGroup),
-        variants: z.array(archiveVariant),
-    })
-    .transform((data) => ({
-        ...data,
-        products: data.products.map((product) => ({
-            ...product,
-            updates: product.updates?.map((update) => ({
-                ...update,
-                time: new Date(update.time).getTime(),
-            })),
-        })),
-    }));
-/** Legacy wire input before update timestamp conversion; separate from modern application model types. */
+export const serializedArchiveDataSchema = z.strictObject({
+    products: z.array(archiveProduct),
+    groups: z.array(archiveGroup),
+    variants: z.array(archiveVariant),
+});
 export type SerializedArchiveInput = z.input<typeof serializedArchiveDataSchema>;
-/** Validated import payload ready for persistence, with product update timestamps already converted. */
 export type SerializedArchiveData = z.output<typeof serializedArchiveDataSchema>;
 
 /**
